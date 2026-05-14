@@ -9,9 +9,20 @@ use Illuminate\Support\Facades\DB;
 
 class MotorTypeController extends Controller
 {
-    public function create()
+    public function index(Request $request)
     {
-        return view('master.motor-type.create');
+        $search = $request->input('search');
+        
+        $query = MotorType::with('colors');
+
+        if ($search) {
+            $query->where('kode_type', 'like', "%{$search}%")
+                  ->orWhere('nama_type', 'like', "%{$search}%");
+        }
+
+        $motorTypes = $query->latest()->paginate(10)->withQueryString();
+
+        return view('master.motor-type.index', compact('motorTypes'));
     }
 
     public function store(Request $request)
@@ -41,5 +52,13 @@ class MotorTypeController extends Controller
         });
 
         return back()->with('success', 'Data Tipe Motor & Warna berhasil disimpan!');
+    }
+
+    public function destroy($id)
+    {
+        $motorType = MotorType::findOrFail($id);
+        $motorType->delete();
+
+        return back()->with('success', 'Data berhasil dihapus!');
     }
 }

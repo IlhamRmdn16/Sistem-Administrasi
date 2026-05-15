@@ -9,7 +9,7 @@
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
                 Master Data Leasing
             </h2>
-            <p class="text-sm text-gray-500 mt-1 ml-4">Kelola daftar perusahaan pembiayaan (leasing) dan kontak PIC terkait.</p>
+            <p class="text-sm text-gray-500 mt-1 ml-4">Kelola daftar perusahaan pembiayaan (leasing).</p>
         </div>
 
         <button @click="isCreateModalOpen = true" class="bg-honda-red text-white font-bold py-2.5 px-6 rounded-lg shadow-md shadow-red-200 hover:bg-red-700 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 focus:ring-4 focus:ring-red-100">
@@ -25,13 +25,26 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="text-sm text-red-800 font-medium">
+                <ul class="list-disc pl-4 space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
             <form action="{{ route('leasing.index') }}" method="GET" class="w-full sm:w-96 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama leasing atau PIC..."
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama leasing..."
                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2 pl-10 px-4 outline-none transition-all duration-200 text-sm">
             </form>
             <div class="text-sm text-gray-500">
@@ -44,25 +57,19 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
                         <th class="py-4 px-6 font-semibold">Nama Leasing</th>
-                        <th class="py-4 px-6 font-semibold">PIC</th>
-                        <th class="py-4 px-6 font-semibold">Telepon PIC</th>
-                        <th class="py-4 px-6 font-semibold">Alamat</th>
-                        <th class="py-4 px-6 text-center w-32">Aksi</th>
+                        <th class="py-4 px-6 text-center w-32 font-semibold">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($leasings as $l)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="py-4 px-6 text-sm font-bold text-gray-800">{{ $l->nama_leasing }}</td>
-                            <td class="py-4 px-6 text-sm text-gray-700 font-medium">{{ $l->pic }}</td>
-                            <td class="py-4 px-6 text-sm text-gray-600">{{ $l->telepon_pic }}</td>
-                            <td class="py-4 px-6 text-sm text-gray-500 italic">{{ $l->alamat ?? '-' }}</td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
                                     <button @click="openEditModal({{ $l }})" class="text-blue-500 hover:text-blue-700 transition-colors" title="Edit">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <form action="{{ route('leasing.destroy', $l->id) }}" method="POST" onsubmit="return confirm('Hapus data leasing ini?');">
+                                    <form action="{{ route('leasing.destroy', $l->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data leasing ini?');">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -73,7 +80,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 px-6 text-center text-gray-500">
+                            <td colspan="2" class="py-12 px-6 text-center text-gray-500">
                                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                 Data leasing belum tersedia atau tidak ditemukan.
                             </td>
@@ -116,18 +123,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Leasing</label>
                             <input type="text" name="nama_leasing" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama PIC</label>
-                            <input type="text" name="pic" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Telepon PIC</label>
-                            <input type="text" name="telepon_pic" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Alamat (Opsional)</label>
-                            <textarea name="alamat" rows="2" class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800"></textarea>
-                        </div>
                         <div class="flex justify-end pt-4 mt-6 border-t border-gray-100 gap-3">
                             <button type="button" @click="isCreateModalOpen = false" class="bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-lg shadow-sm hover:bg-gray-50 transition-all">Batal</button>
                             <button type="submit" class="bg-honda-red text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:bg-red-700 transition-all">Simpan Data</button>
@@ -167,18 +162,6 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Leasing</label>
                             <input type="text" name="nama_leasing" x-model="eNama" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama PIC</label>
-                            <input type="text" name="pic" x-model="ePic" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Telepon PIC</label>
-                            <input type="text" name="telepon_pic" x-model="eTelp" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Alamat</label>
-                            <textarea name="alamat" x-model="eAlamat" rows="2" class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800"></textarea>
-                        </div>
                         <div class="flex justify-end pt-4 mt-6 border-t border-gray-100 gap-3">
                             <button type="button" @click="isEditModalOpen = false" class="bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-lg shadow-sm hover:bg-gray-50 transition-all">Batal</button>
                             <button type="submit" class="bg-blue-600 text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-all">Perbarui Data</button>
@@ -196,13 +179,10 @@
         return {
             isCreateModalOpen: false,
             isEditModalOpen: false,
-            eId: '', eNama: '', ePic: '', eTelp: '', eAlamat: '',
+            eId: '', eNama: '',
             openEditModal(l) {
                 this.eId = l.id;
                 this.eNama = l.nama_leasing;
-                this.ePic = l.pic;
-                this.eTelp = l.telepon_pic;
-                this.eAlamat = l.alamat;
                 this.isEditModalOpen = true;
             }
         }

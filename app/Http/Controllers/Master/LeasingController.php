@@ -8,13 +8,12 @@ use Illuminate\Http\Request;
 
 class LeasingController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search = $request->input('search');
 
         $leasings = Leasing::when($search, function($query) use ($search) {
-            $query->where('nama_leasing', 'like', "%{$search}%")
-                  ->orWhere('pic', 'like', "%{$search}%");
+            $query->where('nama_leasing', 'like', "%{$search}%");
         })->latest()->paginate(10)->withQueryString();
 
         return view('master.leasing.index', compact('leasings'));
@@ -23,10 +22,7 @@ class LeasingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_leasing' => 'required|unique:leasings,nama_leasing',
-            'pic' => 'required',
-            'telepon_pic' => 'required',
-            'alamat' => 'nullable'
+            'nama_leasing' => 'required|unique:leasings,nama_leasing'
         ]);
 
         Leasing::create($request->all());
@@ -37,10 +33,7 @@ class LeasingController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_leasing' => 'required|unique:leasings,nama_leasing,'.$id,
-            'pic' => 'required',
-            'telepon_pic' => 'required',
-            'alamat' => 'nullable'
+            'nama_leasing' => 'required|unique:leasings,nama_leasing,'.$id
         ]);
 
         $leasing = Leasing::findOrFail($id);

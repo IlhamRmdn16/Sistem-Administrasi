@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Leasing extends Model
 {
-    protected $fillable = ['nama_leasing', 'pic', 'telepon_pic', 'alamat'];
+    protected $fillable = ['nama_leasing'];
 }

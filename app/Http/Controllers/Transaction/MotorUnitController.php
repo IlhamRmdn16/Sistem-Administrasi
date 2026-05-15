@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\MotorType;
 use App\Models\MotorUnit;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MotorUnitController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search = $request->input('search');
         $types = MotorType::with('colors')->get();
@@ -35,6 +36,7 @@ class MotorUnitController extends Controller
         $request->validate([
             'no_do' => 'required',
             'no_sp' => 'required',
+            'tanggal_sp' => 'required|date',
             'motor_type_id' => 'required',
             'motor_color_id' => 'required',
             'no_mesin' => 'required|unique:motor_units',
@@ -45,7 +47,7 @@ class MotorUnitController extends Controller
             'no_accu' => 'required',
         ]);
 
-        $tanggal = date('d/m/Y');
+        $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
         $no_sp_full = $request->no_sp . ' / ' . $tanggal;
 
         MotorUnit::create([
@@ -59,7 +61,6 @@ class MotorUnitController extends Controller
             'no_kunci' => $request->no_kunci,
             'tahun_pembuatan' => $request->tahun_pembuatan,
             'no_accu' => $request->no_accu,
-            'status' => 'Tersedia'
         ]);
 
         return back()->with('success', 'Data Kendaraan berhasil diregistrasi!');
@@ -70,6 +71,7 @@ class MotorUnitController extends Controller
         $request->validate([
             'no_do' => 'required',
             'no_sp' => 'required',
+            'tanggal_sp' => 'required|date',
             'motor_type_id' => 'required',
             'motor_color_id' => 'required',
             'no_mesin' => 'required|unique:motor_units,no_mesin,'.$id,
@@ -80,11 +82,14 @@ class MotorUnitController extends Controller
             'no_accu' => 'required',
         ]);
 
+        $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
+        $no_sp_full = $request->no_sp . ' / ' . $tanggal;
+
         $unit = MotorUnit::findOrFail($id);
-        
+
         $unit->update([
             'no_do' => $request->no_do,
-            'no_sp' => $request->no_sp,
+            'no_sp' => $no_sp_full,
             'motor_type_id' => $request->motor_type_id,
             'motor_color_id' => $request->motor_color_id,
             'no_mesin' => $request->no_mesin,

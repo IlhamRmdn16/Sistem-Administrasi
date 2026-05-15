@@ -2,7 +2,7 @@
 
 @section('content')
 <div x-data="unitManager()" @keydown.escape.window="isCreateModalOpen = false; isEditModalOpen = false">
-    
+
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
@@ -24,7 +24,7 @@
             <div class="text-sm text-green-800 font-medium">{{ session('success') }}</div>
         </div>
     @endif
-    
+
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
             <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -39,13 +39,13 @@
     @endif
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        
+
         <div class="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
             <form action="{{ route('motor-unit.index') }}" method="GET" class="w-full sm:w-96 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Mesin, Rangka, DO, Tipe..." 
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Mesin, Rangka, DO, Tipe..."
                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2 pl-10 px-4 outline-none transition-all duration-200 text-sm">
             </form>
             <div class="text-sm text-gray-500">
@@ -60,7 +60,6 @@
                         <th class="py-4 px-6 font-semibold">Dokumen (DO/SP)</th>
                         <th class="py-4 px-6 font-semibold">Tipe & Warna</th>
                         <th class="py-4 px-6 font-semibold">Identitas Unit</th>
-                        <th class="py-4 px-6 font-semibold">Status</th>
                         <th class="py-4 px-6 font-semibold text-center w-32">Aksi</th>
                     </tr>
                 </thead>
@@ -83,17 +82,6 @@
                                 <div class="text-gray-800 mt-1"><span class="text-gray-500 text-xs mr-1">R:</span>{{ $unit->no_rangka }}</div>
                             </td>
                             <td class="py-4 px-6">
-                                @if($unit->status == 'Tersedia')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                        Tersedia
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                                        Terjual
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('motor-unit.print', $unit->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700 transition-colors" title="Cetak Dokumen">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -113,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 px-6 text-center text-gray-500">
+                            <td colspan="4" class="py-12 px-6 text-center text-gray-500">
                                 <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                 Data unit kendaraan belum tersedia atau tidak ditemukan.
                             </td>
@@ -122,28 +110,27 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="p-4 border-t border-gray-100">
             {{ $motorUnits->links() }}
         </div>
     </div>
 
-    <!-- MODAL TAMBAH DATA -->
     <div x-show="isCreateModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            
-            <div x-show="isCreateModalOpen" 
+
+            <div x-show="isCreateModalOpen"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity" @click="isCreateModalOpen = false"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="isCreateModalOpen" 
+            <div x-show="isCreateModalOpen"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
-                
+
                 <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-slate-50">
                     <h3 class="text-lg font-bold text-gray-900">Registrasi Penerimaan Unit</h3>
                     <button @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
@@ -154,19 +141,21 @@
                 <div class="p-6 sm:p-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
                     <form action="{{ route('motor-unit.store') }}" method="POST">
                         @csrf
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. DO (Delivery Order)</label>
-                                <input type="text" name="no_do" required 
+                                <input type="text" name="no_do" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. SP & Tanggal</label>
                                 <div class="flex items-center gap-2">
-                                    <input type="text" name="no_sp" placeholder="Contoh: 1234xxxx" required 
+                                    <input type="text" name="no_sp" placeholder="Contoh: 1234xxxx" required
                                         class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
-                                    <span class="text-gray-500 font-medium bg-gray-50 px-4 py-2.5 border border-gray-200 rounded-lg shrink-0 text-center shadow-sm" x-text="'/ ' + todayDate"></span>
+                                    <span class="text-gray-500 font-bold px-1">/</span>
+                                    <input type="date" name="tanggal_sp" x-model="cTanggal" required
+                                        class="w-48 border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-3 outline-none transition-all text-gray-800">
                                 </div>
                             </div>
                         </div>
@@ -176,7 +165,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Tipe Motor</label>
-                                    <select name="motor_type_id" x-model="cType" @change="updateCreateType()" required 
+                                    <select name="motor_type_id" x-model="cType" @change="updateCreateType()" required
                                         class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
                                         <option value="">Pilih Tipe</option>
                                         <template x-for="t in types" :key="t.id">
@@ -186,7 +175,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Kode Type</label>
-                                    <input type="text" x-model="cKodeType" readonly 
+                                    <input type="text" x-model="cKodeType" readonly
                                         class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed transition-all">
                                 </div>
                             </div>
@@ -194,7 +183,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Warna</label>
-                                    <select name="motor_color_id" x-model="cColor" @change="updateCreateColor()" required 
+                                    <select name="motor_color_id" x-model="cColor" @change="updateCreateColor()" required
                                         class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
                                         <option value="">Pilih Warna</option>
                                         <template x-for="c in cAvailableColors" :key="c.id">
@@ -204,7 +193,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Kode Warna</label>
-                                    <input type="text" x-model="cKodeWarna" readonly 
+                                    <input type="text" x-model="cKodeWarna" readonly
                                         class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed transition-all">
                                 </div>
                             </div>
@@ -214,20 +203,20 @@
                             <div class="md:col-span-2">
                                 <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-2">Spesifikasi Fisik Unit</h3>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Mesin</label>
-                                <input type="text" name="no_mesin" required 
+                                <input type="text" name="no_mesin" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Rangka</label>
-                                <input type="text" name="no_rangka" required 
+                                <input type="text" name="no_rangka" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Seri Kunci</label>
-                                <input type="text" name="no_seri_kunci" required 
+                                <input type="text" name="no_seri_kunci" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
@@ -237,12 +226,12 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Tahun Pembuatan</label>
-                                <input type="number" name="tahun_pembuatan" x-model="cTahun" readonly 
+                                <input type="number" name="tahun_pembuatan" x-model="cTahun" readonly
                                     class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Accu</label>
-                                <input type="text" name="no_accu" x-model="cAccu" readonly 
+                                <input type="text" name="no_accu" x-model="cAccu" readonly
                                     class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed">
                             </div>
                         </div>
@@ -262,22 +251,21 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT DATA -->
     <div x-show="isEditModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            
-            <div x-show="isEditModalOpen" 
+
+            <div x-show="isEditModalOpen"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity" @click="isEditModalOpen = false"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="isEditModalOpen" 
+            <div x-show="isEditModalOpen"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
-                
+
                 <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-slate-50">
                     <h3 class="text-lg font-bold text-gray-900">Edit Data Unit Kendaraan</h3>
                     <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
@@ -289,17 +277,22 @@
                     <form :action="'/transaction/motor-unit/' + eId" method="POST">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. DO (Delivery Order)</label>
-                                <input type="text" name="no_do" x-model="eDo" required 
+                                <input type="text" name="no_do" x-model="eDo" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. SP & Tanggal</label>
-                                <input type="text" name="no_sp" x-model="eSp" required 
-                                    class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
+                                <div class="flex items-center gap-2">
+                                    <input type="text" name="no_sp" x-model="eSp" required
+                                        class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
+                                    <span class="text-gray-500 font-bold px-1">/</span>
+                                    <input type="date" name="tanggal_sp" x-model="eTanggal" required
+                                        class="w-48 border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-3 outline-none transition-all text-gray-800">
+                                </div>
                             </div>
                         </div>
 
@@ -308,7 +301,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Tipe Motor</label>
-                                    <select name="motor_type_id" x-model="eType" @change="updateEditType()" required 
+                                    <select name="motor_type_id" x-model="eType" @change="updateEditType()" required
                                         class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
                                         <option value="">Pilih Tipe</option>
                                         <template x-for="t in types" :key="t.id">
@@ -318,7 +311,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Kode Type</label>
-                                    <input type="text" x-model="eKodeType" readonly 
+                                    <input type="text" x-model="eKodeType" readonly
                                         class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed transition-all">
                                 </div>
                             </div>
@@ -326,7 +319,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Warna</label>
-                                    <select name="motor_color_id" x-model="eColor" @change="updateEditColor()" required 
+                                    <select name="motor_color_id" x-model="eColor" @change="updateEditColor()" required
                                         class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
                                         <option value="">Pilih Warna</option>
                                         <template x-for="c in eAvailableColors" :key="c.id">
@@ -336,7 +329,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Kode Warna</label>
-                                    <input type="text" x-model="eKodeWarna" readonly 
+                                    <input type="text" x-model="eKodeWarna" readonly
                                         class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed transition-all">
                                 </div>
                             </div>
@@ -346,35 +339,35 @@
                             <div class="md:col-span-2">
                                 <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-2">Spesifikasi Fisik Unit</h3>
                             </div>
-                            
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Mesin</label>
-                                <input type="text" name="no_mesin" x-model="eMesin" required 
+                                <input type="text" name="no_mesin" x-model="eMesin" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Rangka</label>
-                                <input type="text" name="no_rangka" x-model="eRangka" required 
+                                <input type="text" name="no_rangka" x-model="eRangka" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Seri Kunci</label>
-                                <input type="text" name="no_seri_kunci" x-model="eSeri" required 
+                                <input type="text" name="no_seri_kunci" x-model="eSeri" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Kunci</label>
-                                <input type="text" name="no_kunci" x-model="eKunci" @input="processEditKey()" required 
+                                <input type="text" name="no_kunci" x-model="eKunci" @input="processEditKey()" required
                                     class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 uppercase">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Tahun Pembuatan</label>
-                                <input type="number" name="tahun_pembuatan" x-model="eTahun" readonly 
+                                <input type="number" name="tahun_pembuatan" x-model="eTahun" readonly
                                     class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Accu</label>
-                                <input type="text" name="no_accu" x-model="eAccu" readonly 
+                                <input type="text" name="no_accu" x-model="eAccu" readonly
                                     class="w-full bg-gray-100 border border-gray-200 text-gray-600 rounded-lg shadow-sm py-2.5 px-4 outline-none font-bold cursor-not-allowed">
                             </div>
                         </div>
@@ -400,15 +393,16 @@
     function unitManager() {
         return {
             types: @json($types),
-            todayDate: new Date().toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}).replace(/\//g, '/'),
+            todayDateInput: new Date().toISOString().split('T')[0], // Menghasilkan format YYYY-MM-DD
 
             isCreateModalOpen: false,
             cType: '', cKodeType: '',
             cAvailableColors: [], cColor: '', cKodeWarna: '',
             cKunci: '', cTahun: '', cAccu: '',
+            cTanggal: new Date().toISOString().split('T')[0], // Default ke hari ini
 
             isEditModalOpen: false,
-            eId: '', eDo: '', eSp: '', eMesin: '', eRangka: '', eSeri: '',
+            eId: '', eDo: '', eSp: '', eTanggal: '', eMesin: '', eRangka: '', eSeri: '',
             eType: '', eKodeType: '',
             eAvailableColors: [], eColor: '', eKodeWarna: '',
             eKunci: '', eTahun: '', eAccu: '',
@@ -440,7 +434,22 @@
             openEditModal(unit) {
                 this.eId = unit.id;
                 this.eDo = unit.no_do;
-                this.eSp = unit.no_sp;
+
+                // Pisahkan string No SP & Tanggal dari database
+                let spParts = unit.no_sp.split(' / ');
+                this.eSp = spParts[0] || '';
+
+                if (spParts.length > 1) {
+                    let dParts = spParts[1].split('/'); // Memecah format DD/MM/YYYY
+                    if(dParts.length === 3) {
+                        this.eTanggal = `${dParts[2]}-${dParts[1]}-${dParts[0]}`; // Ubah ke YYYY-MM-DD untuk input date
+                    } else {
+                        this.eTanggal = this.todayDateInput;
+                    }
+                } else {
+                    this.eTanggal = this.todayDateInput;
+                }
+
                 this.eMesin = unit.no_mesin;
                 this.eRangka = unit.no_rangka;
                 this.eSeri = unit.no_seri_kunci;
@@ -488,7 +497,7 @@
             extractKeyInfo(keyInput) {
                 let key = keyInput.trim();
                 let result = { tahun: '', accu: '' };
-                
+
                 if (key.length >= 4) {
                     result.tahun = key.substring(0, 4);
                 }

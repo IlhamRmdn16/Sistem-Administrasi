@@ -17,7 +17,6 @@ class MotorUnit extends Model
         'no_kunci',
         'tahun_pembuatan',
         'no_accu',
-        'status'
     ];
 
     public function type()

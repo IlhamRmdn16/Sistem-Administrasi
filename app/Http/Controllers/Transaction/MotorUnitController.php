@@ -105,4 +105,10 @@ class MotorUnitController extends Controller
 
         return back()->with('success', 'Data Kendaraan berhasil dihapus!');
     }
+
+    public function print($id)
+    {
+        $unit = MotorUnit::with(['type', 'color'])->findOrFail($id);
+        return view('transaction.motor-unit.print', compact('unit'));
+    }
 }

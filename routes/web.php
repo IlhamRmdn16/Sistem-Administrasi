@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Master\LeasingController;
 use App\Http\Controllers\Master\MotorTypeController;
+use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +18,10 @@ Route::get('/transaction/motor-unit', [MotorUnitController::class, 'index'])->na
 Route::post('/transaction/motor-unit', [MotorUnitController::class, 'store'])->name('motor-unit.store');
 Route::put('/transaction/motor-unit/{id}', [MotorUnitController::class, 'update'])->name('motor-unit.update');
 Route::delete('/transaction/motor-unit/{id}', [MotorUnitController::class, 'destroy'])->name('motor-unit.destroy');
+Route::get('/transaction/motor-unit/{id}/print', [MotorUnitController::class, 'print'])->name('motor-unit.print');
+
+// Master Sales
+Route::resource('/master/sales', SalesController::class)->except(['create', 'show', 'edit']);
+
+// Master Leasing
+Route::resource('/master/leasing', LeasingController::class)->except(['create', 'show', 'edit']);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Master\LeasingController;
 use App\Http\Controllers\Master\MotorTypeController;
+use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use Illuminate\Support\Facades\Route;
@@ -26,3 +27,8 @@ Route::resource('/master/sales', SalesController::class)->except(['create', 'sho
 
 // Master Leasing
 Route::resource('/master/leasing', LeasingController::class)->except(['create', 'show', 'edit']);
+
+Route::get('/master/rekening', [RekeningController::class, 'index'])->name('rekening.index');
+Route::post('/master/rekening', [RekeningController::class, 'store'])->name('rekening.store');
+Route::put('/master/rekening/{id}', [RekeningController::class, 'update'])->name('rekening.update');
+Route::delete('/master/rekening/{id}', [RekeningController::class, 'destroy'])->name('rekening.destroy');

@@ -13,7 +13,8 @@ class LeasingController extends Controller
         $search = $request->input('search');
 
         $leasings = Leasing::when($search, function($query) use ($search) {
-            $query->where('nama_leasing', 'like', "%{$search}%");
+            $query->where('nama_leasing', 'like', "%{$search}%")
+                  ->orWhere('kode_leasing', 'like', "%{$search}%");
         })->latest()->paginate(10)->withQueryString();
 
         return view('master.leasing.index', compact('leasings'));
@@ -22,7 +23,11 @@ class LeasingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_leasing' => 'required|unique:leasings,nama_leasing'
+            'kode_leasing' => 'required|unique:leasings,kode_leasing',
+            'nama_leasing' => 'required|unique:leasings,nama_leasing',
+            'alamat' => 'nullable|string',
+            'keterangan_penagihan_1' => 'nullable|string',
+            'keterangan_penagihan_2' => 'nullable|string',
         ]);
 
         Leasing::create($request->all());
@@ -33,7 +38,11 @@ class LeasingController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_leasing' => 'required|unique:leasings,nama_leasing,'.$id
+            'kode_leasing' => 'required|unique:leasings,kode_leasing,'.$id,
+            'nama_leasing' => 'required|unique:leasings,nama_leasing,'.$id,
+            'alamat' => 'nullable|string',
+            'keterangan_penagihan_1' => 'nullable|string',
+            'keterangan_penagihan_2' => 'nullable|string',
         ]);
 
         $leasing = Leasing::findOrFail($id);

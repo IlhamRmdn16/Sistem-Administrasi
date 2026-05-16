@@ -51,9 +51,10 @@
                                      x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
                                      style="display: none;"
                                      class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
-                                    <a href="{{ route('motor-type.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Tipe Motor & Warna</a>
-                                    <a href="{{ route('sales.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Data Sales</a>
-                                    <a href="{{ route('leasing.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Data Leasing</a>
+                                    <a href="{{ route('motor-type.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Motor</a>
+                                    <a href="{{ route('sales.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Sales/POP</a>
+                                    <a href="{{ route('leasing.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Leasing</a>
+                                    <a href="{{ route('rekening.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Rekening</a>
                                 </div>
                             </div>
 
@@ -122,9 +123,10 @@
                             <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-                            <a href="{{ route('motor-type.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Tipe Motor & Warna</a>
-                            <a href="{{ route('sales.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Data Sales</a>
-                            <a href="{{ route('leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Data Leasing</a>
+                            <a href="{{ route('motor-type.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Motor</a>
+                            <a href="{{ route('sales.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales</a>
+                            <a href="{{ route('leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Leasing</a>
+                            <a href="{{ route('rekening.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Rekening</a>
                         </div>
                     </div>
 
@@ -159,9 +161,95 @@
              @click="mobileMenuOpen = false"
              style="display: none;"></div>
 
-    </div> <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    </div>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         @yield('content')
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 1. Pop-up Sukses
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl border border-gray-100'
+                    }
+                });
+            @endif
+
+            // 2. Pop-up Error Validasi
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan!',
+                    html: `
+                        <ul class="text-left text-sm text-gray-600 mt-2 space-y-1 pl-4 list-disc">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    `,
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl border border-gray-100'
+                    }
+                });
+            @endif
+
+            // 3. Loading Animasi Form Submit
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    if (form.method.toUpperCase() === 'GET') return; // Abaikan loading untuk form Search/GET
+
+                    Swal.fire({
+                        title: 'Mohon Tunggu...',
+                        html: 'Sistem sedang memproses data Anda.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                });
+            });
+        });
+
+        // 4. Global Function untuk Konfirmasi Hapus
+        function confirmDelete(event, formElement) {
+            event.preventDefault(); // Hentikan submit langsung
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, hapus data!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-2xl shadow-xl',
+                    confirmButton: 'rounded-lg px-6 py-2.5 font-bold',
+                    cancelButton: 'rounded-lg px-6 py-2.5 font-bold'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    formElement.submit(); // Jika Ya, submit dan jalankan loading di atas
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -69,7 +69,7 @@ class MotorTypeController extends Controller
             }
         });
 
-        return back()->with('success', 'Data Tipe Motor & Warna berhasil disimpan!');
+        return back()->with('success', 'Data Motor berhasil disimpan!');
     }
 
     public function update(Request $request, $id)
@@ -116,7 +116,7 @@ class MotorTypeController extends Controller
             }
         });
 
-        return back()->with('success', 'Data Tipe Motor & Warna berhasil diperbarui!');
+        return back()->with('success', 'Data Motor berhasil diperbarui!');
     }
 
     public function destroy($id)

@@ -6,136 +6,232 @@
     <title>Cetak SPK - {{ $spk->no_spk }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Pengaturan Mutlak 1/2 F4 (215mm x 165mm) */
         @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page {
+                size: 215mm 165mm;
+                margin: 0;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background-color: white !important;
+                margin: 0;
+                padding: 0;
+            }
             .no-print { display: none !important; }
-            @page { size: A4 portrait; margin: 10mm; }
+            .screen-wrapper { padding: 0 !important; }
+
+            .page-container {
+                width: 215mm;
+                height: 165mm;
+                margin: 0;
+                padding: 5mm 10mm 5mm 10mm;
+                box-shadow: none;
+                border: none;
+            }
         }
-        body { font-family: 'Arial', sans-serif; background-color: #f3f4f6; }
-        .page { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; padding: 15mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .table-print th, .table-print td { padding: 6px 10px; border: 1px solid #000; font-size: 13px; }
-        .table-print th { background-color: #f8f9fa; font-weight: bold; }
+
+        /* Pengaturan Layar Preview */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .screen-wrapper {
+            padding: 2rem 0;
+        }
+
+        .page-container {
+            width: 215mm;
+            height: 165mm;
+            background: white;
+            margin: 0 auto;
+            padding: 5mm 10mm 5mm 10mm;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Tabel Super Rapat & Sejajar */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        td {
+            padding: 1.5px 0;
+            vertical-align: top;
+            font-size: 13px; /* Ukuran font disesuaikan agar pas dibaca */
+            line-height: 1.25;
+            font-weight: 500;
+        }
     </style>
 </head>
-<body class="py-8">
+<body>
 
-    <div class="max-w-[210mm] mx-auto mb-4 text-right no-print">
-        <button onclick="window.print()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-red-700">
-            Cetak Dokumen
-        </button>
-    </div>
+    <div class="screen-wrapper">
+        <div class="max-w-[215mm] mx-auto mb-4 text-right no-print">
+            <button onclick="window.print()" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-red-700 flex items-center gap-2 ml-auto text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Cetak (1/2 F4)
+            </button>
+        </div>
 
-    <div class="page text-gray-900">
-        <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-black uppercase tracking-wider text-red-600">SURYA WIJAYA SEJAHTERA</h1>
-                <p class="text-sm font-semibold mt-1">Authorized Honda Dealer & AHASS</p>
-                <p class="text-xs text-gray-600 mt-0.5">Garut, Jawa Barat</p>
+        <div class="page-container">
+
+            <div class="border-b-[1.5px] border-gray-800 pb-1.5 mb-1.5 shrink-0 flex justify-center w-full">
+                <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Kop Surat" class="w-auto h-[65px] object-contain">
             </div>
-            <div class="text-right">
-                <h2 class="text-xl font-bold uppercase border-2 border-gray-900 p-2 inline-block rounded">SURAT PESANAN</h2>
-                <div class="mt-2 text-sm">
-                    <div><span class="font-bold">No. SPK :</span> {{ $spk->no_spk }}</div>
-                    <div><span class="font-bold">Tanggal :</span> {{ \Carbon\Carbon::parse($spk->tanggal)->format('d F Y') }}</div>
-                    <div><span class="font-bold">Sales :</span> {{ $spk->sales->nama_sales ?? '-' }}</div>
+
+            <div class="text-center mb-1 shrink-0">
+                <h2 class="text-[14px] font-bold underline uppercase tracking-wider">Surat Pesanan Kendaraan</h2>
+            </div>
+
+            <div class="flex-grow">
+                <table>
+                    <colgroup>
+                        <col style="width: 105px;"> <col style="width: 15px;">  <col style="width: auto;">  <col style="width: 65px;">  <col style="width: 15px;">  <col style="width: 110px;"> </colgroup>
+
+                    <tr>
+                        <td>No. SPK</td>
+                        <td class="text-center">:</td>
+                        <td class="uppercase font-bold">{{ $spk->no_spk }}</td>
+                        <td>Tanggal</td>
+                        <td class="text-center">:</td>
+                        <td>{{ \Carbon\Carbon::parse($spk->tanggal)->format('d/m/y') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nama Sales</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->sales->nama_sales ?? '-' }}</td>
+                    </tr>
+
+                    <tr><td colspan="6" class="h-2"></td></tr>
+
+                    <tr>
+                        <td>Nama Pemohon</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase font-bold">{{ $spk->nama_pemohon }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nama STNK</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase font-bold">{{ $spk->nama_stnk }}</td>
+                    </tr>
+                    <tr>
+                        <td>Alamat</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td>RT/RW</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->rt_rw }}</td>
+                    </tr>
+                    <tr>
+                        <td>Desa/Kel.</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->desa_kelurahan }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kecamatan</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->kecamatan }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kab/Kota</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->kota_kabupaten }}</td>
+                    </tr>
+                    <tr>
+                        <td>No. Telepon</td>
+                        <td class="text-center">:</td>
+                        <td class="uppercase">{{ $spk->telepon }}</td>
+                        <td>Email</td>
+                        <td class="text-center">:</td>
+                        <td class="lowercase">{{ $spk->email ?? '-' }}</td>
+                    </tr>
+
+                    <tr><td colspan="6" class="h-2"></td></tr>
+
+                    <tr>
+                        <td>Tipe Motor</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="uppercase">{{ $spk->motorType->nama_type ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Warna</td>
+                        <td class="text-center">:</td>
+                        <td class="uppercase">{{ $spk->motorColor->warna ?? '-' }}</td>
+                        <td>Tahun</td>
+                        <td class="text-center">:</td>
+                        <td>{{ $spk->motorType->tahun_pembuatan ?? '-' }}</td>
+                    </tr>
+
+                    <tr><td colspan="6" class="h-2"></td></tr>
+
+                    <tr>
+                        <td>Harga OTR</td>
+                        <td class="text-center">:</td>
+                        <td colspan="4" class="font-bold">Rp {{ number_format($spk->harga_otr, 0, '.', '.') }}</td>
+                    </tr>
+
+                    @if($spk->jenis_pembayaran == 'Kredit')
+                        <tr>
+                            <td>Uang Muka</td>
+                            <td class="text-center">:</td>
+                            <td colspan="4" class="font-bold">Rp {{ number_format($spk->uang_muka, 0, '.', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tanda Jadi</td>
+                            <td class="text-center">:</td>
+                            <td colspan="4" class="font-bold">Rp {{ number_format($spk->tanda_jadi, 0, '.', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Nama Leasing</td>
+                            <td class="text-center">:</td>
+                            <td colspan="4" class="uppercase">{{ $spk->leasing->nama_leasing ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tenor</td>
+                            <td class="text-center">:</td>
+                            <td colspan="4">{{ $spk->tenor_bulan }} <span class="mx-1">x</span> Rp {{ number_format($spk->cicilan, 0, '.', '.') }}</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td>Keterangan</td>
+                            <td class="text-center">:</td>
+                            <td colspan="4" class="uppercase font-bold tracking-widest text-sm">KONTAN</td>
+                        </tr>
+                    @endif
+                </table>
+            </div>
+
+            <div class="flex justify-between text-center text-[12px] pt-4 shrink-0">
+                <div class="w-1/3">
+                    <p class="mb-14">Konsumen</p>
+                    <div class="flex justify-between px-8">
+                        <span>(</span><span>)</span>
+                    </div>
+                </div>
+                <div class="w-1/3">
+                    <p class="mb-14">Sales Admin</p>
+                    <div class="flex justify-between px-8">
+                        <span>(</span><span>)</span>
+                    </div>
+                </div>
+                <div class="w-1/3">
+                    <p class="mb-14">Mengetahui</p>
+                    <div class="flex justify-between px-8">
+                        <span>(</span><span>)</span>
+                    </div>
                 </div>
             </div>
+
         </div>
-
-        <h3 class="text-sm font-bold uppercase mb-2 bg-gray-200 p-1.5 border border-black">I. Biodata Pemesan & STNK</h3>
-        <table class="w-full text-sm mb-6 table-print">
-            <tr>
-                <td class="w-1/4 font-bold">Nama Pemesan</td>
-                <td class="w-3/4">{{ $spk->nama_pemohon }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Nama di STNK</td>
-                <td>{{ $spk->nama_stnk }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">No. Identitas (NIK)</td>
-                <td>{{ $spk->nik }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Alamat Lengkap</td>
-                <td>{{ $spk->alamat }}, RT/RW: {{ $spk->rt_rw }}, Kel/Desa: {{ $spk->desa_kelurahan }}, Kec. {{ $spk->kecamatan }}, {{ $spk->kota_kabupaten }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">No. Telepon / WA</td>
-                <td>{{ $spk->telepon }}</td>
-            </tr>
-        </table>
-
-        <h3 class="text-sm font-bold uppercase mb-2 bg-gray-200 p-1.5 border border-black">II. Detail Kendaraan</h3>
-        <table class="w-full text-sm mb-6 table-print">
-            <tr>
-                <th class="w-1/3">Tipe / Model Motor</th>
-                <th class="w-1/3">Warna</th>
-                <th class="w-1/3">Tahun Pembuatan</th>
-            </tr>
-            <tr class="text-center">
-                <td>{{ $spk->motorType->nama_type ?? '-' }}</td>
-                <td>{{ $spk->motorColor->warna ?? '-' }}</td>
-                <td>{{ $spk->motorType->tahun_pembuatan ?? '-' }}</td>
-            </tr>
-        </table>
-
-        <h3 class="text-sm font-bold uppercase mb-2 bg-gray-200 p-1.5 border border-black">III. Rincian Pembayaran</h3>
-        <table class="w-full text-sm mb-6 table-print">
-            <tr>
-                <td class="w-1/3 font-bold">Jenis Transaksi</td>
-                <td class="w-2/3 font-bold uppercase text-lg">{{ $spk->jenis_pembayaran }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Harga OTR</td>
-                <td>Rp {{ number_format($spk->harga_otr, 0, ',', '.') }}</td>
-            </tr>
-
-            @if($spk->jenis_pembayaran == 'Kredit')
-            <tr>
-                <td class="font-bold">Leasing / Pembiayaan</td>
-                <td>{{ $spk->leasing->nama_leasing ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Uang Muka (DP)</td>
-                <td>Rp {{ number_format($spk->uang_muka, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Tanda Jadi (Titipan)</td>
-                <td>Rp {{ number_format($spk->tanda_jadi, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td class="font-bold">Skema Angsuran</td>
-                <td>{{ $spk->tenor_bulan }} Bulan x Rp {{ number_format($spk->cicilan, 0, ',', '.') }}</td>
-            </tr>
-            @endif
-        </table>
-
-        <div class="text-xs text-justify mb-8 text-gray-700 border border-black p-3">
-            <p class="font-bold mb-1">Ketentuan:</p>
-            <ol class="list-decimal pl-4 space-y-1">
-                <li>SPK ini sah apabila tanda jadi telah disetorkan dan diterima oleh Kasir dealer.</li>
-                <li>Harga tidak mengikat dan dapat berubah sewaktu-waktu tanpa pemberitahuan terlebih dahulu (Mengikuti harga OTR saat unit diserahkan/faktur turun).</li>
-                <li>Bila transaksi kredit batal karena ditolak oleh pihak Leasing, maka tanda jadi akan dikembalikan sepenuhnya.</li>
-                <li>Bila pembatalan dilakukan sepihak oleh pemesan, maka tanda jadi dinyatakan hangus.</li>
-            </ol>
-        </div>
-
-        <div class="flex justify-between text-center mt-12 text-sm">
-            <div class="w-1/3">
-                <p class="mb-16">Pemesan,</p>
-                <p class="font-bold underline">{{ $spk->nama_pemohon }}</p>
-            </div>
-            <div class="w-1/3">
-                <p class="mb-16">Sales Person,</p>
-                <p class="font-bold underline">{{ $spk->sales->nama_sales ?? '-' }}</p>
-            </div>
-            <div class="w-1/3">
-                <p class="mb-16">Mengetahui (Kacab / SPV),</p>
-                <p class="font-bold underline">_________________________</p>
-            </div>
-        </div>
-
     </div>
 
     <script>

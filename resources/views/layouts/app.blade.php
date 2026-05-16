@@ -12,8 +12,8 @@
 
         <div class="bg-gray-900 text-gray-300 text-xs py-1.5 px-4 sm:px-6 lg:px-8 relative z-50">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <span class="tracking-wider font-medium hidden sm:inline-block">SISTEM ADMINISTRASI <span class="text-honda-red mx-1">•</span> AHASS SURYA WIJAYA</span>
-                <span class="tracking-wider font-medium sm:hidden">AHASS SURYA WIJAYA</span>
+                <span class="tracking-wider font-medium hidden sm:inline-block">SISTEM ADMINISTRASI <span class="text-honda-red mx-1">•</span>SURYA WIJAYA</span>
+                <span class="tracking-wider font-medium sm:hidden">SURYA WIJAYA</span>
                 <span class="flex items-center gap-2">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d M Y') }}
@@ -71,7 +71,7 @@
                                      style="display: none;"
                                      class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                                     <a href="{{ route('motor-unit.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Registrasi Unit</a>
-                                    <a href="#" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">SPK (Pesanan)</a>
+                                    <a href="{{ route('spk.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">SPK (Pesanan)</a>
                                     <a href="#" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Surat Jalan</a>
                                 </div>
                             </div>

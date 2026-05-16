@@ -5,6 +5,7 @@ use App\Http\Controllers\Master\MotorTypeController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
+use App\Http\Controllers\Transaction\SpkController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,3 +33,9 @@ Route::get('/master/rekening', [RekeningController::class, 'index'])->name('reke
 Route::post('/master/rekening', [RekeningController::class, 'store'])->name('rekening.store');
 Route::put('/master/rekening/{id}', [RekeningController::class, 'update'])->name('rekening.update');
 Route::delete('/master/rekening/{id}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
+
+Route::get('/transaction/spk', [SpkController::class, 'index'])->name('spk.index');
+Route::post('/transaction/spk', [SpkController::class, 'store'])->name('spk.store');
+Route::put('/transaction/spk/{id}', [SpkController::class, 'update'])->name('spk.update');
+Route::delete('/transaction/spk/{id}', [SpkController::class, 'destroy'])->name('spk.destroy');
+Route::get('/transaction/spk/{id}/print', [SpkController::class, 'print'])->name('spk.print');

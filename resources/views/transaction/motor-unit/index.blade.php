@@ -18,13 +18,6 @@
         </button>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-100 rounded-xl flex items-start gap-3">
-            <svg class="w-5 h-5 text-green-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div class="text-sm text-green-800 font-medium">{{ session('success') }}</div>
-        </div>
-    @endif
-
     @if ($errors->any())
         <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
             <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -89,7 +82,7 @@
                                     <button @click="openEditModal({{ $unit }})" class="text-blue-500 hover:text-blue-700 transition-colors" title="Edit">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <form action="{{ route('motor-unit.destroy', $unit->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data unit ini?');">
+                                    <form action="{{ route('motor-unit.destroy', $unit->id) }}" method="POST" onsubmit="confirmDelete(event, this)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
@@ -376,7 +369,7 @@
                             <button type="button" @click="isEditModalOpen = false" class="bg-white border border-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-lg shadow-sm hover:bg-gray-50 transition-all">
                                 Batal
                             </button>
-                            <button type="submit" class="bg-honda-red text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:bg-red-700 transition-all flex items-center gap-2">
+                            <button type="submit" class="bg-blue-600 text-white font-bold py-2.5 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-all flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 Perbarui Data
                             </button>
@@ -393,13 +386,13 @@
     function unitManager() {
         return {
             types: @json($types),
-            todayDateInput: new Date().toISOString().split('T')[0], // Menghasilkan format YYYY-MM-DD
+            todayDateInput: new Date().toISOString().split('T')[0],
 
             isCreateModalOpen: false,
             cType: '', cKodeType: '',
             cAvailableColors: [], cColor: '', cKodeWarna: '',
             cKunci: '', cTahun: '', cAccu: '',
-            cTanggal: new Date().toISOString().split('T')[0], // Default ke hari ini
+            cTanggal: new Date().toISOString().split('T')[0],
 
             isEditModalOpen: false,
             eId: '', eDo: '', eSp: '', eTanggal: '', eMesin: '', eRangka: '', eSeri: '',
@@ -407,10 +400,11 @@
             eAvailableColors: [], eColor: '', eKodeWarna: '',
             eKunci: '', eTahun: '', eAccu: '',
 
+            // Perbaikan ada di t.kode_tipe (sebelumnya t.kode_type)
             updateCreateType() {
                 let t = this.types.find(x => x.id == this.cType);
                 if (t) {
-                    this.cKodeType = t.kode_type;
+                    this.cKodeType = t.kode_tipe;
                     this.cAvailableColors = t.colors;
                 } else {
                     this.cKodeType = '';
@@ -435,14 +429,13 @@
                 this.eId = unit.id;
                 this.eDo = unit.no_do;
 
-                // Pisahkan string No SP & Tanggal dari database
                 let spParts = unit.no_sp.split(' / ');
                 this.eSp = spParts[0] || '';
 
                 if (spParts.length > 1) {
-                    let dParts = spParts[1].split('/'); // Memecah format DD/MM/YYYY
+                    let dParts = spParts[1].split('/');
                     if(dParts.length === 3) {
-                        this.eTanggal = `${dParts[2]}-${dParts[1]}-${dParts[0]}`; // Ubah ke YYYY-MM-DD untuk input date
+                        this.eTanggal = `${dParts[2]}-${dParts[1]}-${dParts[0]}`;
                     } else {
                         this.eTanggal = this.todayDateInput;
                     }
@@ -460,7 +453,7 @@
                 this.eType = unit.motor_type_id;
                 let t = this.types.find(x => x.id == this.eType);
                 if(t) {
-                    this.eKodeType = t.kode_type;
+                    this.eKodeType = t.kode_tipe; // Perbaikan di sini
                     this.eAvailableColors = t.colors;
                     this.eColor = unit.motor_color_id;
                     let c = this.eAvailableColors.find(x => x.id == this.eColor);
@@ -473,7 +466,7 @@
             updateEditType() {
                 let t = this.types.find(x => x.id == this.eType);
                 if (t) {
-                    this.eKodeType = t.kode_type;
+                    this.eKodeType = t.kode_tipe; // Perbaikan di sini
                     this.eAvailableColors = t.colors;
                 } else {
                     this.eKodeType = '';

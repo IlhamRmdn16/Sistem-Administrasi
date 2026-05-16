@@ -12,6 +12,7 @@ Route::get('/', function () {
 
 Route::get('/master/motor-type', [MotorTypeController::class, 'index'])->name('motor-type.index');
 Route::post('/master/motor-type', [MotorTypeController::class, 'store'])->name('motor-type.store');
+Route::put('/master/motor-type/{id}', [MotorTypeController::class, 'update'])->name('motor-type.update');
 Route::delete('/master/motor-type/{id}', [MotorTypeController::class, 'destroy'])->name('motor-type.destroy');
 
 Route::get('/transaction/motor-unit', [MotorUnitController::class, 'index'])->name('motor-unit.index');

@@ -6,7 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class MotorType extends Model
 {
-    protected $fillable = ['kode_type', 'nama_type', 'otr'];
+    protected $fillable = [
+        'kode_tipe',
+        'jenis',
+        'nama_type',
+        'otr',
+        'notice_pajak',
+        'bbn',
+        'adm_stnk',
+        'kode_motor',
+        'sampul_buku',
+        'tahun_pembuatan'
+    ];
+
+    protected $casts = [
+        'sampul_buku' => 'array',
+    ];
 
     public function colors()
     {

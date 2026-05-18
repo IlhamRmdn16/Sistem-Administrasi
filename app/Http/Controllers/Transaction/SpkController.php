@@ -14,12 +14,20 @@ class SpkController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $per_page = $request->input('per_page', 10);
 
         $sales = Sales::orderBy('nama_sales')->get();
         $motorTypes = MotorType::with('colors')->orderBy('nama_type')->get();
         $leasings = Leasing::orderBy('nama_leasing')->get();
 
         $query = Spk::with(['sales', 'motorType', 'motorColor', 'leasing']);
+
+        if ($dari_tanggal && $sampai_tanggal) {
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+        }
+
         if ($search) {
             $query->where('no_spk', 'like', "%{$search}%")
                   ->orWhere('nama_pemohon', 'like', "%{$search}%")
@@ -27,16 +35,27 @@ class SpkController extends Controller
                       $q->where('nama_sales', 'like', "%{$search}%");
                   });
         }
-        $spks = $query->latest()->paginate(10)->withQueryString();
+        
+        $spks = $query->latest()->paginate($per_page)->withQueryString();
 
         $now = now();
         $prefix = "SPK{$now->format('Y')}/{$now->format('m')}/";
-        $lastSpk = Spk::where('no_spk', 'like', "{$prefix}%")->latest('no_spk')->first();
+        
+        $existingNumbers = Spk::where('no_spk', 'like', "{$prefix}%")
+            ->pluck('no_spk')
+            ->map(function ($no_spk) {
+                return intval(substr($no_spk, -4));
+            })
+            ->toArray();
 
-        $nextNumber = $lastSpk ? str_pad(intval(substr($lastSpk->no_spk, -4)) + 1, 4, '0', STR_PAD_LEFT) : '0001';
-        $autoNoSpk = $prefix . $nextNumber;
+        $nextNumber = 1;
+        while (in_array($nextNumber, $existingNumbers)) {
+            $nextNumber++;
+        }
 
-        return view('transaction.spk.index', compact('spks', 'sales', 'motorTypes', 'leasings', 'autoNoSpk'));
+        $autoNoSpk = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        return view('transaction.spk.index', compact('spks', 'sales', 'motorTypes', 'leasings', 'autoNoSpk', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
     }
 
     public function store(Request $request)
@@ -47,7 +66,10 @@ class SpkController extends Controller
         $request->validate($rules);
         Spk::create($request->all());
 
-        return back()->with('success', 'Data SPK berhasil dibuat!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data SPK berhasil dibuat!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -70,13 +92,19 @@ class SpkController extends Controller
 
         $spk->update($data);
 
-        return back()->with('success', 'Data SPK berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data SPK berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
     {
         Spk::findOrFail($id)->delete();
-        return back()->with('success', 'Data SPK berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data SPK berhasil dihapus!'
+        ]);
     }
 
     public function print($id)

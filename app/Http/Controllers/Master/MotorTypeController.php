@@ -9,24 +9,50 @@ use Illuminate\Support\Facades\DB;
 
 class MotorTypeController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search = $request->input('search');
+        $filter_tahun = $request->input('filter_tahun');
+        $per_page = $request->input('per_page', 10);
 
         $query = MotorType::with('colors');
 
-        if ($search) {
-            $query->where('kode_motor', 'like', "%{$search}%")
-                  ->orWhere('kode_tipe', 'like', "%{$search}%")
-                  ->orWhere('nama_type', 'like', "%{$search}%");
+        if ($filter_tahun) {
+            $query->where('tahun_pembuatan', $filter_tahun);
         }
 
-        $motorTypes = $query->latest()->paginate(10)->withQueryString();
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_motor', 'like', "%{$search}%")
+                  ->orWhere('kode_tipe', 'like', "%{$search}%")
+                  ->orWhere('nama_type', 'like', "%{$search}%");
+            });
+        }
 
-        $nextId = MotorType::max('id') + 1;
-        $autoKodeTipe = str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        $motorTypes = $query->latest()->paginate($per_page)->withQueryString();
+        
+        // Mengambil daftar tahun yang unik untuk dropdown filter
+        $years = MotorType::select('tahun_pembuatan')
+            ->whereNotNull('tahun_pembuatan')
+            ->distinct()
+            ->orderBy('tahun_pembuatan', 'desc')
+            ->pluck('tahun_pembuatan');
 
-        return view('master.motor-type.index', compact('motorTypes', 'autoKodeTipe'));
+        // LOGIKA BARU: Mengisi celah nomor yang kosong
+        $existingNumbers = MotorType::pluck('kode_tipe')
+            ->map(function ($kode_tipe) {
+                return intval($kode_tipe);
+            })
+            ->toArray();
+
+        $nextNumber = 1;
+        while (in_array($nextNumber, $existingNumbers)) {
+            $nextNumber++;
+        }
+
+        $autoKodeTipe = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('master.motor-type.index', compact('motorTypes', 'autoKodeTipe', 'search', 'filter_tahun', 'per_page', 'years'));
     }
 
     public function store(Request $request)
@@ -69,7 +95,10 @@ class MotorTypeController extends Controller
             }
         });
 
-        return back()->with('success', 'Data Motor berhasil disimpan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Motor berhasil disimpan!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -116,7 +145,10 @@ class MotorTypeController extends Controller
             }
         });
 
-        return back()->with('success', 'Data Motor berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Motor berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
@@ -124,6 +156,9 @@ class MotorTypeController extends Controller
         $motorType = MotorType::findOrFail($id);
         $motorType->delete();
 
-        return back()->with('success', 'Data berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Motor berhasil dihapus!'
+        ]);
     }
 }

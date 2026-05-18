@@ -12,17 +12,34 @@ class RekeningController extends Controller
     {
         $search = $request->input('search');
 
-        $rekenings = Rekening::when($search, function($query) use ($search) {
-            $query->where('nama_rekening', 'like', "%{$search}%")
+        $query = Rekening::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_rekening', 'like', "%{$search}%")
                   ->orWhere('kode_rekening', 'like', "%{$search}%")
                   ->orWhere('nomor_rekening', 'like', "%{$search}%");
-        })->latest()->paginate(10)->withQueryString();
+            });
+        }
 
-        // Generate Kode Rekening Otomatis (001, 002, dst)
-        $nextId = Rekening::max('id') + 1;
-        $autoKodeRekening = str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        // Paginasi di-set statis 10 baris
+        $rekenings = $query->latest()->paginate(10)->withQueryString();
 
-        return view('master.rekening.index', compact('rekenings', 'autoKodeRekening'));
+        // LOGIKA PENOMORAN MENGISI CELAH KOSONG YANG DIPERKUAT
+        $existingNumbers = Rekening::pluck('kode_rekening')
+            ->map(function ($kode_rekening) {
+                return (int) preg_replace('/[^0-9]/', '', $kode_rekening);
+            })
+            ->toArray();
+
+        $nextNumber = 1;
+        while (in_array($nextNumber, $existingNumbers)) {
+            $nextNumber++;
+        }
+
+        $autoKodeRekening = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('master.rekening.index', compact('rekenings', 'autoKodeRekening', 'search'));
     }
 
     public function store(Request $request)
@@ -35,7 +52,10 @@ class RekeningController extends Controller
 
         Rekening::create($request->all());
 
-        return back()->with('success', 'Data Rekening berhasil ditambahkan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Rekening berhasil ditambahkan!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -49,7 +69,10 @@ class RekeningController extends Controller
         $rekening = Rekening::findOrFail($id);
         $rekening->update($request->all());
 
-        return back()->with('success', 'Data Rekening berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Rekening berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
@@ -57,6 +80,9 @@ class RekeningController extends Controller
         $rekening = Rekening::findOrFail($id);
         $rekening->delete();
 
-        return back()->with('success', 'Data Rekening berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Rekening berhasil dihapus!'
+        ]);
     }
 }

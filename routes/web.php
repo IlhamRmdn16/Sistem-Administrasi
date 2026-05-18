@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\Master\LeasingController;
 use App\Http\Controllers\Master\MotorTypeController;
+use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\SpkController;
+use App\Http\Controllers\Transaction\SuratJalanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,3 +41,14 @@ Route::post('/transaction/spk', [SpkController::class, 'store'])->name('spk.stor
 Route::put('/transaction/spk/{id}', [SpkController::class, 'update'])->name('spk.update');
 Route::delete('/transaction/spk/{id}', [SpkController::class, 'destroy'])->name('spk.destroy');
 Route::get('/transaction/spk/{id}/print', [SpkController::class, 'print'])->name('spk.print');
+
+Route::get('/master/pdi-man', [PdiManController::class, 'index'])->name('pdiman.index');
+Route::post('/master/pdi-man', [PdiManController::class, 'store'])->name('pdiman.store');
+Route::put('/master/pdi-man/{id}', [PdiManController::class, 'update'])->name('pdiman.update');
+Route::delete('/master/pdi-man/{id}', [PdiManController::class, 'destroy'])->name('pdiman.destroy');
+
+Route::get('/transaction/suratjalan', [SuratJalanController::class, 'index'])->name('suratjalan.index');
+Route::post('/transaction/suratjalan', [SuratJalanController::class, 'store'])->name('suratjalan.store');
+Route::put('/transaction/suratjalan/{id}', [SuratJalanController::class, 'update'])->name('suratjalan.update');
+Route::delete('/transaction/suratjalan/{id}', [SuratJalanController::class, 'destroy'])->name('suratjalan.destroy');
+Route::get('/transaction/suratjalan/{id}/print', [SuratJalanController::class, 'print'])->name('suratjalan.print');

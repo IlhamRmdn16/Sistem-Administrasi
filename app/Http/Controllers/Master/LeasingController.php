@@ -11,13 +11,20 @@ class LeasingController extends Controller
    public function index(Request $request)
     {
         $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
 
-        $leasings = Leasing::when($search, function($query) use ($search) {
-            $query->where('nama_leasing', 'like', "%{$search}%")
+        $query = Leasing::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_leasing', 'like', "%{$search}%")
                   ->orWhere('kode_leasing', 'like', "%{$search}%");
-        })->latest()->paginate(10)->withQueryString();
+            });
+        }
 
-        return view('master.leasing.index', compact('leasings'));
+        $leasings = $query->latest()->paginate($per_page)->withQueryString();
+
+        return view('master.leasing.index', compact('leasings', 'search', 'per_page'));
     }
 
     public function store(Request $request)
@@ -32,7 +39,10 @@ class LeasingController extends Controller
 
         Leasing::create($request->all());
 
-        return back()->with('success', 'Data Leasing berhasil ditambahkan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Leasing berhasil ditambahkan!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -48,7 +58,10 @@ class LeasingController extends Controller
         $leasing = Leasing::findOrFail($id);
         $leasing->update($request->all());
 
-        return back()->with('success', 'Data Leasing berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Leasing berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
@@ -56,6 +69,9 @@ class LeasingController extends Controller
         $leasing = Leasing::findOrFail($id);
         $leasing->delete();
 
-        return back()->with('success', 'Data Leasing berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Leasing berhasil dihapus!'
+        ]);
     }
 }

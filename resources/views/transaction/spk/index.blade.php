@@ -9,47 +9,53 @@
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
                 Surat Pesanan Kendaraan (SPK)
             </h2>
-            <p class="text-sm text-gray-500 mt-1 ml-4">Kelola data pemesanan unit, biodata konsumen, dan skema pembayaran.</p>
+            <p class="text-sm text-gray-500 mt-1 ml-4">Kelola data pemesanan unit kendaraan dari konsumen.</p>
         </div>
 
         <button @click="isCreateModalOpen = true" class="bg-honda-red text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:bg-red-700 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Buat SPK Baru
+            Buat SPK
         </button>
     </div>
 
-    @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
-            <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div class="text-sm text-red-800 font-medium">
-                <ul class="list-disc pl-4 space-y-1">
-                    @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                </ul>
+    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 flex flex-col lg:flex-row justify-between items-center gap-4">
+        <form action="{{ route('spk.index') }}" method="GET" class="w-full flex flex-col sm:flex-row items-center gap-3">
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <input type="date" name="dari_tanggal" value="{{ $dari_tanggal }}" class="border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-honda-red">
+                <span class="text-gray-400 text-sm">s/d</span>
+                <input type="date" name="sampai_tanggal" value="{{ $sampai_tanggal }}" class="border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-honda-red">
             </div>
-        </div>
-    @endif
+
+            <div class="relative w-full sm:w-72">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. SPK, Pemohon, Sales..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <select name="per_page" onchange="this.form.submit()" class="border border-gray-300 rounded-lg p-2 text-sm outline-none bg-white focus:border-honda-red">
+                    <option value="10" {{ $per_page == 10 ? 'selected' : '' }}>10 baris</option>
+                    <option value="25" {{ $per_page == 25 ? 'selected' : '' }}>25 baris</option>
+                    <option value="50" {{ $per_page == 50 ? 'selected' : '' }}>50 baris</option>
+                </select>
+            </div>
+
+            <button type="submit" class="bg-gray-800 text-white font-semibold px-5 py-2 rounded-lg text-sm hover:bg-gray-900 transition-colors w-full sm:w-auto">Filter</button>
+            <a href="{{ route('spk.index') }}" class="text-center bg-gray-100 text-gray-600 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors w-full sm:w-auto">Reset</a>
+        </form>
+    </div>
 
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-        <div class="p-4 border-b border-gray-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <form action="{{ route('spk.index') }}" method="GET" class="w-full sm:w-96 relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No SPK, Pemohon, atau Sales..." class="w-full border border-gray-300 rounded-lg py-2 pl-10 px-4 outline-none focus:border-honda-red text-sm">
-            </form>
-            <div class="text-sm text-gray-500">
-                Menampilkan <span class="font-bold text-gray-800">{{ $spks->firstItem() ?? 0 }}</span> - <span class="font-bold text-gray-800">{{ $spks->lastItem() ?? 0 }}</span> dari <span class="font-bold text-gray-800">{{ $spks->total() }}</span> data
-            </div>
-        </div>
-
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
                     <tr>
-                        <th class="py-4 px-6 font-semibold">No. SPK & Tgl</th>
-                        <th class="py-4 px-6 font-semibold">Konsumen</th>
-                        <th class="py-4 px-6 font-semibold">Tipe Unit & Warna</th>
-                        <th class="py-4 px-6 font-semibold">Pembayaran</th>
+                        <th class="py-4 px-6 font-semibold">No. SPK / Tgl</th>
+                        <th class="py-4 px-6 font-semibold">Pemohon</th>
+                        <th class="py-4 px-6 font-semibold">Sales</th>
+                        <th class="py-4 px-6 font-semibold">Kendaraan</th>
+                        <th class="py-4 px-6 font-semibold">Transaksi</th>
                         <th class="py-4 px-6 text-center w-40 font-semibold">Aksi</th>
                     </tr>
                 </thead>
@@ -58,42 +64,39 @@
                         <tr class="hover:bg-slate-50/50">
                             <td class="py-4 px-6">
                                 <div class="font-bold text-gray-800">{{ $spk->no_spk }}</div>
-                                <div class="text-xs text-gray-500 mt-1">{{ \Carbon\Carbon::parse($spk->tanggal)->format('d/m/Y') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($spk->tanggal)->format('d/m/Y') }}</div>
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-gray-800">{{ $spk->nama_pemohon }}</div>
-                                <div class="text-xs text-gray-500 mt-1">Sales: {{ $spk->sales->nama_sales ?? '-' }}</div>
-                            </td>
+                            <td class="py-4 px-6 text-sm font-bold text-gray-800 uppercase">{{ $spk->nama_pemohon }}</td>
+                            <td class="py-4 px-6 text-sm text-gray-700 uppercase">{{ $spk->sales->nama_sales }}</td>
                             <td class="py-4 px-6 text-sm text-gray-700">
-                                <div class="font-bold">{{ $spk->motorType->nama_type ?? '-' }}</div>
-                                <div class="text-xs text-gray-500 mt-1">{{ $spk->motorColor->warna ?? '-' }} ({{ $spk->motorType->tahun_pembuatan ?? '-' }})</div>
+                                <div class="font-semibold">{{ $spk->motorType->nama_type }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $spk->motorColor->warna }}</div>
                             </td>
                             <td class="py-4 px-6 text-sm">
-                                <span class="px-2 py-1 rounded text-xs font-bold {{ $spk->jenis_pembayaran == 'Cash' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-blue-100 text-blue-700 border border-blue-200' }}">
-                                    {{ $spk->jenis_pembayaran }}
-                                </span>
+                                @if($spk->jenis_pembayaran == 'Cash')
+                                    <span class="px-2.5 py-1 bg-green-100 text-green-700 font-bold rounded text-xs uppercase">CASH</span>
+                                @else
+                                    <span class="px-2.5 py-1 bg-blue-100 text-blue-700 font-bold rounded text-xs uppercase">KREDIT</span>
+                                    <div class="text-xs text-gray-500 mt-1 uppercase">{{ $spk->leasing->nama_leasing }}</div>
+                                @endif
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('spk.print', $spk->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700" title="Cetak SPK">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </a>
-                                    <button @click="openEditModal({{ $spk }})" class="text-blue-500 hover:text-blue-700" title="Edit">
+                                    <button @click="openEditModal({{ $spk }})" class="text-blue-500 hover:text-blue-700" title="Edit Data">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <form action="{{ route('spk.destroy', $spk->id) }}" method="POST" onsubmit="confirmDelete(event, this)">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                                    </form>
+                                    <button type="button" onclick="confirmDeleteAjax({{ $spk->id }}, this)" class="text-red-500 hover:text-red-700" title="Hapus">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-gray-500">
-                                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                Data SPK belum tersedia.
-                            </td>
+                            <td colspan="6" class="py-12 text-center text-gray-500">Data SPK tidak ditemukan.</td>
                         </tr>
                     @endempty
                 </tbody>
@@ -105,18 +108,16 @@
     </div>
 
     <div x-show="isCreateModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div x-show="isCreateModalOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isCreateModalOpen = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-
-            <div x-show="isCreateModalOpen" x-transition class="inline-block align-bottom bg-gray-50 rounded-2xl text-left shadow-xl transform transition-all sm:my-8 sm:align-middle w-full max-w-6xl overflow-hidden">
+            <div x-show="isCreateModalOpen" x-transition class="bg-gray-50 rounded-2xl shadow-xl transform transition-all w-full max-w-5xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-20">
-                    <h3 class="text-xl font-bold text-gray-900">Form Pembuatan SPK</h3>
-                    <button @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-600 focus:outline-none"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <h3 class="text-lg font-bold text-gray-900">Buat SPK Baru</h3>
+                    <button @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <div class="p-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                    <form action="{{ route('spk.store') }}" method="POST" class="space-y-6">
+                <div class="p-6 max-h-[75vh] overflow-y-auto">
+                    <form @submit.prevent="submitCreate" class="space-y-6">
                         @csrf
 
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -268,11 +269,12 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-gray-200 gap-3 sticky bottom-0 bg-white py-4">
-                            <button type="button" @click="isCreateModalOpen = false" class="px-6 py-3 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50">Batal</button>
-                            <button type="submit" class="px-8 py-3 bg-honda-red text-white rounded-lg font-bold shadow hover:bg-red-700 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                                Simpan SPK
+                        <div class="flex justify-end pt-4 gap-3">
+                            <button type="button" @click="isCreateModalOpen = false" class="px-6 py-3 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 bg-white" :disabled="isSubmitting">Batal</button>
+                            <button type="submit" class="px-8 py-3 bg-honda-red text-white rounded-lg font-bold shadow hover:bg-red-700 flex items-center gap-2" :disabled="isSubmitting">
+                                <svg x-show="!isSubmitting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                <svg x-show="isSubmitting" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan SPK'"></span>
                             </button>
                         </div>
                     </form>
@@ -281,20 +283,17 @@
         </div>
     </div>
 
-
     <div x-show="isEditModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div x-show="isEditModalOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isEditModalOpen = false"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-
-            <div x-show="isEditModalOpen" x-transition class="inline-block align-bottom bg-gray-50 rounded-2xl text-left shadow-xl transform transition-all sm:my-8 sm:align-middle w-full max-w-6xl overflow-hidden">
+            <div x-show="isEditModalOpen" x-transition class="bg-gray-50 rounded-2xl shadow-xl transform transition-all w-full max-w-5xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-20">
-                    <h3 class="text-xl font-bold text-gray-900">Edit Data SPK</h3>
-                    <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-600 focus:outline-none"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <h3 class="text-lg font-bold text-gray-900">Edit Data SPK</h3>
+                    <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <div class="p-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
-                    <form :action="'/transaction/spk/' + eId" method="POST" class="space-y-6">
+                <div class="p-6 max-h-[75vh] overflow-y-auto">
+                    <form @submit.prevent="submitEdit" class="space-y-6">
                         @csrf @method('PUT')
 
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -446,11 +445,12 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-gray-200 gap-3 sticky bottom-0 bg-white py-4">
-                            <button type="button" @click="isEditModalOpen = false" class="px-6 py-3 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50">Batal</button>
-                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold shadow hover:bg-blue-700 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Perbarui SPK
+                        <div class="flex justify-end pt-4 gap-3">
+                            <button type="button" @click="isEditModalOpen = false" class="px-6 py-3 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 bg-white" :disabled="isEditing">Batal</button>
+                            <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold shadow hover:bg-blue-700 flex items-center gap-2" :disabled="isEditing">
+                                <svg x-show="!isEditing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <svg x-show="isEditing" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span x-text="isEditing ? 'Memperbarui...' : 'Perbarui SPK'"></span>
                             </button>
                         </div>
                     </form>
@@ -461,16 +461,16 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function spkManager() {
         return {
-            // Master Data
             sales: @json($sales),
             motors: @json($motorTypes),
             leasings: @json($leasings),
 
-            // --- STATE UNTUK CREATE ---
             isCreateModalOpen: false,
+            isSubmitting: false,
             cTanggal: new Date().toISOString().split('T')[0],
             cPembayaran: 'Cash',
 
@@ -487,9 +487,56 @@
             openLeasing: false, searchLeasing: '', cLeasing: '', selectedLeasingName: '',
             setLeasing(l) { this.cLeasing = l.id; this.selectedLeasingName = l.nama_leasing; this.openLeasing = false; },
 
+            submitCreate(event) {
+                this.isSubmitting = true;
+                let formData = new FormData(event.target);
 
-            // --- STATE UNTUK EDIT ---
+                fetch('{{ route("spk.store") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.success) {
+                        this.isCreateModalOpen = false;
+                        this.isSubmitting = false;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    this.isSubmitting = false;
+                    let errorMsg = 'Terjadi kesalahan sistem.';
+                    if(error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0]; 
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menyimpan',
+                        text: errorMsg
+                    });
+                });
+            },
+
             isEditModalOpen: false,
+            isEditing: false,
             eId: '', eNoSpk: '', eTanggal: '',
             eSales: '', eSalesName: '', eSearchSales: '', eOpenSales: false,
             ePemohon: '', eStnk: '', eNik: '', eAlamat: '', eRtRw: '', eDesa: '', eKecamatan: '', eKota: '', eTelp: '', eEmail: '',
@@ -510,24 +557,21 @@
                 this.eNoSpk = spk.no_spk;
                 this.eTanggal = spk.tanggal;
 
-                // Mapping Sales
                 this.eSales = spk.sales_id;
                 let s = this.sales.find(x => x.id == spk.sales_id);
                 this.eSalesName = s ? s.nama_sales : '';
 
-                // Mapping Biodata
                 this.ePemohon = spk.nama_pemohon;
                 this.eStnk = spk.nama_stnk;
                 this.eNik = spk.nik;
                 this.eAlamat = spk.alamat;
-                this.eRtRw = spk.rt_rw; // MAPPING RT/RW Edit
+                this.eRtRw = spk.rt_rw;
                 this.eDesa = spk.desa_kelurahan;
                 this.eKecamatan = spk.kecamatan;
                 this.eKota = spk.kota_kabupaten;
                 this.eTelp = spk.telepon;
                 this.eEmail = spk.email || '';
 
-                // Mapping Motor & Pembayaran
                 this.ePembayaran = spk.jenis_pembayaran;
                 this.eMotor = spk.motor_type_id;
                 let m = this.motors.find(x => x.id == spk.motor_type_id);
@@ -539,7 +583,6 @@
                     this.eWarna = spk.motor_color_id;
                 }
 
-                // Mapping Kredit
                 this.eDp = spk.uang_muka || '';
                 this.eTandaJadi = spk.tanda_jadi || '';
                 this.eTenor = spk.tenor_bulan || '';
@@ -550,8 +593,92 @@
                 this.eLeasingName = l ? l.nama_leasing : '';
 
                 this.isEditModalOpen = true;
+            },
+
+            submitEdit(event) {
+                this.isEditing = true;
+                let formData = new FormData(event.target);
+
+                fetch('/transaction/spk/' + this.eId, {
+                    method: 'POST', 
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.success) {
+                        this.isEditModalOpen = false;
+                        this.isEditing = false;
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                })
+                .catch(error => {
+                    this.isEditing = false;
+                    let errorMsg = 'Terjadi kesalahan sistem.';
+                    if(error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0]; 
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memperbarui',
+                        text: errorMsg
+                    });
+                });
             }
         }
+    }
+
+    function confirmDeleteAjax(id, button) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data SPK ini akan dihapus secara permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/transaction/spk/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        button.closest('tr').remove();
+                    }
+                });
+            }
+        });
     }
 </script>
 @endsection

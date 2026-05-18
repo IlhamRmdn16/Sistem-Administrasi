@@ -10,17 +10,38 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->search;
-        $sales = Sales::when($search, function($q) use ($search) {
-            $q->where('nama_sales', 'like', "%$search%")
-              ->orWhere('kode_sales', 'like', "%$search%")
-              ->orWhere('nik', 'like', "%$search%");
-        })->latest()->paginate(10)->withQueryString();
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
 
-        $nextId = Sales::max('id') + 1;
-        $autoKodeSales = str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        $query = Sales::query();
 
-        return view('master.sales.index', compact('sales', 'autoKodeSales'));
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_sales', 'like', "%{$search}%")
+                  ->orWhere('kode_sales', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        $sales = $query->latest()->paginate($per_page)->withQueryString();
+
+        // LOGIKA PENOMORAN MENGISI CELAH KOSONG YANG DIPERKUAT
+        // Menggunakan regex untuk membuang semua karakter selain angka agar konversi ke integer benar-benar akurat
+        $existingNumbers = Sales::pluck('kode_sales')
+            ->map(function ($kode_sales) {
+                return (int) preg_replace('/[^0-9]/', '', $kode_sales);
+            })
+            ->toArray();
+
+        $nextNumber = 1;
+        while (in_array($nextNumber, $existingNumbers)) {
+            $nextNumber++;
+        }
+
+        // Generate nomor dengan padding nol di depan (misal: 001, 002, dst)
+        $autoKodeSales = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('master.sales.index', compact('sales', 'autoKodeSales', 'search', 'per_page'));
     }
 
     public function store(Request $request)
@@ -37,7 +58,10 @@ class SalesController extends Controller
 
         Sales::create($request->all());
 
-        return back()->with('success', 'Data Sales berhasil ditambahkan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Sales berhasil ditambahkan!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -54,13 +78,19 @@ class SalesController extends Controller
 
         Sales::findOrFail($id)->update($request->all());
 
-        return back()->with('success', 'Data Sales berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Sales berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
     {
         Sales::findOrFail($id)->delete();
 
-        return back()->with('success', 'Data Sales berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Sales berhasil dihapus!'
+        ]);
     }
 }

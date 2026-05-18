@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Http\Controllers\Transaction;
+
+use App\Http\Controllers\Controller;
+use App\Models\MotorUnit;
+use App\Models\PdiMan;
+use App\Models\Spk;
+use App\Models\SuratJalan;
+use Illuminate\Http\Request;
+
+class SuratJalanController extends Controller
+{
+   public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $per_page = $request->input('per_page', 10);
+
+        $query = SuratJalan::with(['spk.motorType', 'spk.motorColor', 'motorUnit', 'pdiMan']);
+
+        if ($dari_tanggal && $sampai_tanggal) {
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+        }
+
+        if ($search) {
+            $query->where('no_bukti', 'like', "%{$search}%")
+                  ->orWhereHas('spk', function ($q) use ($search) {
+                      $q->where('nama_pemohon', 'like', "%{$search}%")
+                        ->orWhere('no_spk', 'like', "%{$search}%");
+                  });
+        }
+
+        $suratJalans = $query->latest()->paginate($per_page)->withQueryString();
+
+        $now = now();
+        $prefix = "SJK{$now->format('Y')}/{$now->format('m')}/";
+        
+        $existingNumbers = SuratJalan::where('no_bukti', 'like', "{$prefix}%")
+            ->pluck('no_bukti')
+            ->map(function ($no_bukti) {
+                return intval(substr($no_bukti, -4));
+            })
+            ->toArray();
+
+        $nextNumber = 1;
+        while (in_array($nextNumber, $existingNumbers)) {
+            $nextNumber++;
+        }
+
+        $autoNoBukti = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        $usedSpkIds = SuratJalan::pluck('spk_id')->toArray();
+        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorType', 'motorColor'])->get();
+
+        $usedUnitIds = SuratJalan::pluck('motor_unit_id')->filter()->toArray();
+        $availableUnits = MotorUnit::whereNotIn('id', $usedUnitIds)->get();
+        
+        $pdiMans = PdiMan::orderBy('nama_pdi_man')->get();
+
+        return view('transaction.suratjalan.index', compact('suratJalans', 'autoNoBukti', 'availableSpks', 'availableUnits', 'pdiMans', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'no_bukti' => 'required|unique:surat_jalans,no_bukti',
+            'tanggal' => 'required|date',
+            'spk_id' => 'required',
+            'motor_unit_id' => 'required',
+            'pdi_man_id' => 'required'
+        ]);
+
+        SuratJalan::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Surat Jalan berhasil diterbitkan!'
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'no_bukti' => 'required|unique:surat_jalans,no_bukti,' . $id,
+            'tanggal' => 'required|date',
+            'spk_id' => 'required',
+            'motor_unit_id' => 'required',
+            'pdi_man_id' => 'required'
+        ]);
+
+        SuratJalan::findOrFail($id)->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Surat Jalan berhasil diperbarui!'
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        SuratJalan::findOrFail($id)->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Surat Jalan berhasil dihapus!'
+        ]);
+    }
+
+    public function print($id)
+    {
+        $sj = SuratJalan::with(['spk.motorType', 'spk.motorColor', 'motorUnit', 'pdiMan'])->findOrFail($id);
+        return view('transaction.suratjalan.print', compact('sj'));
+    }
+}

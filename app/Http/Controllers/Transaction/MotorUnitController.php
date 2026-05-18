@@ -13,9 +13,22 @@ class MotorUnitController extends Controller
    public function index(Request $request)
     {
         $search = $request->input('search');
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $per_page = $request->input('per_page', 10);
+        
         $types = MotorType::with('colors')->get();
 
         $query = MotorUnit::with(['type', 'color']);
+
+        // Menggunakan kolom created_at atau tanggal_sp untuk filter periode.
+        // Di sini kita gunakan tanggal_sp berdasarkan format dd/mm/yyyy yang tersimpan di kolom no_sp
+        if ($dari_tanggal && $sampai_tanggal) {
+             // Karena tanggal bergabung di kolom no_sp dengan format "No / dd/mm/yyyy"
+             // Pendekatan terbaik adalah memfilter rentang tanggal jika Anda menyimpan tanggal_sp terpisah
+             // Jika 'tanggal_sp' tidak ada di database, kita asumsikan menggunakan 'created_at' untuk filter periode pendaftaran unit.
+            $query->whereBetween('created_at', [$dari_tanggal . ' 00:00:00', $sampai_tanggal . ' 23:59:59']);
+        }
 
         if ($search) {
             $query->where('no_mesin', 'like', "%{$search}%")
@@ -26,9 +39,9 @@ class MotorUnitController extends Controller
                   });
         }
 
-        $motorUnits = $query->latest()->paginate(10)->withQueryString();
+        $motorUnits = $query->latest()->paginate($per_page)->withQueryString();
 
-        return view('transaction.motor-unit.index', compact('motorUnits', 'types'));
+        return view('transaction.motor-unit.index', compact('motorUnits', 'types', 'search', 'dari_tanggal', 'sampai_tanggal', 'per_page'));
     }
 
     public function store(Request $request)
@@ -63,7 +76,10 @@ class MotorUnitController extends Controller
             'no_accu' => $request->no_accu,
         ]);
 
-        return back()->with('success', 'Data Kendaraan berhasil diregistrasi!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Kendaraan berhasil diregistrasi!'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -100,7 +116,10 @@ class MotorUnitController extends Controller
             'no_accu' => $request->no_accu,
         ]);
 
-        return back()->with('success', 'Data Kendaraan berhasil diperbarui!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Kendaraan berhasil diperbarui!'
+        ]);
     }
 
     public function destroy($id)
@@ -108,7 +127,10 @@ class MotorUnitController extends Controller
         $unit = MotorUnit::findOrFail($id);
         $unit->delete();
 
-        return back()->with('success', 'Data Kendaraan berhasil dihapus!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Kendaraan berhasil dihapus!'
+        ]);
     }
 
     public function print($id)

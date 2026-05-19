@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class BiayaAdministrasi extends Model
 {
     protected $table = 'biaya_administrasis';
-    protected $fillable = ['keterangan', 'nilai'];
+    protected $fillable = ['keterangan', 'kode_sistem', 'nilai'];
 }

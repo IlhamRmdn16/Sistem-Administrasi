@@ -25,6 +25,15 @@
                     <form @submit.prevent="submitCreate" class="space-y-4">
                         @csrf
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Kategori Biaya Sistem</label>
+                            <select name="kode_sistem" class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 text-sm bg-white">
+                                <option value="">Bebas / Lain-lain</option>
+                                <option value="ADM">Biaya ADM Pengajuan</option>
+                                <option value="TB_STNK">Tanda Bayar STNK</option>
+                                <option value="TB_BPKB">Tanda Bayar BPKB</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Keterangan Biaya <span class="text-red-500">*</span></label>
                             <input type="text" name="keterangan" placeholder="Contoh: Biaya Plat Nomor" required class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 text-sm">
                         </div>
@@ -36,7 +45,6 @@
                                 </div>
                                 <input type="number" name="nilai" placeholder="150000" required min="0" class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 pr-4 outline-none transition-all text-gray-800 font-mono text-sm">
                             </div>
-                            <p class="text-[11px] text-gray-400 mt-1">Masukkan angka saja, tanpa titik/koma.</p>
                         </div>
                         <div class="pt-2">
                             <button type="submit" class="w-full bg-honda-red text-white font-bold py-2.5 px-4 rounded-lg shadow-md hover:bg-red-700 transition-all flex items-center justify-center gap-2" :disabled="isSubmitting">
@@ -52,15 +60,9 @@
 
         <div class="lg:col-span-8">
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="p-4 sm:p-5 border-b border-gray-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <form action="{{ route('biaya-administrasi.index') }}" method="GET" class="w-full sm:w-72 relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari keterangan biaya..." class="w-full border border-gray-300 focus:border-honda-red rounded-lg py-2 pl-9 pr-4 outline-none text-sm">
-                    </form>
+                <div class="p-4 sm:p-5 border-b border-gray-100 bg-slate-50/50 flex justify-end items-center">
                     <div class="text-sm text-gray-500">
-                        Total: <span class="font-bold text-gray-800">{{ $biayas->total() }}</span> data
+                        Total: <span class="font-bold text-gray-800">{{ $biayas->count() }}</span> data
                     </div>
                 </div>
 
@@ -78,10 +80,15 @@
                             @forelse($biayas as $index => $b)
                                 <tr class="hover:bg-slate-50/50 transition-colors">
                                     <td class="py-3 px-5 text-sm text-center text-gray-500 font-bold">
-                                        {{ $biayas->firstItem() + $index }}
+                                        {{ $index + 1 }}
                                     </td>
                                     <td class="py-3 px-5 text-sm font-bold text-gray-800">
                                         {{ $b->keterangan }}
+                                        @if($b->kode_sistem)
+                                            <span class="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 text-blue-700 rounded border border-blue-200">
+                                                {{ str_replace('_', ' ', $b->kode_sistem) }}
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="py-3 px-5 text-sm text-gray-700 font-mono text-right font-semibold">
                                         Rp {{ number_format($b->nilai, 0, ',', '.') }}
@@ -100,16 +107,12 @@
                             @empty
                                 <tr>
                                     <td colspan="4" class="py-12 px-6 text-center text-gray-500">
-                                        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                         Data biaya administrasi belum tersedia.
                                     </td>
                                 </tr>
                             @endempty
                         </tbody>
                     </table>
-                </div>
-                <div class="p-4 border-t border-gray-100">
-                    {{ $biayas->links() }}
                 </div>
             </div>
         </div>
@@ -129,6 +132,15 @@
                 <div class="p-6">
                     <form @submit.prevent="submitEdit" class="space-y-4">
                         @csrf @method('PUT')
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Kategori Biaya Sistem</label>
+                            <select name="kode_sistem" x-model="eKodeSistem" class="w-full border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 text-sm bg-white">
+                                <option value="">Bebas / Lain-lain</option>
+                                <option value="ADM">Biaya ADM Pengajuan</option>
+                                <option value="TB_STNK">Tanda Bayar STNK</option>
+                                <option value="TB_BPKB">Tanda Bayar BPKB</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Keterangan Biaya <span class="text-red-500">*</span></label>
                             <input type="text" name="keterangan" x-model="eKeterangan" required class="w-full border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 text-sm">
@@ -167,6 +179,7 @@
             isEditing: false,
 
             eId: '',
+            eKodeSistem: '',
             eKeterangan: '',
             eNilai: '',
 
@@ -193,8 +206,9 @@
                             text: data.message,
                             timer: 1500,
                             showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
                         });
-                        setTimeout(() => window.location.reload(), 1200);
                     }
                 })
                 .catch(error => {
@@ -207,6 +221,7 @@
 
             openEditModal(b) {
                 this.eId = b.id;
+                this.eKodeSistem = b.kode_sistem || '';
                 this.eKeterangan = b.keterangan;
                 this.eNilai = b.nilai;
                 this.isEditModalOpen = true;
@@ -216,7 +231,7 @@
                 this.isEditing = true;
                 let formData = new FormData(event.target);
 
-                fetch('/master/biaya-administrasi/' + this.eId, {
+                fetch('/biaya-administrasi/' + this.eId, {
                     method: 'POST',
                     body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -233,8 +248,9 @@
                             text: data.message,
                             timer: 1500,
                             showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
                         });
-                        setTimeout(() => window.location.reload(), 1200);
                     }
                 })
                 .catch(error => {
@@ -259,7 +275,7 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/master/biaya-administrasi/${id}`, {
+                fetch(`/biaya-administrasi/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -276,7 +292,8 @@
                             timer: 1500,
                             showConfirmButton: false
                         });
-                        button.closest('tr').remove(); // Menghapus baris secara instan
+                        button.closest('tr').remove();
+                        window.location.reload();
                     }
                 });
             }

@@ -79,6 +79,7 @@
                                     <a href="{{ route('suratjalan.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Surat Jalan</a>
                                     <hr class="border-gray-200 my-1">
                                     <a href="{{ route('samsat.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">STNK / BPKB</a>
+                                    <a href="{{ route('pengajuan-stnk.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Pengajuan STNK</a>
                                 </div>
                             </div>
                         </nav>
@@ -150,6 +151,7 @@
                             <a href="{{ route('suratjalan.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Surat Jalan</a>
                             <hr class="border-gray-200 my-1">
                             <a href="{{ route('samsat.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">STNK / BPKB</a>
+                            <a href="{{ route('pengajuan-stnk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Pengajuan STNK</a>
                         </div>
                     </div>
 

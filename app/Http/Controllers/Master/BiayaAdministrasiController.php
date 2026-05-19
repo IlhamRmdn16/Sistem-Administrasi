@@ -5,29 +5,30 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\BiayaAdministrasi;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class BiayaAdministrasiController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->input('search');
+        $biayas = BiayaAdministrasi::latest()->get();
 
-        $query = BiayaAdministrasi::query();
-
-        if ($search) {
-            $query->where('keterangan', 'like', "%{$search}%");
-        }
-
-        $biayas = $query->latest()->paginate(10)->withQueryString();
-
-        return view('master.biaya-administrasi.index', compact('biayas', 'search'));
+        return view('master.biaya-administrasi.index', compact('biayas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'keterangan' => 'required|string|max:255',
+            'kode_sistem' => [
+                'nullable',
+                'string',
+                'in:ADM,TB_STNK,TB_BPKB',
+                Rule::unique('biaya_administrasis', 'kode_sistem')
+            ],
             'nilai' => 'required|numeric|min:0'
+        ], [
+            'kode_sistem.unique' => 'Kategori biaya ini sudah digunakan. Silakan edit data yang ada.'
         ]);
 
         BiayaAdministrasi::create($request->all());
@@ -42,7 +43,15 @@ class BiayaAdministrasiController extends Controller
     {
         $request->validate([
             'keterangan' => 'required|string|max:255',
+            'kode_sistem' => [
+                'nullable',
+                'string',
+                'in:ADM,TB_STNK,TB_BPKB',
+                Rule::unique('biaya_administrasis', 'kode_sistem')->ignore($id)
+            ],
             'nilai' => 'required|numeric|min:0'
+        ], [
+            'kode_sistem.unique' => 'Kategori biaya ini sudah digunakan. Silakan edit data yang ada.'
         ]);
 
         BiayaAdministrasi::findOrFail($id)->update($request->all());

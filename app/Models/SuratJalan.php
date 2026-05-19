@@ -13,7 +13,10 @@ class SuratJalan extends Model
         'tanggal',
         'spk_id',
         'motor_unit_id',
-        'pdi_man_id'
+        'pdi_man_id',
+        'no_stck',
+        'no_registrasi',
+        'berlaku_sd'
     ];
 
     public function spk()

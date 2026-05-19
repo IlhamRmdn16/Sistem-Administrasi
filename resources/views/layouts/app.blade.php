@@ -56,6 +56,8 @@
                                     <a href="{{ route('leasing.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Leasing</a>
                                     <a href="{{ route('pdiman.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">PDI Man</a>
                                     <a href="{{ route('rekening.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Rekening</a>
+                                    <hr class="border-gray-200 my-1">
+                                    <a href="{{ route('biaya-administrasi.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Biaya Administrasi</a>
                                 </div>
                             </div>
 
@@ -72,7 +74,8 @@
                                      style="display: none;"
                                      class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                                     <a href="{{ route('motor-unit.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Registrasi Unit</a>
-                                    <a href="{{ route('spk.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">SPK (Pesanan)</a>
+                                    <hr class="border-gray-200 my-1">
+                                    <a href="{{ route('spk.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">SPK</a>
                                     <a href="{{ route('suratjalan.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Surat Jalan</a>
                                 </div>
                             </div>
@@ -129,6 +132,7 @@
                             <a href="{{ route('leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Leasing</a>
                             <a href="{{ route('pdiman.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">PDI Man</a>
                             <a href="{{ route('rekening.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Rekening</a>
+                            <a href="{{ route('biaya-administrasi.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Biaya Administrasi</a>
                         </div>
                     </div>
 
@@ -139,7 +143,8 @@
                         </button>
                         <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             <a href="{{ route('motor-unit.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Registrasi Unit</a>
-                            <a href="{{ route('spk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">SPK (Pesanan)</a>
+                            <hr class="border-gray-200 my-1">
+                            <a href="{{ route('spk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">SPK</a>
                             <a href="{{ route('suratjalan.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Surat Jalan</a>
                         </div>
                     </div>

@@ -30,7 +30,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. Bukti, Pemohon, SPK..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. Bukti, SPK, STCK..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
             </div>
 
             <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -52,27 +52,31 @@
                 <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
                     <tr>
                         <th class="py-4 px-6 font-semibold">No. Bukti / Tgl</th>
-                        <th class="py-4 px-6 font-semibold">No. SPK</th>
-                        <th class="py-4 px-6 font-semibold">Nama Pemohon</th>
-                        <th class="py-4 px-6 font-semibold">Unit Motor</th>
-                        <th class="py-4 px-6 font-semibold">PDI Man</th>
-                        <th class="py-4 px-6 text-center w-40 font-semibold">Aksi</th>
+                        <th class="py-4 px-6 font-semibold">No. SPK / Pemohon</th>
+                        <th class="py-4 px-6 font-semibold">Tipe & Kunci</th>
+                        <th class="py-4 px-6 font-semibold">PDI Man & STCK</th>
+                        <th class="py-4 px-6 text-center w-36 font-semibold">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @forelse($suratJalans as $sj)
                         <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-4 px-6">
+                            <td class="py-4 px-6 text-sm">
                                 <div class="font-bold text-gray-800">{{ $sj->no_bukti }}</div>
                                 <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($sj->tanggal)->format('d/m/Y') }}</div>
                             </td>
-                            <td class="py-4 px-6 text-sm font-semibold text-gray-700">{{ $sj->spk->no_spk }}</td>
-                            <td class="py-4 px-6 text-sm font-bold text-gray-800 uppercase">{{ $sj->spk->nama_pemohon }}</td>
-                            <td class="py-4 px-6 text-sm text-gray-700">
-                                <div class="font-semibold">{{ $sj->spk->motorType->nama_type }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $sj->spk->motorColor->warna }}</div>
+                            <td class="py-4 px-6 text-sm">
+                                <div class="font-bold text-gray-800 uppercase">{{ $sj->spk->nama_pemohon }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $sj->spk->no_spk }}</div>
                             </td>
-                            <td class="py-4 px-6 text-sm text-gray-600 uppercase">{{ $sj->pdiMan->nama_pdi_man ?? '-' }}</td>
+                            <td class="py-4 px-6 text-sm text-gray-700">
+                                <div class="font-semibold truncate max-w-[150px]">{{ $sj->spk->motorType->nama_type }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">Kunci: <span class="font-bold text-gray-800">{{ $sj->motorUnit->no_kunci ?? '-' }}</span></div>
+                            </td>
+                            <td class="py-4 px-6 text-sm">
+                                <div class="font-semibold text-gray-700 uppercase">{{ $sj->pdiMan->nama_pdi_man ?? '-' }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">STCK: <span class="font-bold text-gray-800">{{ $sj->no_stck ?? '-' }}</span></div>
+                            </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('suratjalan.print', $sj->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700 transition-colors" title="Cetak Surat Jalan">
@@ -89,7 +93,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center text-gray-500">Data Surat Jalan tidak ditemukan.</td>
+                            <td colspan="5" class="py-12 text-center text-gray-500">Data Surat Jalan tidak ditemukan.</td>
                         </tr>
                     @endempty
                 </tbody>
@@ -106,10 +110,10 @@
             <div x-show="isCreateOpen" x-transition class="bg-white rounded-2xl shadow-xl transform transition-all w-full max-w-4xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-900">Buat Surat Jalan Baru</h3>
-                    <button @click="isCreateOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <button type="button" @click="isCreateOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <form @submit.prevent="submitCreate" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <form @submit.prevent="submitCreate" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
@@ -141,7 +145,7 @@
                             </div>
                             <input type="hidden" name="spk_id" :value="cSpkId" required>
                         </div>
-                        
+
                         <div class="relative z-30">
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">PDI Man <span class="text-red-500">*</span></label>
                             <div @click.away="openPdiDropdown = false">
@@ -172,10 +176,6 @@
                             <input type="text" :value="cNoSpk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Nama STNK</label>
-                            <input type="text" :value="cNamaStnk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
-                        </div>
-                        <div>
                             <label class="block text-xs text-gray-500 mb-1">Tipe Motor</label>
                             <input type="text" :value="cTipeMotor" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
@@ -184,9 +184,28 @@
                             <input type="text" :value="cWarnaMotor" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-honda-red mb-1">No. Kunci / Unit Tersedia</label>
+                            <label class="block text-xs font-bold text-honda-red mb-1">No. Kunci Unit Tersedia</label>
                             <input type="text" :value="cNoKunci" readonly class="w-full bg-red-50 border border-red-200 rounded-lg p-2.5 font-mono font-bold text-honda-red cursor-not-allowed">
                             <input type="hidden" name="motor_unit_id" :value="cUnitId" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-honda-red mb-1">No. Accu</label>
+                            <input type="text" :value="cNoAccu" readonly class="w-full bg-red-50 border border-red-200 rounded-lg p-2.5 font-mono font-bold text-honda-red cursor-not-allowed">
+                        </div>
+
+                        <div class="md:col-span-2 mt-2 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">No. STCK</label>
+                                <input type="text" name="no_stck" x-model="cNoStck" placeholder="Masukkan STCK" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-honda-red">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">No. Registrasi</label>
+                                <input type="text" name="no_registrasi" x-model="cNoRegistrasi" placeholder="Masukkan Registrasi" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-honda-red">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Berlaku s/d</label>
+                                <input type="date" name="berlaku_sd" x-model="cBerlakuSd" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-honda-red">
+                            </div>
                         </div>
                     </div>
 
@@ -209,10 +228,10 @@
             <div x-show="isEditOpen" x-transition class="bg-white rounded-2xl shadow-xl transform transition-all w-full max-w-4xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-900">Edit Data Surat Jalan</h3>
-                    <button @click="isEditOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <button type="button" @click="isEditOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <form @submit.prevent="submitEdit" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <form @submit.prevent="submitEdit" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar">
                     @csrf @method('PUT')
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
@@ -254,10 +273,6 @@
                             <input type="text" :value="eNoSpk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Nama STNK</label>
-                            <input type="text" :value="eNamaStnk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
-                        </div>
-                        <div>
                             <label class="block text-xs text-gray-500 mb-1">Tipe Motor</label>
                             <input type="text" :value="eTipeMotor" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
@@ -268,6 +283,25 @@
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">No. Kunci</label>
                             <input type="text" :value="eNoKunci" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">No. Accu</label>
+                            <input type="text" :value="eNoAccu" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div class="md:col-span-2 mt-2 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">No. STCK</label>
+                                <input type="text" name="no_stck" x-model="eNoStck" placeholder="Masukkan STCK" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">No. Registrasi</label>
+                                <input type="text" name="no_registrasi" x-model="eNoRegistrasi" placeholder="Masukkan Registrasi" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Berlaku s/d</label>
+                                <input type="date" name="berlaku_sd" x-model="eBerlakuSd" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
+                            </div>
                         </div>
                     </div>
 
@@ -300,7 +334,7 @@
             isCreateOpen: false,
             isSubmitting: false,
             cTanggal: new Date().toISOString().split('T')[0],
-            
+
             openSpkDropdown: false,
             searchSpk: '',
             selectedSpkName: '',
@@ -311,7 +345,11 @@
             cTipeMotor: '',
             cWarnaMotor: '',
             cNoKunci: '',
+            cNoAccu: '',
             cUnitId: '',
+            cNoStck: '',
+            cNoRegistrasi: '',
+            cBerlakuSd: '',
 
             openPdiDropdown: false,
             searchPdi: '',
@@ -329,9 +367,13 @@
             eTipeMotor: '',
             eWarnaMotor: '',
             eNoKunci: '',
+            eNoAccu: '',
             eSpkId: '',
             eUnitId: '',
-            
+            eNoStck: '',
+            eNoRegistrasi: '',
+            eBerlakuSd: '',
+
             eOpenPdiDropdown: false,
             eSearchPdi: '',
             eSelectedPdiName: '',
@@ -348,10 +390,12 @@
 
                 let unit = this.availableUnits.find(u => u.motor_type_id == s.motor_type_id && u.motor_color_id == s.motor_color_id);
                 if (unit) {
-                    this.cNoKunci = unit.no_kunci;
+                    this.cNoKunci = unit.no_kunci || '-';
+                    this.cNoAccu = unit.no_accu || '-';
                     this.cUnitId = unit.id;
                 } else {
                     this.cNoKunci = 'STOK TIDAK TERSEDIA';
+                    this.cNoAccu = '-';
                     this.cUnitId = '';
                 }
                 this.openSpkDropdown = false;
@@ -391,7 +435,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -401,7 +445,7 @@
                     this.isSubmitting = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',
@@ -423,7 +467,7 @@
                 this.eTanggal = sj.tanggal;
                 this.eSpkId = sj.spk_id;
                 this.eUnitId = sj.motor_unit_id;
-                
+
                 this.ePdiId = sj.pdi_man_id;
                 if(sj.pdi_man) {
                     this.eSelectedPdiName = sj.pdi_man.nama_pdi_man;
@@ -434,7 +478,13 @@
                 this.eNamaStnk = sj.spk.nama_stnk;
                 this.eTipeMotor = sj.spk.motor_type.nama_type;
                 this.eWarnaMotor = sj.spk.motor_color.warna;
-                this.eNoKunci = sj.motor_unit ? sj.motor_unit.no_kunci : '-';
+
+                this.eNoKunci = sj.motor_unit ? (sj.motor_unit.no_kunci || '-') : '-';
+                this.eNoAccu = sj.motor_unit ? (sj.motor_unit.no_accu || '-') : '-';
+
+                this.eNoStck = sj.no_stck || '';
+                this.eNoRegistrasi = sj.no_registrasi || '';
+                this.eBerlakuSd = sj.berlaku_sd || '';
 
                 this.isEditOpen = true;
             },
@@ -444,7 +494,7 @@
                 let formData = new FormData(event.target);
 
                 fetch('/transaction/suratjalan/' + this.eId, {
-                    method: 'POST', 
+                    method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -467,7 +517,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -477,7 +527,7 @@
                     this.isEditing = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',

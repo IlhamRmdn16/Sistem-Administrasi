@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Master\BiayaAdministrasiController;
 use App\Http\Controllers\Master\LeasingController;
 use App\Http\Controllers\Master\MotorTypeController;
 use App\Http\Controllers\Master\PdiManController;
@@ -52,3 +53,5 @@ Route::post('/transaction/suratjalan', [SuratJalanController::class, 'store'])->
 Route::put('/transaction/suratjalan/{id}', [SuratJalanController::class, 'update'])->name('suratjalan.update');
 Route::delete('/transaction/suratjalan/{id}', [SuratJalanController::class, 'destroy'])->name('suratjalan.destroy');
 Route::get('/transaction/suratjalan/{id}/print', [SuratJalanController::class, 'print'])->name('suratjalan.print');
+
+Route::resource('biaya-administrasi', BiayaAdministrasiController::class);

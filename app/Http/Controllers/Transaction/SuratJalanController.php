@@ -26,6 +26,7 @@ class SuratJalanController extends Controller
 
         if ($search) {
             $query->where('no_bukti', 'like', "%{$search}%")
+                  ->orWhere('no_stck', 'like', "%{$search}%")
                   ->orWhereHas('spk', function ($q) use ($search) {
                       $q->where('nama_pemohon', 'like', "%{$search}%")
                         ->orWhere('no_spk', 'like', "%{$search}%");
@@ -36,11 +37,12 @@ class SuratJalanController extends Controller
 
         $now = now();
         $prefix = "SJK{$now->format('Y')}/{$now->format('m')}/";
-        
+
+        // Logika isi celah kosong
         $existingNumbers = SuratJalan::where('no_bukti', 'like', "{$prefix}%")
             ->pluck('no_bukti')
             ->map(function ($no_bukti) {
-                return intval(substr($no_bukti, -4));
+                return (int) preg_replace('/[^0-9]/', '', substr($no_bukti, -4));
             })
             ->toArray();
 
@@ -56,7 +58,7 @@ class SuratJalanController extends Controller
 
         $usedUnitIds = SuratJalan::pluck('motor_unit_id')->filter()->toArray();
         $availableUnits = MotorUnit::whereNotIn('id', $usedUnitIds)->get();
-        
+
         $pdiMans = PdiMan::orderBy('nama_pdi_man')->get();
 
         return view('transaction.suratjalan.index', compact('suratJalans', 'autoNoBukti', 'availableSpks', 'availableUnits', 'pdiMans', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
@@ -69,7 +71,10 @@ class SuratJalanController extends Controller
             'tanggal' => 'required|date',
             'spk_id' => 'required',
             'motor_unit_id' => 'required',
-            'pdi_man_id' => 'required'
+            'pdi_man_id' => 'required',
+            'no_stck' => 'nullable|string',
+            'no_registrasi' => 'nullable|string',
+            'berlaku_sd' => 'nullable|date',
         ]);
 
         SuratJalan::create($request->all());
@@ -87,7 +92,10 @@ class SuratJalanController extends Controller
             'tanggal' => 'required|date',
             'spk_id' => 'required',
             'motor_unit_id' => 'required',
-            'pdi_man_id' => 'required'
+            'pdi_man_id' => 'required',
+            'no_stck' => 'nullable|string',
+            'no_registrasi' => 'nullable|string',
+            'berlaku_sd' => 'nullable|date',
         ]);
 
         SuratJalan::findOrFail($id)->update($request->all());

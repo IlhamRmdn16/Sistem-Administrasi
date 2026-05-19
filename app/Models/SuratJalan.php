@@ -33,4 +33,9 @@ class SuratJalan extends Model
     {
         return $this->belongsTo(PdiMan::class, 'pdi_man_id');
     }
+
+    public function samsat()
+    {
+        return $this->hasOne(Samsat::class, 'surat_jalan_id');
+    }
 }

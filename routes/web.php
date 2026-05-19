@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
+use App\Http\Controllers\Transaction\SamsatController;
 use App\Http\Controllers\Transaction\SpkController;
 use App\Http\Controllers\Transaction\SuratJalanController;
 use Illuminate\Support\Facades\Route;
@@ -55,3 +56,5 @@ Route::delete('/transaction/suratjalan/{id}', [SuratJalanController::class, 'des
 Route::get('/transaction/suratjalan/{id}/print', [SuratJalanController::class, 'print'])->name('suratjalan.print');
 
 Route::resource('biaya-administrasi', BiayaAdministrasiController::class);
+
+Route::resource('samsat', SamsatController::class)->only(['index', 'update']);

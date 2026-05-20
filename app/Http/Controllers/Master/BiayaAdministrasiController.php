@@ -19,7 +19,6 @@ class BiayaAdministrasiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'keterangan' => 'required|string|max:255',
             'kode_sistem' => [
                 'nullable',
                 'string',
@@ -31,7 +30,21 @@ class BiayaAdministrasiController extends Controller
             'kode_sistem.unique' => 'Kategori biaya ini sudah digunakan. Silakan edit data yang ada.'
         ]);
 
-        BiayaAdministrasi::create($request->all());
+        $keterangan = $request->kode_sistem;
+
+        if (!$keterangan) {
+            $request->validate([
+                'keterangan' => 'required|string|max:255'
+            ]);
+
+            $keterangan = $request->keterangan;
+        }
+
+        BiayaAdministrasi::create([
+            'kode_sistem' => $request->kode_sistem,
+            'keterangan' => $keterangan,
+            'nilai' => $request->nilai,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -42,7 +55,6 @@ class BiayaAdministrasiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'keterangan' => 'required|string|max:255',
             'kode_sistem' => [
                 'nullable',
                 'string',
@@ -54,7 +66,23 @@ class BiayaAdministrasiController extends Controller
             'kode_sistem.unique' => 'Kategori biaya ini sudah digunakan. Silakan edit data yang ada.'
         ]);
 
-        BiayaAdministrasi::findOrFail($id)->update($request->all());
+        $keterangan = $request->kode_sistem;
+
+        if (!$keterangan) {
+            $request->validate([
+                'keterangan' => 'required|string|max:255'
+            ]);
+
+            $keterangan = $request->keterangan;
+        }
+
+        $biaya = BiayaAdministrasi::findOrFail($id);
+
+        $biaya->update([
+            'kode_sistem' => $request->kode_sistem,
+            'keterangan' => $keterangan,
+            'nilai' => $request->nilai,
+        ]);
 
         return response()->json([
             'success' => true,

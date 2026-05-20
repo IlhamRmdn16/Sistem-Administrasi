@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class PengajuanStnkController extends Controller
 {
-    public function index()
+   public function index()
     {
         $now = now();
         $prefix = "PPN{$now->format('Y')}/{$now->format('m')}/";
@@ -27,8 +27,9 @@ class PengajuanStnkController extends Controller
         }
         $autoNoBukti = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
 
-        $adm = BiayaAdministrasi::where('keterangan', 'like', '%ADM%')->first();
-        $admValue = $adm ? $adm->nilai : 0;
+        // Perbaikan: Menggunakan kode_sistem sesuai permintaan
+        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
+        $admValue = $adm ? (int) $adm->nilai : 0;
 
         $usedSamsatIds = PengajuanStnkDetail::pluck('samsat_id')->toArray();
         $availableSamsats = Samsat::with(['suratJalan.spk.motorType', 'suratJalan.motorUnit'])
@@ -53,8 +54,9 @@ class PengajuanStnkController extends Controller
 
         $pengajuans = $query->latest()->paginate($per_page)->withQueryString();
 
-        $adm = BiayaAdministrasi::where('keterangan', 'like', '%ADM%')->first();
-        $admValue = $adm ? $adm->nilai : 0;
+        // Perbaikan: Menggunakan kode_sistem
+        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
+        $admValue = $adm ? (int) $adm->nilai : 0;
 
         $usedSamsatIds = PengajuanStnkDetail::pluck('samsat_id')->toArray();
         $availableSamsats = Samsat::with(['suratJalan.spk.motorType', 'suratJalan.motorUnit'])
@@ -71,8 +73,12 @@ class PengajuanStnkController extends Controller
         $request->validate([
             'no_bukti' => 'required|unique:pengajuan_stnks,no_bukti',
             'tanggal' => 'required|date',
-            'samsat_ids' => 'required|array|min:1',
+            'items' => 'required|array|min:1',
         ]);
+
+        // Perbaikan: Menggunakan kode_sistem untuk memvalidasi ulang di backend
+        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
+        $admValue = $adm ? (int) $adm->nilai : 0;
 
         $pengajuan = PengajuanStnk::create([
             'no_bukti' => $request->no_bukti,
@@ -83,15 +89,17 @@ class PengajuanStnkController extends Controller
             'grand_total' => $request->grand_total,
         ]);
 
-        foreach ($request->samsat_ids as $samsat_id) {
-            $samsat = Samsat::find($samsat_id);
+        foreach ($request->items as $item) {
+            $samsat = Samsat::find($item['id']);
             if ($samsat) {
+                $noticePajak = (int) $item['notice_pajak'];
+
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
                     'samsat_id' => $samsat->id,
-                    'notice_pajak' => $samsat->piutang_notice_pajak,
-                    'adm' => $request->adm_value,
-                    'sub_total' => $samsat->piutang_notice_pajak + $request->adm_value,
+                    'notice_pajak' => $noticePajak,
+                    'adm' => $admValue,
+                    'sub_total' => $noticePajak + $admValue,
                 ]);
             }
         }
@@ -103,7 +111,7 @@ class PengajuanStnkController extends Controller
                         'pengajuan_stnk_id' => $pengajuan->id,
                         'keterangan' => $t['keterangan'],
                         'nominal' => $t['nominal'],
-                        'total' => $t['nominal'] * count($request->samsat_ids),
+                        'total' => $t['nominal'] * count($request->items),
                     ]);
                 }
             }
@@ -116,8 +124,12 @@ class PengajuanStnkController extends Controller
     {
         $request->validate([
             'tanggal' => 'required|date',
-            'samsat_ids' => 'required|array|min:1',
+            'items' => 'required|array|min:1',
         ]);
+
+        // Perbaikan: Menggunakan kode_sistem
+        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
+        $admValue = $adm ? (int) $adm->nilai : 0;
 
         $pengajuan = PengajuanStnk::findOrFail($id);
         $pengajuan->update([
@@ -129,15 +141,17 @@ class PengajuanStnkController extends Controller
         ]);
 
         $pengajuan->details()->delete();
-        foreach ($request->samsat_ids as $samsat_id) {
-            $samsat = Samsat::find($samsat_id);
+        foreach ($request->items as $item) {
+            $samsat = Samsat::find($item['id']);
             if ($samsat) {
+                $noticePajak = (int) $item['notice_pajak'];
+
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
                     'samsat_id' => $samsat->id,
-                    'notice_pajak' => $samsat->piutang_notice_pajak,
-                    'adm' => $request->adm_value,
-                    'sub_total' => $samsat->piutang_notice_pajak + $request->adm_value,
+                    'notice_pajak' => $noticePajak,
+                    'adm' => $admValue,
+                    'sub_total' => $noticePajak + $admValue,
                 ]);
             }
         }
@@ -150,7 +164,7 @@ class PengajuanStnkController extends Controller
                         'pengajuan_stnk_id' => $pengajuan->id,
                         'keterangan' => $t['keterangan'],
                         'nominal' => $t['nominal'],
-                        'total' => $t['nominal'] * count($request->samsat_ids),
+                        'total' => $t['nominal'] * count($request->items),
                     ]);
                 }
             }
@@ -162,7 +176,7 @@ class PengajuanStnkController extends Controller
     public function destroy($id)
     {
         PengajuanStnk::findOrFail($id)->delete();
-        return response()->json(['success' => true, 'message' => 'Pengajuan dibatalkan, data dikembalikan dan No Bukti di-reset.']);
+        return response()->json(['success' => true, 'message' => 'Pengajuan dibatalkan, data dikembalikan.']);
     }
 
     public function print($id)

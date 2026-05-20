@@ -199,13 +199,15 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Kendaraan Ke- (Kepemilikan)</label>
-                                <input type="number" name="no_kendaraan" x-model="eNoKendaraan" min="1" required class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-blue-500">
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Jumlah Motor Dimiliki</label>
+                                <input type="number" name="jumlah_motor" x-model="eJumlahMotor" min="1" required
+                                    class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-600 mb-1">Piutang Notice Pajak (Rp)</label>
-                                <input type="number" name="piutang_notice_pajak" x-model="ePiutang" class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-blue-500 font-mono font-bold bg-white text-gray-800">
-                                <p class="text-[10px] text-gray-400 mt-1">Masukkan tagihan pajak progresif jika ada.</p>
+                                <label class="block text-xs font-bold text-gray-600 mb-1">Pajak Progresif (Rp)</label>
+                                <input type="number" name="pajak_progresif" x-model="ePajakProgresif"
+                                    class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-blue-500 font-mono font-bold bg-white text-gray-800">
+                                <p class="text-[10px] text-gray-400 mt-1">Masukkan tagihan pajak progresif tanpa titik/koma.</p>
                             </div>
                         </div>
                     </div>
@@ -257,7 +259,7 @@
 
             eSjkId: '',
             eNoPolisi: '', eNoStnk: '', eTglStnk: '', eTglTerimaStnk: '',
-            eNoKendaraan: 1, ePiutang: 0,
+            eJumlahMotor: 1, ePajakProgresif: '', // set string kosong sebagai default agar aman
             eNoBpkb: '', eTglBpkb: '', eTglTerimaBpkb: '',
 
            openDetailModal(doc, pembayaran) {
@@ -299,8 +301,9 @@
                 this.eTglStnk = s.tgl_stnk || '';
                 this.eTglTerimaStnk = s.tgl_terima_stnk || '';
 
-                this.eNoKendaraan = s.no_kendaraan || 1;
-                this.ePiutang = s.piutang_notice_pajak || 0;
+                this.eJumlahMotor = s.jumlah_motor || 1;
+                // Jangan diisi 0 jika null, biarkan kosong agar tidak ada error casting input
+                this.ePajakProgresif = s.pajak_progresif || '';
 
                 this.eNoBpkb = s.no_bpkb || '';
                 this.eTglBpkb = s.tgl_bpkb || '';
@@ -323,17 +326,23 @@
                     return response.json();
                 })
                 .then(data => {
+                    // PENTING: Matikan loading seketika di sini sebelum memanggil Swal.fire
+                    this.isEditing = false;
+
                     if(data.success) {
                         Swal.fire({
                             icon: 'success', title: 'Berhasil!', text: data.message,
                             timer: 1500, showConfirmButton: false
                         }).then(() => {
+                            this.isEditOpen = false;
                             window.location.reload();
                         });
                     }
                 })
                 .catch(error => {
+                    // Matikan loading seketika jika error
                     this.isEditing = false;
+
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) errorMsg = Object.values(error.errors)[0][0];
                     Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: errorMsg });

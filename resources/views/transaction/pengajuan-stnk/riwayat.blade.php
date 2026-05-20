@@ -117,24 +117,26 @@
                                         <th class="py-3 px-4 font-semibold">Alamat</th>
                                         <th class="py-3 px-4 font-semibold">Nama Tipe</th>
                                         <th class="py-3 px-4 font-semibold">No. Mesin</th>
-                                        <th class="py-3 px-4 font-semibold text-right">Notice Pajak</th>
+                                        <th class="py-3 px-4 font-semibold text-center w-36">Input Notice Pajak</th>
                                         <th class="py-3 px-4 font-semibold text-right">ADM</th>
                                         <th class="py-3 px-4 font-semibold text-right">Sub Total</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     <template x-for="(s, index) in currentSamsats" :key="s.id">
-                                        <tr class="hover:bg-red-50/50 cursor-pointer" @click="toggleCheck(s.id)">
-                                            <td class="py-3 px-4 text-center">
+                                        <tr class="hover:bg-red-50/50" :class="{'bg-red-50/30': isChecked(s.id)}">
+                                            <td class="py-3 px-4 text-center cursor-pointer" @click="toggleCheck(s.id)">
                                                 <input type="checkbox" :value="s.id" x-model="form.checked" @click.stop class="w-4 h-4 text-honda-red rounded border-gray-300 focus:ring-honda-red">
                                             </td>
                                             <td class="py-3 px-4 font-bold text-gray-800" x-text="s.surat_jalan.spk.nama_stnk"></td>
                                             <td class="py-3 px-4 text-xs text-gray-600 truncate max-w-[200px]" x-text="buildAlamat(s.surat_jalan.spk)"></td>
                                             <td class="py-3 px-4 text-xs font-semibold" x-text="s.surat_jalan.spk.motor_type.nama_type"></td>
                                             <td class="py-3 px-4 font-mono text-xs" x-text="s.surat_jalan.motor_unit.no_mesin"></td>
-                                            <td class="py-3 px-4 text-right font-mono text-xs" x-text="formatRupiah(s.piutang_notice_pajak)"></td>
-                                            <td class="py-3 px-4 text-right font-mono text-xs" x-text="form.checked.includes(s.id) ? formatRupiah(admValue) : '0'"></td>
-                                            <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="form.checked.includes(s.id) ? formatRupiah(s.piutang_notice_pajak + admValue) : '0'"></td>
+                                            <td class="py-2 px-3">
+                                                <input type="number" x-model="s.input_notice" :disabled="!isChecked(s.id)" placeholder="0" class="w-full border border-gray-300 rounded p-1.5 text-right font-mono text-sm outline-none focus:border-honda-red disabled:bg-gray-100 disabled:text-gray-400">
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-mono text-xs" x-text="isChecked(s.id) ? formatRupiah(admValue) : '0'"></td>
+                                            <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="isChecked(s.id) ? formatRupiah((Number(s.input_notice) || 0) + admValue) : '0'"></td>
                                         </tr>
                                     </template>
                                     <tr class="bg-gray-50 font-bold border-t-2 border-gray-200">
@@ -214,13 +216,17 @@
                 tambahans: []
             },
 
+            isChecked(id) {
+                return this.form.checked.map(String).includes(String(id));
+            },
+
             get checkedCount() { return this.form.checked.length; },
             get isAllChecked() { return this.currentSamsats.length > 0 && this.checkedCount === this.currentSamsats.length; },
 
             get totalPajak() {
                 return this.currentSamsats
-                    .filter(s => this.form.checked.includes(s.id))
-                    .reduce((sum, s) => sum + s.piutang_notice_pajak, 0);
+                    .filter(s => this.isChecked(s.id))
+                    .reduce((sum, s) => sum + (Number(s.input_notice) || 0), 0);
             },
             get totalAdm() { return this.checkedCount * this.admValue; },
             get totalTambahan() {
@@ -242,16 +248,17 @@
 
             toggleAll(e) {
                 if (e.target.checked) {
-                    this.form.checked = this.currentSamsats.map(s => s.id);
+                    this.form.checked = this.currentSamsats.map(s => String(s.id));
                 } else {
                     this.form.checked = [];
                 }
             },
 
             toggleCheck(id) {
-                const idx = this.form.checked.indexOf(id);
+                const strId = String(id);
+                const idx = this.form.checked.findIndex(val => String(val) === strId);
                 if (idx > -1) this.form.checked.splice(idx, 1);
-                else this.form.checked.push(id);
+                else this.form.checked.push(strId);
             },
 
             addTambahan() {
@@ -263,25 +270,48 @@
             },
 
             openEditModal(p) {
-                let attachedSamsats = p.details.map(d => d.samsat);
-                this.currentSamsats = [...this.availableSamsats, ...attachedSamsats];
+                let attachedSamsats = p.details.map(d => {
+                    let samsat = d.samsat;
+                    samsat.input_notice = d.notice_pajak;
+                    return samsat;
+                });
+
+                let available = this.availableSamsats.map(s => {
+                    s.input_notice = '';
+                    return s;
+                });
+
+                this.currentSamsats = [...available, ...attachedSamsats];
 
                 this.form.id = p.id;
                 this.form.no_bukti = p.no_bukti;
                 this.form.tanggal = p.tanggal;
-                this.form.checked = attachedSamsats.map(s => s.id);
+                this.form.checked = attachedSamsats.map(s => String(s.id));
                 this.form.tambahans = p.tambahans.map(t => ({ keterangan: t.keterangan, nominal: t.nominal }));
 
                 this.isEditOpen = true;
             },
 
             submitUpdate() {
+                let incompletePajak = this.currentSamsats.some(s => this.isChecked(s.id) && (s.input_notice === '' || s.input_notice < 0));
+
+                if(incompletePajak) {
+                    Swal.fire({ icon: 'warning', title: 'Oops!', text: 'Pastikan Anda telah mengisi nominal Notice Pajak pada semua unit yang dicentang.' });
+                    return;
+                }
+
                 this.isSubmitting = true;
+
+                const payloadItems = this.currentSamsats
+                    .filter(s => this.isChecked(s.id))
+                    .map(s => ({
+                        id: s.id,
+                        notice_pajak: Number(s.input_notice) || 0
+                    }));
 
                 const payload = {
                     tanggal: this.form.tanggal,
-                    samsat_ids: this.form.checked,
-                    adm_value: this.admValue,
+                    items: payloadItems,
                     tambahans: this.form.tambahans,
                     total_pajak: this.totalPajak,
                     total_adm: this.totalAdm,

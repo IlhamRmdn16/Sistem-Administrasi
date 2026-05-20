@@ -17,7 +17,6 @@ class SamsatController extends Controller
 
         $query = SuratJalan::with(['samsat', 'spk.motorType', 'spk.motorColor', 'spk.leasing', 'motorUnit']);
 
-        // Filter Pencarian
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('no_bukti', 'like', "%{$search}%")
@@ -28,7 +27,6 @@ class SamsatController extends Controller
             });
         }
 
-        // Filter Status Dokumen
         if ($status_dokumen) {
             if ($status_dokumen == 'belum') {
                 $query->where(function($q) {
@@ -58,30 +56,30 @@ class SamsatController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'no_kendaraan' => 'required|integer|min:1',
-            'piutang_notice_pajak' => 'required|numeric|min:0',
-        ]);
+{
+    $request->validate([
+        'jumlah_motor' => 'required|integer|min:1',
+        'pajak_progresif' => 'nullable|integer|min:0', // Validasi sebagai integer
+    ]);
 
-        Samsat::updateOrCreate(
-            ['surat_jalan_id' => $id],
-            [
-                'no_polisi' => $request->no_polisi,
-                'no_stnk' => $request->no_stnk,
-                'tgl_stnk' => $request->tgl_stnk,
-                'tgl_terima_stnk' => $request->tgl_terima_stnk,
-                'no_kendaraan' => $request->no_kendaraan,
-                'piutang_notice_pajak' => $request->no_kendaraan <= 1 ? 0 : $request->piutang_notice_pajak,
-                'no_bpkb' => $request->no_bpkb,
-                'tgl_bpkb' => $request->tgl_bpkb,
-                'tgl_terima_bpkb' => $request->tgl_terima_bpkb,
-            ]
-        );
+    Samsat::updateOrCreate(
+        ['surat_jalan_id' => $id],
+        [
+            'no_polisi' => $request->no_polisi,
+            'no_stnk' => $request->no_stnk,
+            'tgl_stnk' => $request->tgl_stnk,
+            'tgl_terima_stnk' => $request->tgl_terima_stnk,
+            'jumlah_motor' => (int) $request->jumlah_motor,
+            'pajak_progresif' => $request->filled('pajak_progresif') ? (int) $request->pajak_progresif : 0,
+            'no_bpkb' => $request->no_bpkb,
+            'tgl_bpkb' => $request->tgl_bpkb,
+            'tgl_terima_bpkb' => $request->tgl_terima_bpkb,
+        ]
+    );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Dokumen Kendaraan berhasil diperbarui!'
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Dokumen Kendaraan berhasil diperbarui!'
+    ]);
+}
 }

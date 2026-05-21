@@ -6,11 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class PengajuanStnkDetail extends Model
 {
-    protected $table = 'pengajuan_stnk_details';
-    protected $fillable = ['pengajuan_stnk_id', 'samsat_id', 'notice_pajak', 'adm', 'sub_total'];
+    protected $guarded = [];
 
-    public function samsat()
+    public function pengajuanStnk()
     {
-        return $this->belongsTo(Samsat::class);
+        return $this->belongsTo(PengajuanStnk::class);
+    }
+
+    public function suratJalan()
+    {
+        return $this->belongsTo(SuratJalan::class, 'surat_jalan_id');
     }
 }

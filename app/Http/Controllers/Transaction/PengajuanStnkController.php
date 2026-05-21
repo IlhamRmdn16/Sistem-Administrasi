@@ -7,13 +7,19 @@ use App\Models\BiayaAdministrasi;
 use App\Models\PengajuanStnk;
 use App\Models\PengajuanStnkDetail;
 use App\Models\PengajuanStnkTambahan;
-use App\Models\Samsat;
+use App\Models\SuratJalan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PengajuanStnkController extends Controller
 {
-   public function index()
+   private function getAdmValue()
+    {
+        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
+        return $adm ? (int) $adm->nilai : 0;
+    }
+
+    public function index()
     {
         $now = now();
         $prefix = "PPN{$now->format('Y')}/{$now->format('m')}/";
@@ -28,18 +34,15 @@ class PengajuanStnkController extends Controller
         }
         $autoNoBukti = $prefix . str_pad($next, 4, '0', STR_PAD_LEFT);
 
-        // AMBIL ADM BERDASARKAN KODE SISTEM
-        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
-        $admValue = $adm ? (int) $adm->nilai : 0;
+        $admValue = $this->getAdmValue();
 
-        $usedSamsatIds = PengajuanStnkDetail::pluck('samsat_id')->toArray();
-        $availableSamsats = Samsat::with(['suratJalan.spk.motorType', 'suratJalan.motorUnit'])
-            ->whereNotNull('no_stnk')
-            ->where('no_stnk', '!=', '')
-            ->whereNotIn('id', $usedSamsatIds)
+        // MENCARI SJK YANG BELUM MASUK KE PENGAJUAN STNK
+        $usedSuratJalanIds = PengajuanStnkDetail::pluck('surat_jalan_id')->toArray();
+        $availableSuratJalans = SuratJalan::with(['spk.motorType', 'motorUnit'])
+            ->whereNotIn('id', $usedSuratJalanIds)
             ->get();
 
-        return view('transaction.pengajuan-stnk.index', compact('autoNoBukti', 'admValue', 'availableSamsats'));
+        return view('transaction.pengajuan-stnk.index', compact('autoNoBukti', 'admValue', 'availableSuratJalans'));
     }
 
     public function riwayat(Request $request)
@@ -47,26 +50,22 @@ class PengajuanStnkController extends Controller
         $search = $request->input('search');
         $per_page = $request->input('per_page', 10);
 
-        $query = PengajuanStnk::with(['details.samsat.suratJalan.spk.motorType', 'tambahans']);
+        // Relasinya sekarang detail -> suratJalan -> spk
+        $query = PengajuanStnk::with(['details.suratJalan.spk.motorType', 'tambahans']);
 
         if ($search) {
             $query->where('no_bukti', 'like', "%{$search}%");
         }
 
         $pengajuans = $query->latest()->paginate($per_page)->withQueryString();
+        $admValue = $this->getAdmValue();
 
-        // AMBIL ADM BERDASARKAN KODE SISTEM
-        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
-        $admValue = $adm ? (int) $adm->nilai : 0;
-
-        $usedSamsatIds = PengajuanStnkDetail::pluck('samsat_id')->toArray();
-        $availableSamsats = Samsat::with(['suratJalan.spk.motorType', 'suratJalan.motorUnit'])
-            ->whereNotNull('no_stnk')
-            ->where('no_stnk', '!=', '')
-            ->whereNotIn('id', $usedSamsatIds)
+        $usedSuratJalanIds = PengajuanStnkDetail::pluck('surat_jalan_id')->toArray();
+        $availableSuratJalans = SuratJalan::with(['spk.motorType', 'motorUnit'])
+            ->whereNotIn('id', $usedSuratJalanIds)
             ->get();
 
-        return view('transaction.pengajuan-stnk.riwayat', compact('pengajuans', 'search', 'per_page', 'admValue', 'availableSamsats'));
+        return view('transaction.pengajuan-stnk.riwayat', compact('pengajuans', 'search', 'per_page', 'admValue', 'availableSuratJalans'));
     }
 
     public function store(Request $request)
@@ -75,12 +74,11 @@ class PengajuanStnkController extends Controller
             'no_bukti' => 'required|unique:pengajuan_stnks,no_bukti',
             'tanggal' => 'required|date',
             'items' => 'required|array|min:1',
-            'items.*.id' => 'required|exists:samsats,id',
+            'items.*.id' => 'required|exists:surat_jalans,id',
             'items.*.notice_pajak' => 'required|numeric|min:0',
         ]);
 
-        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
-        $admValue = $adm ? (int) $adm->nilai : 0;
+        $admValue = $this->getAdmValue();
 
         DB::transaction(function () use ($request, $admValue) {
             $pengajuan = PengajuanStnk::create([
@@ -95,7 +93,7 @@ class PengajuanStnkController extends Controller
             foreach ($request->items as $item) {
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
-                    'samsat_id' => $item['id'],
+                    'surat_jalan_id' => $item['id'],
                     'notice_pajak' => (int) $item['notice_pajak'],
                     'adm' => $admValue,
                     'sub_total' => (int) $item['notice_pajak'] + $admValue,
@@ -124,12 +122,11 @@ class PengajuanStnkController extends Controller
         $request->validate([
             'tanggal' => 'required|date',
             'items' => 'required|array|min:1',
-            'items.*.id' => 'required|exists:samsats,id',
+            'items.*.id' => 'required|exists:surat_jalans,id',
             'items.*.notice_pajak' => 'required|numeric|min:0',
         ]);
 
-        $adm = BiayaAdministrasi::where('kode_sistem', 'ADM')->first();
-        $admValue = $adm ? (int) $adm->nilai : 0;
+        $admValue = $this->getAdmValue();
 
         DB::transaction(function () use ($request, $id, $admValue) {
             $pengajuan = PengajuanStnk::findOrFail($id);
@@ -145,7 +142,7 @@ class PengajuanStnkController extends Controller
             foreach ($request->items as $item) {
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
-                    'samsat_id' => $item['id'],
+                    'surat_jalan_id' => $item['id'],
                     'notice_pajak' => (int) $item['notice_pajak'],
                     'adm' => $admValue,
                     'sub_total' => (int) $item['notice_pajak'] + $admValue,
@@ -178,7 +175,7 @@ class PengajuanStnkController extends Controller
 
     public function print($id)
     {
-        $pengajuan = PengajuanStnk::with(['details.samsat.suratJalan.spk.motorType', 'details.samsat.suratJalan.motorUnit', 'tambahans'])->findOrFail($id);
+        $pengajuan = PengajuanStnk::with(['details.suratJalan.spk.motorType', 'details.suratJalan.motorUnit', 'tambahans'])->findOrFail($id);
         return view('transaction.pengajuan-stnk.print', compact('pengajuan'));
     }
 }

@@ -123,15 +123,15 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
-                                    <template x-for="(s, index) in currentSamsats" :key="s.id">
+                                    <template x-for="(s, index) in currentSuratJalans" :key="s.id">
                                         <tr class="hover:bg-red-50/50" :class="{'bg-red-50/30': isChecked(s.id)}">
                                             <td class="py-3 px-4 text-center cursor-pointer" @click="toggleCheck(s.id)">
                                                 <input type="checkbox" :value="s.id" x-model="form.checked" @click.stop class="w-4 h-4 text-honda-red rounded border-gray-300 focus:ring-honda-red">
                                             </td>
-                                            <td class="py-3 px-4 font-bold text-gray-800" x-text="s.surat_jalan.spk.nama_stnk"></td>
-                                            <td class="py-3 px-4 text-xs text-gray-600 truncate max-w-[200px]" x-text="buildAlamat(s.surat_jalan.spk)"></td>
-                                            <td class="py-3 px-4 text-xs font-semibold" x-text="s.surat_jalan.spk.motor_type.nama_type"></td>
-                                            <td class="py-3 px-4 font-mono text-xs" x-text="s.surat_jalan.motor_unit.no_mesin"></td>
+                                            <td class="py-3 px-4 font-bold text-gray-800" x-text="s.spk.nama_stnk"></td>
+                                            <td class="py-3 px-4 text-xs text-gray-600 truncate max-w-[200px]" x-text="buildAlamat(s.spk)"></td>
+                                            <td class="py-3 px-4 text-xs font-semibold" x-text="s.spk.motor_type.nama_type"></td>
+                                            <td class="py-3 px-4 font-mono text-xs" x-text="s.motor_unit.no_mesin"></td>
                                             <td class="py-2 px-3">
                                                 <input type="number" x-model="s.input_notice" :disabled="!isChecked(s.id)" placeholder="0" class="w-full border border-gray-300 rounded p-1.5 text-right font-mono text-sm outline-none focus:border-honda-red disabled:bg-gray-100 disabled:text-gray-400">
                                             </td>
@@ -202,11 +202,11 @@
 <script>
     function riwayatManager() {
         return {
-            availableSamsats: @json($availableSamsats),
+            availableSuratJalans: @json($availableSuratJalans),
             admValue: {{ $admValue }},
             isEditOpen: false,
             isSubmitting: false,
-            currentSamsats: [],
+            currentSuratJalans: [],
 
             form: {
                 id: '',
@@ -221,10 +221,10 @@
             },
 
             get checkedCount() { return this.form.checked.length; },
-            get isAllChecked() { return this.currentSamsats.length > 0 && this.checkedCount === this.currentSamsats.length; },
+            get isAllChecked() { return this.currentSuratJalans.length > 0 && this.checkedCount === this.currentSuratJalans.length; },
 
             get totalPajak() {
-                return this.currentSamsats
+                return this.currentSuratJalans
                     .filter(s => this.isChecked(s.id))
                     .reduce((sum, s) => sum + (Number(s.input_notice) || 0), 0);
             },
@@ -248,7 +248,7 @@
 
             toggleAll(e) {
                 if (e.target.checked) {
-                    this.form.checked = this.currentSamsats.map(s => String(s.id));
+                    this.form.checked = this.currentSuratJalans.map(s => String(s.id));
                 } else {
                     this.form.checked = [];
                 }
@@ -270,30 +270,31 @@
             },
 
             openEditModal(p) {
-                let attachedSamsats = p.details.map(d => {
-                    let samsat = d.samsat;
-                    samsat.input_notice = d.notice_pajak;
-                    return samsat;
+                // Mapping ulang mengambil langsung dari properti suratJalan
+                let attachedSuratJalans = p.details.map(d => {
+                    let sj = d.surat_jalan;
+                    sj.input_notice = d.notice_pajak;
+                    return sj;
                 });
 
-                let available = this.availableSamsats.map(s => {
+                let available = this.availableSuratJalans.map(s => {
                     s.input_notice = '';
                     return s;
                 });
 
-                this.currentSamsats = [...available, ...attachedSamsats];
+                this.currentSuratJalans = [...available, ...attachedSuratJalans];
 
                 this.form.id = p.id;
                 this.form.no_bukti = p.no_bukti;
                 this.form.tanggal = p.tanggal;
-                this.form.checked = attachedSamsats.map(s => String(s.id));
+                this.form.checked = attachedSuratJalans.map(s => String(s.id));
                 this.form.tambahans = p.tambahans.map(t => ({ keterangan: t.keterangan, nominal: t.nominal }));
 
                 this.isEditOpen = true;
             },
 
             submitUpdate() {
-                let incompletePajak = this.currentSamsats.some(s => this.isChecked(s.id) && (s.input_notice === '' || s.input_notice < 0));
+                let incompletePajak = this.currentSuratJalans.some(s => this.isChecked(s.id) && (s.input_notice === '' || s.input_notice < 0));
 
                 if(incompletePajak) {
                     Swal.fire({ icon: 'warning', title: 'Oops!', text: 'Pastikan Anda telah mengisi nominal Notice Pajak pada semua unit yang dicentang.' });
@@ -302,7 +303,7 @@
 
                 this.isSubmitting = true;
 
-                const payloadItems = this.currentSamsats
+                const payloadItems = this.currentSuratJalans
                     .filter(s => this.isChecked(s.id))
                     .map(s => ({
                         id: s.id,

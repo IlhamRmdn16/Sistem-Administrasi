@@ -51,76 +51,81 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
-                    <tr>
-                        <th class="py-4 px-6 font-semibold">No. SJK / Tgl Kirim</th>
-                        <th class="py-4 px-6 font-semibold">Nama STNK / SPK</th>
-                        <th class="py-4 px-6 font-semibold">Unit & Pembayaran</th>
-                        <th class="py-4 px-6 font-semibold text-center">Status Dokumen</th>
-                        <th class="py-4 px-6 text-center w-36 font-semibold">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($dokumens as $doc)
-                        @php
-                            $stnkSelesai = $doc->samsat && $doc->samsat->tgl_terima_stnk;
-                            $bpkbSelesai = $doc->samsat && $doc->samsat->tgl_terima_bpkb;
+    <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
+        <tr>
+            <th class="py-4 px-6 font-semibold w-12 text-center">No</th> <th class="py-4 px-6 font-semibold">No. SJK / Tgl Kirim</th>
+            <th class="py-4 px-6 font-semibold">Nama STNK / SPK</th>
+            <th class="py-4 px-6 font-semibold">Unit & Pembayaran</th>
+            <th class="py-4 px-6 font-semibold text-center">No. Kunci</th>
+            <th class="py-4 px-6 font-semibold text-center">Status Dokumen</th>
+            <th class="py-4 px-6 text-center w-36 font-semibold">Aksi</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+        @forelse($dokumens as $index => $doc) @php
+                $stnkSelesai = $doc->samsat && $doc->samsat->tgl_terima_stnk;
+                $bpkbSelesai = $doc->samsat && $doc->samsat->tgl_terima_bpkb;
 
-                            $statusColor = 'bg-red-50 text-red-600 border-red-200';
-                            $statusText = 'Belum Ada';
+                $statusColor = 'bg-red-50 text-red-600 border-red-200';
+                $statusText = 'Belum Ada';
 
-                            if($stnkSelesai && $bpkbSelesai) {
-                                $statusColor = 'bg-green-50 text-green-700 border-green-200';
-                                $statusText = 'Selesai Keduanya';
-                            } elseif($stnkSelesai && !$bpkbSelesai) {
-                                $statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
-                                $statusText = 'STNK Selesai';
-                            } elseif(!$stnkSelesai && $bpkbSelesai) {
-                                $statusColor = 'bg-blue-50 text-blue-700 border-blue-200';
-                                $statusText = 'Hanya BPKB';
-                            }
+                if($stnkSelesai && $bpkbSelesai) {
+                    $statusColor = 'bg-green-50 text-green-700 border-green-200';
+                    $statusText = 'Selesai Keduanya';
+                } elseif($stnkSelesai && !$bpkbSelesai) {
+                    $statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                    $statusText = 'STNK Selesai';
+                } elseif(!$stnkSelesai && $bpkbSelesai) {
+                    $statusColor = 'bg-blue-50 text-blue-700 border-blue-200';
+                    $statusText = 'Hanya BPKB';
+                }
 
-                            $pembayaran = $doc->spk->leasing_id ? 'KREDIT - ' . ($doc->spk->leasing->nama_leasing ?? '') : 'KONTAN';
-                        @endphp
+                $pembayaran = $doc->spk->leasing_id ? 'KREDIT - ' . ($doc->spk->leasing->nama_leasing ?? '') : 'KONTAN';
+            @endphp
 
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-4 px-6 text-sm">
-                                <div class="font-bold text-gray-800">{{ $doc->no_bukti }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($doc->tanggal)->format('d/m/Y') }}</div>
-                            </td>
-                            <td class="py-4 px-6 text-sm">
-                                <div class="font-bold text-gray-800 uppercase">{{ $doc->spk->nama_stnk ?? '-' }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $doc->spk->no_spk ?? '-' }}</div>
-                            </td>
-                            <td class="py-4 px-6 text-sm">
-                                <div class="font-semibold text-gray-700 truncate max-w-[180px]">{{ $doc->spk->motorType->nama_type ?? '-' }}</div>
-                                <div class="text-[10px] font-bold mt-1 px-1.5 py-0.5 inline-block rounded {{ $doc->spk->leasing_id ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700' }}">
-                                    {{ $pembayaran }}
-                                </div>
-                            </td>
-                            <td class="py-4 px-6 text-center">
-                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border {{ $statusColor }}">
-                                    {{ $statusText }}
-                                </span>
-                            </td>
-                            <td class="py-4 px-6">
-                                <div class="flex items-center justify-center gap-3">
-                                    <button @click="openDetailModal({{ $doc }}, '{{ $pembayaran }}')" class="text-gray-500 hover:text-gray-800 transition-colors" title="Detail Data Lengkap">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </button>
-                                    <button @click="openEditModal({{ $doc }})" class="text-blue-500 hover:text-blue-700 transition-colors" title="Update Dokumen">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="py-12 text-center text-gray-500">Data Dokumen Kendaraan tidak ditemukan.</td>
-                        </tr>
-                    @endempty
-                </tbody>
-            </table>
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="py-4 px-6 text-sm text-center text-gray-500 font-bold">
+                    {{ $dokumens->firstItem() + $index }} </td>
+                <td class="py-4 px-6 text-sm">
+                    <div class="font-bold text-gray-800">{{ $doc->no_bukti }}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($doc->tanggal)->format('d/m/Y') }}</div>
+                </td>
+                <td class="py-4 px-6 text-sm">
+                    <div class="font-bold text-gray-800 uppercase">{{ $doc->spk->nama_stnk ?? '-' }}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">{{ $doc->spk->no_spk ?? '-' }}</div>
+                </td>
+                <td class="py-4 px-6 text-sm">
+                    <div class="font-semibold text-gray-700 truncate max-w-[180px]">{{ $doc->spk->motorType->nama_type ?? '-' }}</div>
+                    <div class="text-[10px] font-bold mt-1 px-1.5 py-0.5 inline-block rounded {{ $doc->spk->leasing_id ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700' }}">
+                        {{ $pembayaran }}
+                    </div>
+                </td>
+                <td class="py-4 px-6 text-sm text-center font-mono font-bold text-gray-700">
+                    {{ $doc->motorUnit->no_kunci ?? '-' }}
+                </td>
+                <td class="py-4 px-6 text-center">
+                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border {{ $statusColor }}">
+                        {{ $statusText }}
+                    </span>
+                </td>
+                <td class="py-4 px-6">
+                    <div class="flex items-center justify-center gap-3">
+                        <button @click="openDetailModal({{ $doc }}, '{{ $pembayaran }}')" class="text-gray-500 hover:text-gray-800 transition-colors" title="Detail Data Lengkap">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                        <button @click="openEditModal({{ $doc }})" class="text-blue-500 hover:text-blue-700 transition-colors" title="Update Dokumen">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7" class="py-12 text-center text-gray-500">Data Dokumen Kendaraan tidak ditemukan.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
         </div>
         <div class="p-4 border-t border-gray-100">
             {{ $dokumens->links() }}

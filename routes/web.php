@@ -8,6 +8,7 @@ use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
+use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
 use App\Http\Controllers\Transaction\SamsatController;
 use App\Http\Controllers\Transaction\SpkController;
 use App\Http\Controllers\Transaction\SuratJalanController;
@@ -63,3 +64,9 @@ Route::resource('samsat', SamsatController::class)->only(['index', 'update']);
 Route::get('pengajuan-stnk/riwayat', [PengajuanStnkController::class, 'riwayat'])->name('pengajuan-stnk.riwayat');
 Route::resource('pengajuan-stnk', PengajuanStnkController::class)->except(['create', 'show']);
 Route::get('pengajuan-stnk/{id}/print', [PengajuanStnkController::class, 'print'])->name('pengajuan-stnk.print');
+
+Route::prefix('penyerahan-stnk-bpkb')->name('penyerahan-stnk-bpkb.')->group(function () {
+    Route::get('/', [PenyerahanStnkBpkbController::class, 'index'])->name('index');
+    Route::put('/{id}', [PenyerahanStnkBpkbController::class, 'update'])->name('update');
+    Route::get('/{id}/print', [PenyerahanStnkBpkbController::class, 'print'])->name('print');
+});

@@ -38,4 +38,14 @@ class SuratJalan extends Model
     {
         return $this->hasOne(Samsat::class, 'surat_jalan_id');
     }
+
+    public function pengajuanDetail()
+    {
+        return $this->hasOne(PengajuanStnkDetail::class, 'surat_jalan_id');
+    }
+
+    public function penyerahanStnkBpkb()
+    {
+        return $this->hasOne(PenyerahanStnkBpkb::class, 'surat_jalan_id');
+    }
 }

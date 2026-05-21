@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div x-data="penyerahanManager()" @keydown.escape.window="isModalOpen = false; isDetailOpen = false">
+<div x-data="penyerahanManager()" @keydown.escape.window="isModalOpen = false; isDetailOpen = false; stopCamera()">
 
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -126,7 +126,7 @@
         <div class="p-4 border-t border-gray-100">{{ $dokumens->links() }}</div>
     </div>
 
-    <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+    <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-40 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div x-show="isModalOpen" class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isModalOpen = false"></div>
             <div x-show="isModalOpen" class="bg-white rounded-2xl shadow-xl transform transition-all w-full max-w-5xl overflow-hidden relative z-10">
@@ -138,7 +138,7 @@
                     <button @click="isModalOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <form @submit.prevent="submitData" enctype="multipart/form-data" class="p-6">
+                <form @submit.prevent="submitData" class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div class="border rounded-xl p-4" :class="mStnkReady ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 bg-gray-50 opacity-60'">
@@ -182,10 +182,23 @@
 
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1 flex items-center justify-between">
-                                        <span>Ambil / Upload Foto Bukti <span class="text-red-500">*</span></span>
-                                        <span x-show="fFotoStnkExist" class="text-emerald-500 text-[10px]">Foto Tersimpan ✓</span>
+                                        <span>Ambil Foto Bukti STNK <span class="text-red-500">*</span></span>
+                                        <span x-show="fFotoStnkExist && !fFotoStnkBase64" class="text-emerald-500 text-[10px]">Tersimpan di Server ✓</span>
                                     </label>
-                                    <input type="file" name="foto_stnk" accept="image/*" capture="environment" :disabled="!mStnkReady" class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-blue-500 bg-white">
+
+                                    <template x-if="fFotoStnkBase64">
+                                        <div class="relative mb-2 w-full h-32 rounded-lg overflow-hidden border border-gray-300">
+                                            <img :src="fFotoStnkBase64" class="w-full h-full object-cover">
+                                            <button type="button" @click="fFotoStnkBase64 = null" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    <button type="button" x-show="!fFotoStnkBase64" @click="startCamera('stnk')" :disabled="!mStnkReady" class="w-full py-2 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-bold text-sm bg-blue-50 hover:bg-blue-100 transition-colors flex justify-center items-center gap-2 disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        Buka Kamera
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -231,10 +244,23 @@
 
                                 <div x-show="fHubunganBpkb && fHubunganBpkb !== 'Pemilik'">
                                     <label class="block text-xs font-bold text-gray-600 mb-1 flex items-center justify-between">
-                                        <span>Ambil / Upload Foto Bukti Perwakilan <span class="text-red-500">*</span></span>
-                                        <span x-show="fFotoBpkbExist" class="text-emerald-500 text-[10px]">Foto Tersimpan ✓</span>
+                                        <span>Ambil Foto Bukti Perwakilan <span class="text-red-500">*</span></span>
+                                        <span x-show="fFotoBpkbExist && !fFotoBpkbBase64" class="text-emerald-500 text-[10px]">Tersimpan di Server ✓</span>
                                     </label>
-                                    <input type="file" name="foto_bpkb" accept="image/*" capture="environment" :disabled="!mBpkbReady" class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-amber-500 bg-white">
+
+                                    <template x-if="fFotoBpkbBase64">
+                                        <div class="relative mb-2 w-full h-32 rounded-lg overflow-hidden border border-gray-300">
+                                            <img :src="fFotoBpkbBase64" class="w-full h-full object-cover">
+                                            <button type="button" @click="fFotoBpkbBase64 = null" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    <button type="button" x-show="!fFotoBpkbBase64" @click="startCamera('bpkb')" :disabled="!mBpkbReady" class="w-full py-2 border-2 border-dashed border-amber-300 rounded-lg text-amber-600 font-bold text-sm bg-amber-50 hover:bg-amber-100 transition-colors flex justify-center items-center gap-2 disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        Buka Kamera
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -254,12 +280,11 @@
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
 
-    <div x-show="isDetailOpen" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+    <div x-show="isDetailOpen" style="display: none;" class="fixed inset-0 z-40 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div x-show="isDetailOpen" class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isDetailOpen = false"></div>
             <div x-show="isDetailOpen" class="bg-white rounded-2xl shadow-xl transform transition-all w-full max-w-4xl overflow-hidden relative z-10">
@@ -307,7 +332,7 @@
                                         <img :src="'/storage/' + dBpkbFoto" class="w-full h-48 object-cover rounded-lg border border-gray-300 shadow-sm" alt="Foto BPKB">
                                     </template>
                                     <template x-if="!dBpkbFoto">
-                                        <div class="w-full h-32 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200 text-gray-400 text-xs italic">Tidak ada foto (Pemilik) / Belum diupload</div>
+                                        <div class="w-full h-32 flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200 text-gray-400 text-xs italic">Diambil Sendiri (Tanpa Foto)</div>
                                     </template>
                                 </div>
                             </div>
@@ -327,25 +352,54 @@
         </div>
     </div>
 
+    <div x-show="isCameraOpen" style="display: none;" class="fixed inset-0 z-[60] bg-black flex flex-col">
+        <div class="p-4 flex justify-between items-center text-white bg-gradient-to-b from-black/80 to-transparent absolute top-0 w-full z-10">
+            <span class="font-bold uppercase tracking-wider text-sm" x-text="'Kamera: ' + cameraTarget"></span>
+            <button @click="stopCamera()" class="p-2 bg-white/20 hover:bg-white/40 rounded-full backdrop-blur transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="flex-1 relative bg-gray-900 flex items-center justify-center overflow-hidden">
+            <video x-ref="videoElement" autoplay playsinline class="w-full h-full object-contain"></video>
+            <canvas x-ref="canvasElement" class="hidden"></canvas>
+        </div>
+
+        <div class="h-32 bg-black flex items-center justify-center pb-6 z-20 relative">
+            <button @click="takeSnapshot()" class="w-16 h-16 rounded-full bg-white border-4 border-gray-300 focus:outline-none hover:bg-gray-200 hover:scale-105 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]"></button>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // FUNGSI KONVERSI: Mengubah Base64 hasil kamera menjadi File utuh agar Controller tidak error
+    function dataURItoBlob(dataURI) {
+        var byteString = atob(dataURI.split(',')[1]);
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        var ab = new ArrayBuffer(byteString.length);
+        var dw = new DataView(ab);
+        for(var i = 0; i < byteString.length; i++) { dw.setUint8(i, byteString.charCodeAt(i)); }
+        return new Blob([ab], {type: mimeString});
+    }
+
     function penyerahanManager() {
         return {
             isModalOpen: false, isDetailOpen: false, isSubmitting: false,
             mId: '', mNamaStnk: '', mMotor: '',
             mStnkReady: false, mBpkbReady: false, mIsKredit: false,
 
-            // State Form STNK
+            // Kamera Logic
+            isCameraOpen: false, cameraTarget: '', stream: null,
+            fFotoStnkBase64: null, fFotoBpkbBase64: null,
+
             fTglStnk: '', fPenerimaStnk: '', fAlamatStnk: '',
             fHubunganStnk: '', fKetStnk: '', fFotoStnkExist: false,
 
-            // State Form BPKB
             fTglBpkb: '', fPenerimaBpkb: '', fAlamatBpkb: '',
             fHubunganBpkb: '', fKetBpkb: '', fFotoBpkbExist: false,
 
-            // State Detail
             dStnkDate: '', dStnkPenerima: '', dStnkHubungan: '', dStnkFoto: '',
             dBpkbDate: '', dBpkbPenerima: '', dBpkbHubungan: '', dBpkbFoto: '',
 
@@ -356,6 +410,8 @@
                 this.mStnkReady = stnkReady;
                 this.mBpkbReady = bpkbReady;
                 this.mIsKredit = isKredit;
+                this.fFotoStnkBase64 = null; // reset preview
+                this.fFotoBpkbBase64 = null; // reset preview
 
                 let p = doc.penyerahan_stnk_bpkb || {};
 
@@ -380,35 +436,85 @@
                 this.mIsKredit = isKredit;
                 let p = doc.penyerahan_stnk_bpkb || {};
 
-                // STNK
                 this.dStnkDate = p.tgl_serah_stnk || '';
                 this.dStnkPenerima = p.penerima_stnk || '';
                 this.dStnkFoto = p.foto_serah_stnk || '';
-                this.dStnkHubungan = p.hubungan_stnk === 'Lainnya'
-                                     ? `Lainnya (${p.keterangan_stnk})`
-                                     : p.hubungan_stnk || '-';
+                this.dStnkHubungan = p.hubungan_stnk === 'Lainnya' ? `Lainnya (${p.keterangan_stnk})` : p.hubungan_stnk || '-';
 
-                // BPKB
                 this.dBpkbDate = p.tgl_serah_bpkb || '';
                 this.dBpkbPenerima = p.penerima_bpkb || '';
                 this.dBpkbFoto = p.foto_serah_bpkb || '';
-                this.dBpkbHubungan = p.hubungan_bpkb === 'Lainnya'
-                                     ? `Lainnya (${p.keterangan_bpkb})`
-                                     : p.hubungan_bpkb || '-';
+                this.dBpkbHubungan = p.hubungan_bpkb === 'Lainnya' ? `Lainnya (${p.keterangan_bpkb})` : p.hubungan_bpkb || '-';
 
                 this.isDetailOpen = true;
             },
 
+            // --- WEBCAM API METHODS ---
+            startCamera(target) {
+                this.cameraTarget = target;
+                this.isCameraOpen = true;
+
+                // Minta resolusi tinggi, browser/perangkat akan otomatis menyesuaikan rasionya
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                })
+                .then(stream => {
+                    this.stream = stream;
+                    this.$refs.videoElement.srcObject = stream;
+                })
+                .catch(err => {
+                    this.isCameraOpen = false;
+                    Swal.fire('Kamera Gagal', 'Pastikan Anda memberikan izin kamera dan menggunakan HTTPS.', 'error');
+                    console.error("Camera Error:", err);
+                });
+            },
+
+            stopCamera() {
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
+                this.isCameraOpen = false;
+            },
+
+            takeSnapshot() {
+                const video = this.$refs.videoElement;
+                const canvas = this.$refs.canvasElement;
+                const ctx = canvas.getContext('2d');
+
+                // Ukuran canvas mengikuti rasio ASLI dari kamera perangkat (HP/PC)
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Gambar full frame tanpa potongan
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Konversi gambar dengan kompresi 80% agar ringan diserver
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                if(this.cameraTarget === 'stnk') {
+                    this.fFotoStnkBase64 = dataUrl;
+                } else if(this.cameraTarget === 'bpkb') {
+                    this.fFotoBpkbBase64 = dataUrl;
+                }
+
+                this.stopCamera();
+            },
+
             submitData(e) {
-                // Validasi Foto STNK jika mau input/simpan STNK tapi foto belum ada
-                if(this.fTglStnk && !this.fFotoStnkExist && !e.target.foto_stnk.value) {
-                    Swal.fire({ icon: 'warning', title: 'Oops', text: 'Foto bukti penyerahan STNK wajib diupload!' });
+                // Validasi STNK
+                if(this.fTglStnk && !this.fFotoStnkExist && !this.fFotoStnkBase64) {
+                    Swal.fire({ icon: 'warning', title: 'Oops', text: 'Foto bukti penyerahan STNK wajib diambil!' });
                     return;
                 }
 
-                // Validasi Foto BPKB jika perwakilan
-                if(this.fTglBpkb && this.fHubunganBpkb && this.fHubunganBpkb !== 'Pemilik' && !this.fFotoBpkbExist && !e.target.foto_bpkb.value) {
-                    Swal.fire({ icon: 'warning', title: 'Oops', text: 'Karena BPKB diambil oleh perwakilan, foto bukti wajib diupload!' });
+                // Validasi BPKB
+                if(this.fTglBpkb && this.fHubunganBpkb && this.fHubunganBpkb !== 'Pemilik' && !this.fFotoBpkbExist && !this.fFotoBpkbBase64) {
+                    Swal.fire({ icon: 'warning', title: 'Oops', text: 'Karena BPKB diambil oleh perwakilan, foto bukti wajib diambil!' });
                     return;
                 }
 
@@ -416,6 +522,14 @@
                 let formData = new FormData(e.target);
                 formData.append('_token', '{{ csrf_token() }}');
                 formData.append('_method', 'PUT');
+
+                // Menyisipkan gambar Base64 menjadi bentuk File yang sah untuk Controller
+                if(this.fFotoStnkBase64) {
+                    formData.append('foto_stnk', dataURItoBlob(this.fFotoStnkBase64), 'foto_stnk.jpg');
+                }
+                if(this.fFotoBpkbBase64) {
+                    formData.append('foto_bpkb', dataURItoBlob(this.fFotoBpkbBase64), 'foto_bpkb.jpg');
+                }
 
                 fetch('/penyerahan-stnk-bpkb/' + this.mId, {
                     method: 'POST',

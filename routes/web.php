@@ -9,6 +9,7 @@ use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
 use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
+use App\Http\Controllers\Transaction\RealisasiPajakController;
 use App\Http\Controllers\Transaction\SamsatController;
 use App\Http\Controllers\Transaction\SpkController;
 use App\Http\Controllers\Transaction\SuratJalanController;
@@ -69,4 +70,9 @@ Route::prefix('penyerahan-stnk-bpkb')->name('penyerahan-stnk-bpkb.')->group(func
     Route::get('/', [PenyerahanStnkBpkbController::class, 'index'])->name('index');
     Route::put('/{id}', [PenyerahanStnkBpkbController::class, 'update'])->name('update');
     Route::get('/{id}/print', [PenyerahanStnkBpkbController::class, 'print'])->name('print');
+});
+
+Route::prefix('realisasi-pajak')->name('realisasi-pajak.')->group(function () {
+    Route::get('/', [RealisasiPajakController::class, 'index'])->name('index');
+    Route::get('/print', [RealisasiPajakController::class, 'print'])->name('print');
 });

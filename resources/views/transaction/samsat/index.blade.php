@@ -9,7 +9,7 @@
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
                 Manajemen Dokumen Kendaraan
             </h2>
-            <p class="text-sm text-gray-500 mt-1 ml-4">Pantau dan kelola proses penerimaan STNK, Notice Pajak, dan BPKB Konsumen.</p>
+            <p class="text-sm text-gray-500 mt-1 ml-4">Pantau dan kelola proses penerimaan STNK, Pajak Progresif, dan BPKB Konsumen.</p>
         </div>
     </div>
 

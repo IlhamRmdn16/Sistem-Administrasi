@@ -38,7 +38,7 @@
     </style>
 </head>
 
-<body onload="window.print()">
+<body>
 
     <table class="header-section">
         <tr>
@@ -125,5 +125,24 @@
         </div>
     </div>
 
+    <script>
+        // Buka jendela print otomatis saat halaman dimuat
+        window.onload = function() {
+            window.print();
+        };
+
+        // Logika cerdas setelah jendela print ditutup atau di-cancel
+        window.onafterprint = function() {
+            if (window.opener) {
+                // Jika dibuka di tab baru (contoh: target="_blank" dari tabel), tutup otomatis
+                setTimeout(window.close, 500);
+            } else {
+                // Jika dibuka dari tab yang sama, kembali ke halaman sebelumnya
+                setTimeout(function() {
+                    window.history.back();
+                }, 500);
+            }
+        };
+    </script>
 </body>
 </html>

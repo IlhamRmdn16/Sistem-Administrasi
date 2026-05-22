@@ -7,49 +7,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
-            @page { 
-                size: 215mm 165mm; 
-                margin: 0; 
+            @page {
+                size: 215mm 165mm;
+                margin: 0;
             }
-            body { 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact; 
-                background-color: white !important; 
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background-color: white !important;
                 margin: 0;
                 padding: 0;
             }
             .no-print { display: none !important; }
             .screen-wrapper { padding: 0 !important; }
-            
+
             .page-container {
                 width: 215mm;
-                height: 165mm; 
+                height: 165mm;
                 margin: 0;
-                padding: 4mm 10mm 4mm 10mm; 
+                padding: 4mm 10mm 4mm 10mm;
                 box-shadow: none;
                 border: none;
             }
         }
 
-        body { 
-            font-family: 'Arial', sans-serif; 
-            background-color: #f3f4f6; 
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
             color: #000;
             margin: 0;
             padding: 0;
         }
-        
+
         .screen-wrapper {
-            padding: 2rem 0; 
+            padding: 2rem 0;
         }
 
-        .page-container { 
-            width: 215mm; 
-            height: 165mm; 
-            background: white; 
-            margin: 0 auto; 
-            padding: 4mm 10mm 4mm 10mm; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        .page-container {
+            width: 215mm;
+            height: 165mm;
+            background: white;
+            margin: 0 auto;
+            padding: 4mm 10mm 4mm 10mm;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -57,10 +57,10 @@
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        td { 
-            padding: 1px 0; 
-            vertical-align: top; 
-            font-size: 13px; 
+        td {
+            padding: 1px 0;
+            vertical-align: top;
+            font-size: 13px;
             line-height: 1.25;
             font-weight: 500;
             color: #111;
@@ -81,7 +81,7 @@
                 <div class="border-b-2 border-gray-900 pb-1 mb-1 shrink-0 flex justify-center w-full">
                     <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Kop Surat" class="w-auto h-[60px] object-contain">
                 </div>
-                
+
                 <div class="text-center mb-1 shrink-0">
                     <h2 class="text-[15px] font-bold underline uppercase tracking-wider">Surat Jalan Konsumen</h2>
                 </div>
@@ -210,7 +210,23 @@
         </div>
 
         <script>
-            window.onload = function() { window.print(); }
+            // Buka jendela print saat halaman dimuat
+            window.onload = function() {
+                window.print();
+            };
+
+            // Logika cerdas setelah jendela print ditutup atau dicancel
+            window.onafterprint = function() {
+                if (window.opener) {
+                    // Jika dibuka di tab baru (dari tabel), tutup otomatis
+                    setTimeout(window.close, 500);
+                } else {
+                    // Jika dibuka di tab yang sama, kembalikan ke halaman index
+                    setTimeout(function() {
+                        window.location.href = "{{ route('suratjalan.index') }}";
+                    }, 500);
+                }
+            };
         </script>
 </body>
 </html>

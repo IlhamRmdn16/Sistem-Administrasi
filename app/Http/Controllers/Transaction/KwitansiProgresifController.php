@@ -14,10 +14,8 @@ class KwitansiProgresifController extends Controller
 {
     public function index(Request $request)
     {
-        // Deteksi tab aktif dari request query agar state tab tidak reset saat submit filter
         $tab = $request->input('tab', 'buat');
 
-        // TAB 1: Konsumen yang PAJAK > 0 dan BELUM LUNAS
         $belumLunas = SuratJalan::whereHas('samsat', function($q) {
                 $q->where('pajak_progresif', '>', 0);
             })
@@ -25,13 +23,10 @@ class KwitansiProgresifController extends Controller
             ->with(['spk.motorType', 'spk.motorColor', 'spk.leasing', 'spk.sales', 'motorUnit', 'samsat'])
             ->get();
 
-        // Mengambil data rekening secara dinamis dari database
         $rekenings = Rekening::all();
 
-        // TAB 2: Riwayat Kwitansi dengan Multi-Filter
         $query = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.samsat']);
 
-        // Filter 1: Fitur Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -46,15 +41,11 @@ class KwitansiProgresifController extends Controller
             });
         }
 
-        // Filter 2: Fitur Periode Tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
         }
 
-        // Filter 3: Tampilkan berapa data per halaman
         $perPage = $request->input('per_page', 10);
-
-        // Eksekusi Paginasi
         $riwayat = $query->latest()->paginate($perPage)->withQueryString();
 
         return view('transaction.kwitansi-progresif.index', compact('belumLunas', 'riwayat', 'rekenings', 'tab'));
@@ -86,7 +77,7 @@ class KwitansiProgresifController extends Controller
 
             $now = Carbon::parse($request->tanggal);
             $prefix = 'KNP' . $now->format('Y/m/');
-            
+
             $lastKwitansi = KwitansiPajakProgresif::where('no_kwitansi', 'like', $prefix . '%')
                 ->lockForUpdate()
                 ->orderBy('id', 'desc')
@@ -111,9 +102,8 @@ class KwitansiProgresifController extends Controller
 
             DB::commit();
 
-            // Redirect ke halaman SHOW (Preview), bukan langsung Print
-            return redirect()->route('kwitansi-progresif.show', $kwitansi->id)
-                             ->with('success', 'Kwitansi berhasil disimpan!');
+            // Redirect langsung ke print (menghapus show/preview)
+            return redirect()->route('kwitansi-progresif.print', $kwitansi->id);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -121,20 +111,11 @@ class KwitansiProgresifController extends Controller
         }
     }
 
-    // Fungsi Baru untuk Halaman Preview
-    public function show($id)
-    {
-        $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit', 'suratJalan.spk.sales'])
-                    ->findOrFail($id);
-                    
-        return view('transaction.kwitansi-progresif.show', compact('kwitansi'));
-    }
-
     public function print($id)
     {
         $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit', 'suratJalan.spk.sales'])
                     ->findOrFail($id);
-                    
+
         return view('transaction.kwitansi-progresif.print', compact('kwitansi'));
     }
 }

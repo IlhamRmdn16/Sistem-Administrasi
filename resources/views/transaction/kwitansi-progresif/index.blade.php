@@ -37,11 +37,11 @@
     <div x-show="activeTab === 'buat'" style="display: none;">
         <form action="{{ route('kwitansi-progresif.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             @csrf
-            
+
             <div class="lg:col-span-5 space-y-6">
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                     <h3 class="font-bold text-gray-800 border-b pb-2 mb-4">Data Transaksi</h3>
-                    
+
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-gray-600 mb-1">Pilih Konsumen (Pajak Progresif)</label>
                         <select id="select-sjk" name="surat_jalan_id" class="w-full" required>
@@ -149,11 +149,11 @@
     </div>
 
     <div x-show="activeTab === 'riwayat'" style="display: none;">
-        
+
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
             <form action="{{ route('kwitansi-progresif.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                 <input type="hidden" name="tab" value="riwayat">
-                
+
                 <div class="md:col-span-4">
                     <label class="block text-[11px] font-bold text-gray-500 mb-1">Cari Data</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="No. Kwitansi / Nama Konsumen / Tipe..." class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-honda-red">
@@ -268,11 +268,11 @@
                         }
                         let rawData = document.querySelector(`option[value="${value}"]`).getAttribute('data-info');
                         let data = JSON.parse(rawData);
-                        
+
                         this.selectedDoc = data;
                         this.tagihan = data.samsat?.pajak_progresif || 0;
                         this.isKredit = data.spk?.leasing_id ? true : false;
-                        
+
                         this.bayarKontan = this.tagihan;
                         this.bayarTransfer = 0;
                     }

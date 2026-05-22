@@ -82,6 +82,7 @@
                                     <a href="{{ route('samsat.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Penerimaan STNK / BPKB</a>
                                     <a href="{{ route('realisasi-pajak.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Cetak Realisasi Pajak Progresif</a>
                                     <a href="{{ route('penyerahan-stnk-bpkb.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Penyerahan STNK / BPKB</a>
+                                    <a href="{{ route('kwitansi-progresif.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Kwitansi Pajak Progresif</a>
                                 </div>
                             </div>
                         </nav>
@@ -156,6 +157,7 @@
                             <a href="{{ route('samsat.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Penerimaan STNK / BPKB</a>
                             <a href="{{ route('realisasi-pajak.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Cetak Realisasi Pajak Progresif</a>
                             <a href="{{ route('penyerahan-stnk-bpkb.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Penyerahan STNK / BPKB</a>
+                            <a href="{{ route('kwitansi-progresif.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kwitansi Pajak Progresif</a>
                         </div>
                     </div>
 

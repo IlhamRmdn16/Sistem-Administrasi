@@ -6,6 +6,7 @@ use App\Http\Controllers\Master\MotorTypeController;
 use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
+use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
 use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
@@ -76,3 +77,9 @@ Route::prefix('realisasi-pajak')->name('realisasi-pajak.')->group(function () {
     Route::get('/', [RealisasiPajakController::class, 'index'])->name('index');
     Route::get('/print', [RealisasiPajakController::class, 'print'])->name('print');
 });
+
+Route::prefix('kwitansi-progresif')->name('kwitansi-progresif.')->group(function () {
+        Route::get('/', [KwitansiProgresifController::class, 'index'])->name('index');
+        Route::post('/store', [KwitansiProgresifController::class, 'store'])->name('store');
+        Route::get('/print/{id}', [KwitansiProgresifController::class, 'print'])->name('print');
+    });

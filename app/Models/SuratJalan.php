@@ -48,4 +48,9 @@ class SuratJalan extends Model
     {
         return $this->hasOne(PenyerahanStnkBpkb::class, 'surat_jalan_id');
     }
+
+    public function kwitansiProgresif()
+    { 
+        return $this->hasOne(KwitansiPajakProgresif::class, 'surat_jalan_id'); 
+    }
 }

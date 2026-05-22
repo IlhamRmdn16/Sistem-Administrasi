@@ -82,7 +82,9 @@
                         <select name="rekening_tujuan" :required="bayarTransfer > 0" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm outline-none focus:border-honda-red">
                             <option value="">-- Pilih Rekening Dealer --</option>
                             @foreach($rekenings as $rek)
-                                <option value="{{ $rek }}">{{ $rek }}</option>
+                                <option value="{{ $rek->nama_rekening }} - {{ $rek->nomor_rekening }}">
+                                    {{ $rek->kode_rekening }} | {{ $rek->nama_rekening }} ({{ $rek->nomor_rekening }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -101,38 +103,28 @@
                     <button type="submit" :disabled="selisih !== 0 || tagihan === 0" class="w-full bg-gray-800 text-white font-bold px-6 py-3 rounded-lg text-sm hover:bg-gray-900 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                         Simpan & Cetak Kwitansi
                     </button>
-                    <p class="text-center text-[10px] text-gray-400 mt-2">No. Kwitansi akan dibuat otomatis saat disimpan.</p>
                 </div>
             </div>
 
             <div class="lg:col-span-7">
                 <div class="bg-slate-50 rounded-2xl border border-gray-200 shadow-inner p-6 h-full">
                     <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Deskripsi Konsumen</h3>
-                    
                     <div x-show="!selectedDoc.id" class="text-center py-12 text-gray-400 italic text-sm">
                         Silakan pilih konsumen di sebelah kiri untuk melihat detail data.
                     </div>
-
                     <div x-show="selectedDoc.id" style="display: none;">
                         <table class="w-full text-sm">
                             <tbody class="divide-y divide-gray-200">
                                 <tr><td class="py-2 text-gray-500 w-1/3">No. SPK</td><td class="py-2 font-bold" x-text="selectedDoc.spk?.no_spk"></td></tr>
-                                <tr><td class="py-2 text-gray-500">Nama Sales</td><td class="py-2" x-text="selectedDoc.spk?.sales?.nama ?? '-'"></td></tr>
+                                <tr><td class="py-2 text-gray-500">Nama Sales</td><td class="py-2" x-text="selectedDoc.spk?.sales?.nama_sales ?? '-'"></td></tr>
                                 <tr><td class="py-2 text-gray-500">Nama Pemohon</td><td class="py-2 font-semibold" x-text="selectedDoc.spk?.nama_pemohon"></td></tr>
                                 <tr><td class="py-2 text-gray-500">Nama STNK</td><td class="py-2 font-bold text-honda-red" x-text="selectedDoc.spk?.nama_stnk"></td></tr>
-                                <tr>
-                                    <td class="py-2 text-gray-500">Alamat Lengkap</td>
-                                    <td class="py-2 text-xs leading-relaxed" x-text="formatAlamat()"></td>
-                                </tr>
+                                <tr><td class="py-2 text-gray-500">Alamat Lengkap</td><td class="py-2 text-xs leading-relaxed" x-text="formatAlamat()"></td></tr>
                                 <tr><td class="py-2 text-gray-500">No. Telepon</td><td class="py-2" x-text="selectedDoc.spk?.telepon"></td></tr>
-                                
                                 <tr><td colspan="2" class="py-3"><div class="border-t border-gray-200"></div></td></tr>
-                                
                                 <tr><td class="py-2 text-gray-500">Kendaraan</td><td class="py-2 font-bold" x-text="selectedDoc.spk?.motor_type?.nama_type + ' (' + selectedDoc.spk?.motor_color?.warna + ')'"></td></tr>
                                 <tr><td class="py-2 text-gray-500">Mesin / Rangka</td><td class="py-2 text-xs font-mono" x-text="(selectedDoc.motor_unit?.no_mesin ?? '-') + ' / ' + (selectedDoc.motor_unit?.no_rangka ?? '-')"></td></tr>
-                                
                                 <tr><td colspan="2" class="py-3"><div class="border-t border-gray-200"></div></td></tr>
-
                                 <tr>
                                     <td class="py-2 text-gray-500">Pembayaran</td>
                                     <td class="py-2">
@@ -141,7 +133,6 @@
                                     </td>
                                 </tr>
                                 <tr x-show="isKredit"><td class="py-2 text-gray-500">Tenor</td><td class="py-2" x-text="selectedDoc.spk?.tenor_bulan + ' Bulan'"></td></tr>
-                                
                                 <tr>
                                     <td class="py-2 text-gray-500">Finansial SPK</td>
                                     <td class="py-2 text-xs">
@@ -158,53 +149,97 @@
     </div>
 
     <div x-show="activeTab === 'riwayat'" style="display: none;">
+        
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
+            <form action="{{ route('kwitansi-progresif.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                <input type="hidden" name="tab" value="riwayat">
+                
+                <div class="md:col-span-4">
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Cari Data</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="No. Kwitansi / Nama Konsumen / Tipe..." class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-honda-red">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Dari Tanggal</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-honda-red">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Sampai Tanggal</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-honda-red">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Tampilkan</label>
+                    <select name="per_page" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-honda-red">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 Data</option>
+                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 Data</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 Data</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 Data</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-2 flex gap-2">
+                    <button type="submit" class="w-full bg-gray-800 text-white font-bold py-2 rounded-lg text-xs hover:bg-gray-900 transition-colors">
+                        Filter
+                    </button>
+                    <a href="{{ route('kwitansi-progresif.index', ['tab' => 'riwayat']) }}" class="w-full bg-gray-200 text-gray-700 text-center font-bold py-2 rounded-lg text-xs hover:bg-gray-300 transition-colors">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-gray-200">
                         <tr>
-                            <th class="p-4 font-semibold text-gray-600">No Kwitansi / Tgl</th>
-                            <th class="p-4 font-semibold text-gray-600">Konsumen & Motor</th>
-                            <th class="p-4 font-semibold text-gray-600">Metode Bayar</th>
-                            <th class="p-4 font-semibold text-gray-600 text-right">Total Pajak</th>
-                            <th class="p-4 font-semibold text-gray-600 text-center">Status</th>
-                            <th class="p-4 font-semibold text-gray-600 text-center">Aksi</th>
+                            <th class="p-3 font-semibold text-gray-600 text-center w-12">No.</th>
+                            <th class="p-3 font-semibold text-gray-600">No Kwitansi / Tgl</th>
+                            <th class="p-3 font-semibold text-gray-600">Konsumen & Motor</th>
+                            <th class="p-3 font-semibold text-gray-600">Metode Bayar</th>
+                            <th class="p-3 font-semibold text-gray-600 text-right">Total Pajak</th>
+                            <th class="p-3 font-semibold text-gray-600 text-center">Status</th>
+                            <th class="p-3 font-semibold text-gray-600 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($riwayat as $kwt)
                             <tr class="hover:bg-gray-50">
-                                <td class="p-4">
+                                <td class="p-3 text-center text-gray-500 font-medium">
+                                    {{ $riwayat->firstItem() + $loop->index }}
+                                </td>
+                                <td class="p-3">
                                     <div class="font-bold text-gray-800">{{ $kwt->no_kwitansi }}</div>
                                     <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($kwt->tanggal)->format('d/m/Y') }}</div>
                                 </td>
-                                <td class="p-4">
-                                    <div class="font-bold uppercase">{{ $kwt->suratJalan->spk->nama_stnk }}</div>
+                                <td class="p-3">
+                                    <div class="font-bold uppercase text-gray-900">{{ $kwt->suratJalan->spk->nama_stnk }}</div>
                                     <div class="text-xs text-gray-500">{{ $kwt->suratJalan->spk->motorType->nama_type ?? '-' }}</div>
                                 </td>
-                                <td class="p-4 text-xs">
-                                    @if($kwt->bayar_kontan > 0) <div>Cash: Rp {{ number_format($kwt->bayar_kontan,0,',','.') }}</div> @endif
-                                    @if($kwt->bayar_transfer > 0) <div>TF: Rp {{ number_format($kwt->bayar_transfer,0,',','.') }}</div> @endif
+                                <td class="p-3 text-xs">
+                                    @if($kwt->bayar_kontan > 0) <div class="text-gray-700">Cash: Rp {{ number_format($kwt->bayar_kontan,0,',','.') }}</div> @endif
+                                    @if($kwt->bayar_transfer > 0) <div class="text-blue-600 font-medium">TF: Rp {{ number_format($kwt->bayar_transfer,0,',','.') }}</div> @endif
                                 </td>
-                                <td class="p-4 text-right font-bold text-red-600">
+                                <td class="p-3 text-right font-bold text-red-600">
                                     Rp {{ number_format($kwt->suratJalan->samsat->pajak_progresif,0,',','.') }}
                                 </td>
-                                <td class="p-4 text-center">
-                                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">LUNAS</span>
+                                <td class="p-3 text-center">
+                                    <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">LUNAS</span>
                                 </td>
-                                <td class="p-4 text-center">
-                                    <a href="{{ route('kwitansi-progresif.print', $kwt->id) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs font-bold underline">
+                                <td class="p-3 text-center">
+                                    <a href="{{ route('kwitansi-progresif.print', $kwt->id) }}" target="_blank" class="bg-slate-100 border hover:bg-slate-200 text-gray-700 px-2 py-1 rounded text-xs font-bold transition-colors">
                                         Print Ulang
                                     </a>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="p-8 text-center text-gray-500 italic">Belum ada riwayat kwitansi.</td></tr>
+                            <tr><td colspan="7" class="p-8 text-center text-gray-500 italic">Data kwitansi tidak ditemukan atau masih kosong.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="p-4">{{ $riwayat->links() }}</div>
+            <div class="p-4 border-t border-gray-100 bg-slate-50">{{ $riwayat->links() }}</div>
         </div>
     </div>
 </div>
@@ -213,7 +248,8 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('kwitansiApp', () => ({
-            activeTab: 'buat',
+            // Mengambil status tab aktif dari backend agar tidak meloncat saat difilter
+            activeTab: '{{ $tab }}',
             selectedDoc: {},
             tagihan: 0,
             bayarKontan: 0,
@@ -221,7 +257,6 @@
             isKredit: false,
 
             init() {
-                // Inisialisasi Tom Select
                 let select = new TomSelect('#select-sjk', {
                     create: false,
                     onChange: (value) => {
@@ -231,7 +266,6 @@
                             this.isKredit = false;
                             return;
                         }
-                        // Tarik data dari data-info option yang dipilih
                         let rawData = document.querySelector(`option[value="${value}"]`).getAttribute('data-info');
                         let data = JSON.parse(rawData);
                         
@@ -239,7 +273,6 @@
                         this.tagihan = data.samsat?.pajak_progresif || 0;
                         this.isKredit = data.spk?.leasing_id ? true : false;
                         
-                        // Default isi otomatis ke kontan agar admin cepat
                         this.bayarKontan = this.tagihan;
                         this.bayarTransfer = 0;
                     }

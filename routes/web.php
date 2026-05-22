@@ -81,5 +81,6 @@ Route::prefix('realisasi-pajak')->name('realisasi-pajak.')->group(function () {
 Route::prefix('kwitansi-progresif')->name('kwitansi-progresif.')->group(function () {
         Route::get('/', [KwitansiProgresifController::class, 'index'])->name('index');
         Route::post('/store', [KwitansiProgresifController::class, 'store'])->name('store');
-        Route::get('/print/{id}', [KwitansiProgresifController::class, 'print'])->name('print');
+        Route::get('/{id}/show', [KwitansiProgresifController::class, 'show'])->name('show');
+Route::get('/{id}/print', [KwitansiProgresifController::class, 'print'])->name('print');
     });

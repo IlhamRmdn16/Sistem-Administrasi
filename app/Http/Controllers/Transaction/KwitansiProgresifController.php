@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\KwitansiPajakProgresif;
+use App\Models\Rekening;
 use App\Models\SuratJalan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,9 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class KwitansiProgresifController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // TAB 1: Cari konsumen yang PAJAK > 0 dan BELUM LUNAS (Belum punya kwitansi)
+        // Deteksi tab aktif dari request query agar state tab tidak reset saat submit filter
+        $tab = $request->input('tab', 'buat');
+
+        // TAB 1: Konsumen yang PAJAK > 0 dan BELUM LUNAS
         $belumLunas = SuratJalan::whereHas('samsat', function($q) {
                 $q->where('pajak_progresif', '>', 0);
             })
@@ -21,18 +25,39 @@ class KwitansiProgresifController extends Controller
             ->with(['spk.motorType', 'spk.motorColor', 'spk.leasing', 'spk.sales', 'motorUnit', 'samsat'])
             ->get();
 
-        // TAB 2: Riwayat Kwitansi
-        $riwayat = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.samsat'])
-            ->latest()
-            ->paginate(15);
+        // Mengambil data rekening secara dinamis dari database
+        $rekenings = Rekening::all();
 
-        // Dummy Daftar Rekening (Ganti dengan Model Rekening jika Anda punya tabelnya)
-        $rekenings = [
-            'BCA - 1234567890 a/n CV Surya Wijaya',
-            'MANDIRI - 0987654321 a/n CV Surya Wijaya'
-        ];
+        // TAB 2: Riwayat Kwitansi dengan Multi-Filter
+        $query = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.samsat']);
 
-        return view('transaction.kwitansi-progresif.index', compact('belumLunas', 'riwayat', 'rekenings'));
+        // Filter 1: Fitur Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_kwitansi', 'like', "%{$search}%")
+                  ->orWhereHas('suratJalan.spk', function($qSpk) use ($search) {
+                      $qSpk->where('nama_stnk', 'like', "%{$search}%")
+                           ->orWhere('nama_pemohon', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('suratJalan.spk.motorType', function($qType) use ($search) {
+                      $qType->where('nama_type', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter 2: Fitur Periode Tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [$request->start_date, $request->end_date]);
+        }
+
+        // Filter 3: Tampilkan berapa data per halaman
+        $perPage = $request->input('per_page', 10);
+
+        // Eksekusi Paginasi
+        $riwayat = $query->latest()->paginate($perPage)->withQueryString();
+
+        return view('transaction.kwitansi-progresif.index', compact('belumLunas', 'riwayat', 'rekenings', 'tab'));
     }
 
     public function store(Request $request)
@@ -42,8 +67,11 @@ class KwitansiProgresifController extends Controller
             'tanggal'        => 'required|date',
             'bayar_kontan'   => 'numeric|min:0',
             'bayar_transfer' => 'numeric|min:0',
-            'rekening_tujuan'=> 'nullable|required_if:bayar_transfer,>,0',
         ]);
+
+        if ($request->bayar_transfer > 0 && empty($request->rekening_tujuan)) {
+            return back()->with('error', 'Rekening tujuan wajib dipilih karena ada nominal pembayaran Transfer!');
+        }
 
         try {
             DB::beginTransaction();
@@ -52,17 +80,15 @@ class KwitansiProgresifController extends Controller
             $tagihan = $sjk->samsat->pajak_progresif;
             $totalBayar = $request->bayar_kontan + $request->bayar_transfer;
 
-            // Validasi di sisi server (mencegah manipulasi inspect element)
             if ($totalBayar != $tagihan) {
                 return back()->with('error', 'Total pembayaran (Kontan + Transfer) tidak sesuai dengan tagihan Pajak!');
             }
 
-            // AUTO GENERATE NO KWITANSI (Anti Tabrakan)
             $now = Carbon::parse($request->tanggal);
             $prefix = 'KNP' . $now->format('Y/m/');
             
             $lastKwitansi = KwitansiPajakProgresif::where('no_kwitansi', 'like', $prefix . '%')
-                ->lockForUpdate() // Kunci tabel sesaat untuk generate nomor
+                ->lockForUpdate()
                 ->orderBy('id', 'desc')
                 ->first();
 
@@ -73,7 +99,6 @@ class KwitansiProgresifController extends Controller
             }
             $noKwitansiBaru = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
 
-            // Simpan Data
             $kwitansi = KwitansiPajakProgresif::create([
                 'surat_jalan_id' => $request->surat_jalan_id,
                 'no_kwitansi'    => $noKwitansiBaru,
@@ -86,8 +111,9 @@ class KwitansiProgresifController extends Controller
 
             DB::commit();
 
-            // Redirect langsung ke halaman cetak
-            return redirect()->route('kwitansi-progresif.print', $kwitansi->id);
+            // Redirect ke halaman SHOW (Preview), bukan langsung Print
+            return redirect()->route('kwitansi-progresif.show', $kwitansi->id)
+                             ->with('success', 'Kwitansi berhasil disimpan!');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -95,9 +121,18 @@ class KwitansiProgresifController extends Controller
         }
     }
 
+    // Fungsi Baru untuk Halaman Preview
+    public function show($id)
+    {
+        $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit', 'suratJalan.spk.sales'])
+                    ->findOrFail($id);
+                    
+        return view('transaction.kwitansi-progresif.show', compact('kwitansi'));
+    }
+
     public function print($id)
     {
-        $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit'])
+        $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit', 'suratJalan.spk.sales'])
                     ->findOrFail($id);
                     
         return view('transaction.kwitansi-progresif.print', compact('kwitansi'));

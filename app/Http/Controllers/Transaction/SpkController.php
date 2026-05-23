@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\Leasing;
-use App\Models\MotorType;
+use App\Models\MotorUnit;
 use App\Models\Sales;
 use App\Models\Spk;
 use Illuminate\Http\Request;
@@ -19,10 +19,12 @@ class SpkController extends Controller
         $per_page = $request->input('per_page', 10);
 
         $sales = Sales::orderBy('nama_sales')->get();
-        $motorTypes = MotorType::with('colors')->orderBy('nama_type')->get();
         $leasings = Leasing::orderBy('nama_leasing')->get();
 
-        $query = Spk::with(['sales', 'motorType', 'motorColor', 'leasing']);
+        $motorUnits = MotorUnit::with(['type', 'color'])->get();
+        $usedUnitIds = Spk::pluck('motor_unit_id')->filter()->toArray();
+
+        $query = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing']);
 
         if ($dari_tanggal && $sampai_tanggal) {
             $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
@@ -55,7 +57,7 @@ class SpkController extends Controller
 
         $autoNoSpk = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        return view('transaction.spk.index', compact('spks', 'sales', 'motorTypes', 'leasings', 'autoNoSpk', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
+        return view('transaction.spk.index', compact('spks', 'sales', 'motorUnits', 'usedUnitIds', 'leasings', 'autoNoSpk', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
     }
 
     public function store(Request $request)
@@ -109,7 +111,7 @@ class SpkController extends Controller
 
     public function print($id)
     {
-        $spk = Spk::with(['sales', 'motorType', 'motorColor', 'leasing'])->findOrFail($id);
+        $spk = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($id);
         return view('transaction.spk.print', compact('spk'));
     }
 
@@ -128,8 +130,7 @@ class SpkController extends Controller
             'telepon' => 'required',
             'nik' => 'required',
             'jenis_pembayaran' => 'required',
-            'motor_type_id' => 'required',
-            'motor_color_id' => 'required',
+            'motor_unit_id' => 'required',
             'harga_otr' => 'required|numeric',
         ];
 

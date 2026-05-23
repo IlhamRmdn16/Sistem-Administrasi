@@ -69,21 +69,21 @@
                             <td class="py-4 px-6 text-sm font-bold text-gray-800 uppercase">{{ $spk->nama_pemohon }}</td>
                             <td class="py-4 px-6 text-sm text-gray-700 uppercase">{{ $spk->sales->nama_sales }}</td>
                             <td class="py-4 px-6 text-sm text-gray-700">
-                                <div class="font-semibold">{{ $spk->motorType->nama_type }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $spk->motorColor->warna }}</div>
+                                <div class="font-semibold">{{ $spk->motorUnit->type->nama_type ?? '-' }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $spk->motorUnit->color->warna ?? '-' }} | Mesin: {{ $spk->motorUnit->no_mesin ?? '-' }}</div>
                             </td>
                             <td class="py-4 px-6 text-sm">
                                 @if($spk->jenis_pembayaran == 'Cash')
                                     <span class="px-2.5 py-1 bg-green-100 text-green-700 font-bold rounded text-xs uppercase">CASH</span>
                                 @else
                                     <span class="px-2.5 py-1 bg-blue-100 text-blue-700 font-bold rounded text-xs uppercase">KREDIT</span>
-                                    <div class="text-xs text-gray-500 mt-1 uppercase">{{ $spk->leasing->nama_leasing }}</div>
+                                    <div class="text-xs text-gray-500 mt-1 uppercase">{{ $spk->leasing->nama_leasing ?? '-' }}</div>
                                 @endif
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
                                     <a href="{{ route('spk.print', $spk->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700" title="Cetak SPK">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </a>
                                     <button @click="openEditModal({{ $spk }})" class="text-blue-500 hover:text-blue-700" title="Edit Data">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -179,32 +179,30 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
                                 <div class="md:col-span-2 relative">
-                                    <label class="block text-xs text-gray-600 mb-1">Pilih Motor *</label>
+                                    <label class="block text-xs text-gray-600 mb-1">Pilih Unit Tersedia *</label>
                                     <div @click.away="openMotor = false" class="relative">
                                         <div @click="openMotor = !openMotor" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white cursor-pointer flex justify-between items-center">
-                                            <span x-text="selectedMotorName || 'Cari Tipe Motor...'"></span>
+                                            <span x-text="selectedMotorName || 'Cari Unit / No Mesin...'"></span>
                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
                                         <div x-show="openMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                                             <div class="sticky top-0 bg-gray-50 p-2 border-b">
-                                                <input type="text" x-model="searchMotor" placeholder="Ketik nama tipe..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
+                                                <input type="text" x-model="searchMotor" placeholder="Ketik tipe atau No Mesin..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                             </div>
-                                            <template x-for="m in motors.filter(x => x.nama_type.toLowerCase().includes(searchMotor.toLowerCase()))" :key="m.id">
-                                                <div @click="setMotor(m)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50" x-text="m.nama_type + ' (' + m.kode_tipe + ')'"></div>
+                                            <template x-for="u in units.filter(x => !usedUnitIds.includes(x.id) && (x.type.nama_type.toLowerCase().includes(searchMotor.toLowerCase()) || x.no_mesin.toLowerCase().includes(searchMotor.toLowerCase())))" :key="u.id">
+                                                <div @click="setMotor(u)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
+                                                    <span class="font-bold" x-text="u.type.nama_type"></span> - <span x-text="u.color.warna"></span><br>
+                                                    <span class="text-xs text-gray-500" x-text="'Mesin: ' + u.no_mesin"></span>
+                                                </div>
                                             </template>
                                         </div>
-                                        <input type="hidden" name="motor_type_id" :value="cMotor" required>
+                                        <input type="hidden" name="motor_unit_id" :value="cUnit" required>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs text-gray-600 mb-1">Warna *</label>
-                                    <select name="motor_color_id" x-model="cWarna" required class="w-full border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:border-honda-red">
-                                        <option value="">Pilih Warna</option>
-                                        <template x-for="c in availableColors" :key="c.id">
-                                            <option :value="c.id" x-text="c.warna"></option>
-                                        </template>
-                                    </select>
+                                    <label class="block text-xs text-gray-600 mb-1">Warna</label>
+                                    <input type="text" :value="cWarna" readonly class="w-full bg-gray-100 border border-gray-200 rounded-lg p-2.5 cursor-not-allowed text-gray-600">
                                 </div>
                                 <div>
                                     <label class="block text-xs text-gray-600 mb-1">Tahun</label>
@@ -355,32 +353,31 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-5">
                                 <div class="md:col-span-2 relative">
-                                    <label class="block text-xs text-gray-600 mb-1">Pilih Motor *</label>
+                                    <label class="block text-xs text-gray-600 mb-1">Pilih Unit *</label>
                                     <div @click.away="eOpenMotor = false" class="relative">
                                         <div @click="eOpenMotor = !eOpenMotor" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white cursor-pointer flex justify-between items-center">
-                                            <span x-text="eMotorName || 'Cari Tipe Motor...'"></span>
+                                            <span x-text="eMotorName || 'Cari Unit / No Mesin...'"></span>
                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
                                         <div x-show="eOpenMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                                             <div class="sticky top-0 bg-gray-50 p-2 border-b">
-                                                <input type="text" x-model="eSearchMotor" placeholder="Ketik nama tipe..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
+                                                <input type="text" x-model="eSearchMotor" placeholder="Ketik tipe atau No Mesin..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                             </div>
-                                            <template x-for="m in motors.filter(x => x.nama_type.toLowerCase().includes(eSearchMotor.toLowerCase()))" :key="m.id">
-                                                <div @click="setEditMotor(m)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50" x-text="m.nama_type + ' (' + m.kode_tipe + ')'"></div>
+                                            <!-- Menampilkan unit yang belum dipakai ATAU unit yang sedang dipakai oleh SPK ini -->
+                                            <template x-for="u in units.filter(x => (!usedUnitIds.includes(x.id) || x.id == eUnit) && (x.type.nama_type.toLowerCase().includes(eSearchMotor.toLowerCase()) || x.no_mesin.toLowerCase().includes(eSearchMotor.toLowerCase())))" :key="u.id">
+                                                <div @click="setEditMotor(u)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
+                                                    <span class="font-bold" x-text="u.type.nama_type"></span> - <span x-text="u.color.warna"></span><br>
+                                                    <span class="text-xs text-gray-500" x-text="'Mesin: ' + u.no_mesin"></span>
+                                                </div>
                                             </template>
                                         </div>
-                                        <input type="hidden" name="motor_type_id" :value="eMotor" required>
+                                        <input type="hidden" name="motor_unit_id" :value="eUnit" required>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs text-gray-600 mb-1">Warna *</label>
-                                    <select name="motor_color_id" x-model="eWarna" required class="w-full border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:border-honda-red">
-                                        <option value="">Pilih Warna</option>
-                                        <template x-for="c in eAvailableColors" :key="c.id">
-                                            <option :value="c.id" x-text="c.warna" :selected="c.id == eWarna"></option>
-                                        </template>
-                                    </select>
+                                    <label class="block text-xs text-gray-600 mb-1">Warna</label>
+                                    <input type="text" :value="eWarna" readonly class="w-full bg-gray-100 border border-gray-200 rounded-lg p-2.5 cursor-not-allowed text-gray-600">
                                 </div>
                                 <div>
                                     <label class="block text-xs text-gray-600 mb-1">Tahun</label>
@@ -466,7 +463,8 @@
     function spkManager() {
         return {
             sales: @json($sales),
-            motors: @json($motorTypes),
+            units: @json($motorUnits),
+            usedUnitIds: @json($usedUnitIds),
             leasings: @json($leasings),
 
             isCreateModalOpen: false,
@@ -477,11 +475,15 @@
             openSales: false, searchSales: '', cSales: '', selectedSalesName: '',
             setSales(s) { this.cSales = s.id; this.selectedSalesName = s.nama_sales; this.openSales = false; },
 
-            openMotor: false, searchMotor: '', cMotor: '', selectedMotorName: '',
-            availableColors: [], cWarna: '', cTahun: '', cOtr: 0,
-            setMotor(m) {
-                this.cMotor = m.id; this.selectedMotorName = m.nama_type; this.cTahun = m.tahun_pembuatan; this.cOtr = m.otr;
-                this.availableColors = m.colors; this.cWarna = ''; this.openMotor = false;
+            openMotor: false, searchMotor: '', cUnit: '', selectedMotorName: '',
+            cWarna: '', cTahun: '', cOtr: 0,
+            setMotor(u) {
+                this.cUnit = u.id; 
+                this.selectedMotorName = u.type.nama_type + ' (' + u.no_mesin + ')'; 
+                this.cTahun = u.tahun_pembuatan; 
+                this.cOtr = u.type.otr;
+                this.cWarna = u.color.warna; 
+                this.openMotor = false;
             },
 
             openLeasing: false, searchLeasing: '', cLeasing: '', selectedLeasingName: '',
@@ -509,29 +511,17 @@
                         this.isCreateModalOpen = false;
                         this.isSubmitting = false;
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
+                            icon: 'success', title: 'Berhasil!', text: data.message,
+                            timer: 2000, showConfirmButton: false
                         });
-                        
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        setTimeout(() => window.location.reload(), 1500);
                     }
                 })
                 .catch(error => {
                     this.isSubmitting = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
-                    if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Menyimpan',
-                        text: errorMsg
-                    });
+                    if(error.errors) errorMsg = Object.values(error.errors)[0][0]; 
+                    Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: errorMsg });
                 });
             },
 
@@ -541,14 +531,18 @@
             eSales: '', eSalesName: '', eSearchSales: '', eOpenSales: false,
             ePemohon: '', eStnk: '', eNik: '', eAlamat: '', eRtRw: '', eDesa: '', eKecamatan: '', eKota: '', eTelp: '', eEmail: '',
             ePembayaran: '',
-            eMotor: '', eMotorName: '', eSearchMotor: '', eOpenMotor: false, eAvailableColors: [], eWarna: '', eTahun: '', eOtr: 0,
+            eUnit: '', eMotorName: '', eSearchMotor: '', eOpenMotor: false, eWarna: '', eTahun: '', eOtr: 0,
             eLeasing: '', eLeasingName: '', eSearchLeasing: '', eOpenLeasing: false,
             eDp: '', eTandaJadi: '', eTenor: '', eCicilan: '',
 
             setEditSales(s) { this.eSales = s.id; this.eSalesName = s.nama_sales; this.eOpenSales = false; },
-            setEditMotor(m) {
-                this.eMotor = m.id; this.eMotorName = m.nama_type; this.eTahun = m.tahun_pembuatan; this.eOtr = m.otr;
-                this.eAvailableColors = m.colors; this.eWarna = ''; this.eOpenMotor = false;
+            setEditMotor(u) {
+                this.eUnit = u.id; 
+                this.eMotorName = u.type.nama_type + ' (' + u.no_mesin + ')'; 
+                this.eTahun = u.tahun_pembuatan; 
+                this.eOtr = u.type.otr;
+                this.eWarna = u.color.warna; 
+                this.eOpenMotor = false;
             },
             setEditLeasing(l) { this.eLeasing = l.id; this.eLeasingName = l.nama_leasing; this.eOpenLeasing = false; },
 
@@ -573,14 +567,13 @@
                 this.eEmail = spk.email || '';
 
                 this.ePembayaran = spk.jenis_pembayaran;
-                this.eMotor = spk.motor_type_id;
-                let m = this.motors.find(x => x.id == spk.motor_type_id);
-                if(m) {
-                    this.eMotorName = m.nama_type;
-                    this.eTahun = m.tahun_pembuatan;
+                this.eUnit = spk.motor_unit_id;
+                let u = this.units.find(x => x.id == spk.motor_unit_id);
+                if(u) {
+                    this.eMotorName = u.type.nama_type + ' (' + u.no_mesin + ')';
+                    this.eTahun = u.tahun_pembuatan;
                     this.eOtr = spk.harga_otr;
-                    this.eAvailableColors = m.colors;
-                    this.eWarna = spk.motor_color_id;
+                    this.eWarna = u.color.warna;
                 }
 
                 this.eDp = spk.uang_muka || '';
@@ -602,14 +595,10 @@
                 fetch('/transaction/spk/' + this.eId, {
                     method: 'POST', 
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw err; });
-                    }
+                    if (!response.ok) return response.json().then(err => { throw err; });
                     return response.json();
                 })
                 .then(data => {
@@ -617,29 +606,17 @@
                         this.isEditModalOpen = false;
                         this.isEditing = false;
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
+                            icon: 'success', title: 'Berhasil!', text: data.message,
+                            timer: 2000, showConfirmButton: false
                         });
-                        
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        setTimeout(() => window.location.reload(), 1500);
                     }
                 })
                 .catch(error => {
                     this.isEditing = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
-                    if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Memperbarui',
-                        text: errorMsg
-                    });
+                    if(error.errors) errorMsg = Object.values(error.errors)[0][0]; 
+                    Swal.fire({ icon: 'error', title: 'Gagal Memperbarui', text: errorMsg });
                 });
             }
         }
@@ -668,11 +645,8 @@
                 .then(data => {
                     if(data.success) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Terhapus!',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
+                            icon: 'success', title: 'Terhapus!', text: data.message,
+                            timer: 2000, showConfirmButton: false
                         });
                         button.closest('tr').remove();
                     }

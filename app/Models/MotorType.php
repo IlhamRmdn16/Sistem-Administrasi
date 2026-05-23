@@ -12,8 +12,6 @@ class MotorType extends Model
         'nama_type',
         'otr',
         'notice_pajak',
-        'bbn',
-        'adm_stnk',
         'kode_motor',
         'sampul_buku',
         'tahun_pembuatan'

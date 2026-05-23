@@ -20,7 +20,7 @@
 
     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 flex flex-col lg:flex-row justify-between items-center gap-4">
         <form action="{{ route('motor-type.index') }}" method="GET" class="w-full flex flex-col sm:flex-row items-center gap-3">
-            
+
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <select name="filter_tahun" class="border border-gray-300 rounded-lg p-2 text-sm outline-none focus:border-honda-red w-full">
                     <option value="">Semua Tahun</option>
@@ -206,26 +206,6 @@
                                             class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">BBN (Rp)</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-medium sm:text-sm">Rp</span>
-                                        </div>
-                                        <input type="number" name="bbn" placeholder="0" required
-                                            class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">ADM STNK (Rp)</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-medium sm:text-sm">Rp</span>
-                                        </div>
-                                        <input type="number" name="adm_stnk" placeholder="0" required
-                                            class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -374,26 +354,6 @@
                                             class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">BBN (Rp)</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-medium sm:text-sm">Rp</span>
-                                        </div>
-                                        <input type="number" name="bbn" x-model="eBbn" required
-                                            class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">ADM STNK (Rp)</label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-500 font-medium sm:text-sm">Rp</span>
-                                        </div>
-                                        <input type="number" name="adm_stnk" x-model="eAdmStnk" required
-                                            class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 pl-11 px-4 outline-none transition-all text-gray-800">
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -461,7 +421,7 @@
             eId: '',
             eKodeTipe: '', eJenis: '', eNamaType: '', eTahunPembuatan: '',
             eKodeMotor: '', eSampulBuku: [],
-            eOtr: '', eNoticePajak: '', eBbn: '', eAdmStnk: '',
+            eOtr: '', eNoticePajak: '',
             eColors: [],
 
             addCreateColor() {
@@ -520,7 +480,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -530,7 +490,7 @@
                     this.isSubmitting = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',
@@ -552,8 +512,6 @@
 
                 this.eOtr = type.otr;
                 this.eNoticePajak = type.notice_pajak;
-                this.eBbn = type.bbn;
-                this.eAdmStnk = type.adm_stnk;
 
                 this.eColors = type.colors && type.colors.length > 0
                     ? JSON.parse(JSON.stringify(type.colors))
@@ -567,7 +525,7 @@
                 let formData = new FormData(event.target);
 
                 fetch('/master/motor-type/' + this.eId, {
-                    method: 'POST', 
+                    method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -590,7 +548,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -600,7 +558,7 @@
                     this.isEditing = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',

@@ -36,7 +36,6 @@ class PengajuanStnkController extends Controller
 
         $admValue = $this->getAdmValue();
 
-        // MENCARI SJK YANG BELUM MASUK KE PENGAJUAN STNK
         $usedSuratJalanIds = PengajuanStnkDetail::pluck('surat_jalan_id')->toArray();
         $availableSuratJalans = SuratJalan::with(['spk.motorType', 'motorUnit'])
             ->whereNotIn('id', $usedSuratJalanIds)
@@ -50,7 +49,6 @@ class PengajuanStnkController extends Controller
         $search = $request->input('search');
         $per_page = $request->input('per_page', 10);
 
-        // Relasinya sekarang detail -> suratJalan -> spk
         $query = PengajuanStnk::with(['details.suratJalan.spk.motorType', 'tambahans']);
 
         if ($search) {
@@ -75,7 +73,6 @@ class PengajuanStnkController extends Controller
             'tanggal' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|exists:surat_jalans,id',
-            'items.*.notice_pajak' => 'required|numeric|min:0',
         ]);
 
         $admValue = $this->getAdmValue();
@@ -91,12 +88,15 @@ class PengajuanStnkController extends Controller
             ]);
 
             foreach ($request->items as $item) {
+                $suratJalan = SuratJalan::with('spk.motorType')->find($item['id']);
+                $noticePajak = $suratJalan->spk->motorType->notice_pajak ?? 0;
+
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
                     'surat_jalan_id' => $item['id'],
-                    'notice_pajak' => (int) $item['notice_pajak'],
+                    'notice_pajak' => (int) $noticePajak,
                     'adm' => $admValue,
-                    'sub_total' => (int) $item['notice_pajak'] + $admValue,
+                    'sub_total' => (int) $noticePajak + $admValue,
                 ]);
             }
 
@@ -123,7 +123,6 @@ class PengajuanStnkController extends Controller
             'tanggal' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|exists:surat_jalans,id',
-            'items.*.notice_pajak' => 'required|numeric|min:0',
         ]);
 
         $admValue = $this->getAdmValue();
@@ -140,12 +139,15 @@ class PengajuanStnkController extends Controller
 
             $pengajuan->details()->delete();
             foreach ($request->items as $item) {
+                $suratJalan = SuratJalan::with('spk.motorType')->find($item['id']);
+                $noticePajak = $suratJalan->spk->motorType->notice_pajak ?? 0;
+
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
                     'surat_jalan_id' => $item['id'],
-                    'notice_pajak' => (int) $item['notice_pajak'],
+                    'notice_pajak' => (int) $noticePajak,
                     'adm' => $admValue,
-                    'sub_total' => (int) $item['notice_pajak'] + $admValue,
+                    'sub_total' => (int) $noticePajak + $admValue,
                 ]);
             }
 

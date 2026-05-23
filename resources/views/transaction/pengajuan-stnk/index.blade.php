@@ -40,7 +40,7 @@
                             <th class="py-3 px-4 font-semibold">Alamat</th>
                             <th class="py-3 px-4 font-semibold">Nama Tipe</th>
                             <th class="py-3 px-4 font-semibold">No. Mesin</th>
-                            <th class="py-3 px-4 font-semibold text-center w-36">Input Notice Pajak</th>
+                            <th class="py-3 px-4 font-semibold text-right w-36">Notice Pajak</th>
                             <th class="py-3 px-4 font-semibold text-right">ADM</th>
                             <th class="py-3 px-4 font-semibold text-right">Sub Total</th>
                         </tr>
@@ -55,11 +55,9 @@
                                 <td class="py-3 px-4 text-xs text-gray-600 truncate max-w-[200px]" x-text="buildAlamat(s.spk)"></td>
                                 <td class="py-3 px-4 text-xs font-semibold" x-text="s.spk.motor_type.nama_type"></td>
                                 <td class="py-3 px-4 font-mono text-xs" x-text="s.motor_unit.no_mesin"></td>
-                                <td class="py-2 px-3">
-                                    <input type="number" x-model="s.input_notice" :disabled="!isChecked(s.id)" placeholder="0" class="w-full border border-gray-300 rounded p-1.5 text-right font-mono text-sm outline-none focus:border-honda-red disabled:bg-gray-100 disabled:text-gray-400">
-                                </td>
+                                <td class="py-3 px-4 text-right font-mono text-xs" x-text="formatRupiah(s.spk.motor_type.notice_pajak)"></td>
                                 <td class="py-3 px-4 text-right font-mono text-xs" x-text="isChecked(s.id) ? formatRupiah(admValue) : '0'"></td>
-                                <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="isChecked(s.id) ? formatRupiah((Number(s.input_notice) || 0) + admValue) : '0'"></td>
+                                <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="isChecked(s.id) ? formatRupiah(Number(s.spk.motor_type.notice_pajak || 0) + admValue) : '0'"></td>
                             </tr>
                         </template>
                         <tr x-show="currentSuratJalans.length === 0">
@@ -122,13 +120,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function pengajuanManager() {
-        let initialSuratJalans = @json($availableSuratJalans).map(s => {
-            s.input_notice = '';
-            return s;
-        });
-
         return {
-            currentSuratJalans: initialSuratJalans,
+            currentSuratJalans: @json($availableSuratJalans),
             admValue: {{ $admValue }},
             isSubmitting: false,
 
@@ -149,7 +142,7 @@
             get totalPajak() {
                 return this.currentSuratJalans
                     .filter(s => this.isChecked(s.id))
-                    .reduce((sum, s) => sum + (Number(s.input_notice) || 0), 0);
+                    .reduce((sum, s) => sum + (Number(s.spk.motor_type.notice_pajak) || 0), 0);
             },
             get totalAdm() { return this.checkedCount * this.admValue; },
             get totalTambahan() {
@@ -193,20 +186,12 @@
             },
 
             submitData() {
-                let incompletePajak = this.currentSuratJalans.some(s => this.isChecked(s.id) && (s.input_notice === '' || s.input_notice < 0));
-
-                if(incompletePajak) {
-                    Swal.fire({ icon: 'warning', title: 'Oops!', text: 'Pastikan Anda telah mengisi nominal Notice Pajak pada semua unit yang dicentang.' });
-                    return;
-                }
-
                 this.isSubmitting = true;
 
                 const payloadItems = this.currentSuratJalans
                     .filter(s => this.isChecked(s.id))
                     .map(s => ({
-                        id: s.id,
-                        notice_pajak: Number(s.input_notice) || 0
+                        id: s.id
                     }));
 
                 const payload = {

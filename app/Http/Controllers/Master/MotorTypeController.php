@@ -30,7 +30,7 @@ class MotorTypeController extends Controller
         }
 
         $motorTypes = $query->latest()->paginate($per_page)->withQueryString();
-        
+
         // Mengambil daftar tahun yang unik untuk dropdown filter
         $years = MotorType::select('tahun_pembuatan')
             ->whereNotNull('tahun_pembuatan')
@@ -66,8 +66,6 @@ class MotorTypeController extends Controller
             'sampul_buku' => 'required|array',
             'otr' => 'required|numeric',
             'notice_pajak' => 'required|numeric',
-            'bbn' => 'required|numeric',
-            'adm_stnk' => 'required|numeric',
             'colors' => 'required|array',
             'colors.*.warna' => 'required',
             'colors.*.kode_warna' => 'required',
@@ -83,8 +81,6 @@ class MotorTypeController extends Controller
                 'sampul_buku' => $request->sampul_buku,
                 'otr' => $request->otr,
                 'notice_pajak' => $request->notice_pajak,
-                'bbn' => $request->bbn,
-                'adm_stnk' => $request->adm_stnk,
             ]);
 
             foreach ($request->colors as $color) {
@@ -112,8 +108,6 @@ class MotorTypeController extends Controller
             'sampul_buku' => 'required|array',
             'otr' => 'required|numeric',
             'notice_pajak' => 'required|numeric',
-            'bbn' => 'required|numeric',
-            'adm_stnk' => 'required|numeric',
             'colors' => 'required|array',
             'colors.*.warna' => 'required',
             'colors.*.kode_warna' => 'required',
@@ -131,8 +125,6 @@ class MotorTypeController extends Controller
                 'sampul_buku' => $request->sampul_buku,
                 'otr' => $request->otr,
                 'notice_pajak' => $request->notice_pajak,
-                'bbn' => $request->bbn,
-                'adm_stnk' => $request->adm_stnk,
             ]);
 
             $motorType->colors()->delete();

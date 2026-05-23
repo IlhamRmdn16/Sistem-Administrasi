@@ -228,7 +228,8 @@
                                     <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">LUNAS</span>
                                 </td>
                                 <td class="p-3 text-center">
-                                    <a href="{{ route('kwitansi-progresif.print', $kwt->id) }}" target="_blank" class="bg-slate-100 border hover:bg-slate-200 text-gray-700 px-2 py-1 rounded text-xs font-bold transition-colors">
+                                    <!-- PERUBAHAN DI SINI: target="_blank" Dihapus! -->
+                                    <a href="{{ route('kwitansi-progresif.print', $kwt->id) }}" class="bg-slate-100 border hover:bg-slate-200 text-gray-700 px-2 py-1 rounded text-xs font-bold transition-colors">
                                         Print Ulang
                                     </a>
                                 </td>
@@ -248,7 +249,6 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('kwitansiApp', () => ({
-            // Mengambil status tab aktif dari backend agar tidak meloncat saat difilter
             activeTab: '{{ $tab }}',
             selectedDoc: {},
             tagihan: 0,

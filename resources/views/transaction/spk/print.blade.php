@@ -70,6 +70,17 @@
         }
     </style>
 </head>
+
+@php
+    $alamat_parts = [];
+    if (!empty($spk->alamat)) $alamat_parts[] = $spk->alamat;
+    if (!empty($spk->rt_rw)) $alamat_parts[] = 'RT/RW ' . $spk->rt_rw;
+    if (!empty($spk->desa_kelurahan)) $alamat_parts[] = 'Kel/Desa ' . $spk->desa_kelurahan;
+    if (!empty($spk->kecamatan)) $alamat_parts[] = 'Kec. ' . $spk->kecamatan;
+    if (!empty($spk->kota_kabupaten)) $alamat_parts[] = 'Kab. ' . $spk->kota_kabupaten;
+    $alamatLengkap = implode(', ', $alamat_parts);
+@endphp
+
 <body>
 
     <div class="screen-wrapper">
@@ -122,29 +133,9 @@
                         <td colspan="4" class="uppercase font-bold">{{ $spk->nama_stnk }}</td>
                     </tr>
                     <tr>
-                        <td>Alamat</td>
+                        <td>Alamat Lengkap</td>
                         <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->alamat }}</td>
-                    </tr>
-                    <tr>
-                        <td>RT/RW</td>
-                        <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->rt_rw }}</td>
-                    </tr>
-                    <tr>
-                        <td>Desa/Kel.</td>
-                        <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->desa_kelurahan }}</td>
-                    </tr>
-                    <tr>
-                        <td>Kecamatan</td>
-                        <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->kecamatan }}</td>
-                    </tr>
-                    <tr>
-                        <td>Kab/Kota</td>
-                        <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->kota_kabupaten }}</td>
+                        <td colspan="4" class="uppercase">{{ $alamatLengkap }}</td>
                     </tr>
                     <tr>
                         <td>No. Telepon</td>
@@ -157,19 +148,19 @@
 
                     <tr><td colspan="6" class="h-2"></td></tr>
 
-                    <tr>
-                        <td>Tipe Motor</td>
-                        <td class="text-center">:</td>
-                        <td colspan="4" class="uppercase">{{ $spk->motorType->nama_type ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Warna</td>
-                        <td class="text-center">:</td>
-                        <td class="uppercase">{{ $spk->motorColor->warna ?? '-' }}</td>
-                        <td>Tahun</td>
-                        <td class="text-center">:</td>
-                        <td>{{ $spk->motorType->tahun_pembuatan ?? '-' }}</td>
-                    </tr>
+                   <tr>
+    <td>Tipe Motor</td>
+    <td class="text-center">:</td>
+    <td colspan="4" class="uppercase">{{ $spk->motorUnit->type->nama_type ?? '-' }}</td>
+</tr>
+<tr>
+    <td>Warna</td>
+    <td class="text-center">:</td>
+    <td class="uppercase">{{ $spk->motorUnit->color->warna ?? '-' }}</td>
+    <td>Tahun</td>
+    <td class="text-center">:</td>
+    <td>{{ $spk->motorUnit->tahun_pembuatan ?? '-' }}</td>
+</tr>
 
                     <tr><td colspan="6" class="h-2"></td></tr>
 

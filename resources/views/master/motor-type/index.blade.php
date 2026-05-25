@@ -372,6 +372,7 @@
                             <div class="space-y-3">
                                 <template x-for="(color, index) in eColors" :key="index">
                                     <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                                        <input type="hidden" :name="`colors[${index}][id]`" x-model="color.id">
                                         <div class="flex-1 w-full">
                                             <input type="text" x-model="color.warna" @input="color.kode_warna = generateCode(color.warna)" :name="`colors[${index}][warna]`" placeholder="Ketik warna (contoh: Merah Hitam)" required
                                                 class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800">
@@ -433,7 +434,7 @@
             },
 
             addEditColor() {
-                this.eColors.push({ warna: '', kode_warna: '' });
+                this.eColors.push({ id: '', warna: '', kode_warna: '' });
             },
 
             removeEditColor(index) {
@@ -508,14 +509,22 @@
                 this.eTahunPembuatan = type.tahun_pembuatan;
                 this.eKodeMotor = type.kode_motor;
 
-                this.eSampulBuku = type.sampul_buku ? (Array.isArray(type.sampul_buku) ? type.sampul_buku : JSON.parse(type.sampul_buku)) : [];
+                let sb = type.sampul_buku;
+                if (typeof sb === 'string') {
+                    try {
+                        sb = JSON.parse(sb);
+                    } catch(e) {
+                        sb = [sb];
+                    }
+                }
+                this.eSampulBuku = Array.isArray(sb) ? sb : [];
 
                 this.eOtr = type.otr;
                 this.eNoticePajak = type.notice_pajak;
 
                 this.eColors = type.colors && type.colors.length > 0
-                    ? JSON.parse(JSON.stringify(type.colors))
-                    : [{ warna: '', kode_warna: '' }];
+                    ? type.colors.map(c => ({ id: c.id, warna: c.warna, kode_warna: c.kode_warna }))
+                    : [{ id: '', warna: '', kode_warna: '' }];
 
                 this.isEditModalOpen = true;
             },
@@ -524,7 +533,9 @@
                 this.isEditing = true;
                 let formData = new FormData(event.target);
 
-                fetch('/master/motor-type/' + this.eId, {
+                let url = '{{ route("motor-type.update", ":id") }}'.replace(':id', this.eId);
+
+                fetch(url, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -582,7 +593,9 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/master/motor-type/${id}`, {
+                let url = '{{ route("motor-type.destroy", ":id") }}'.replace(':id', id);
+
+                fetch(url, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

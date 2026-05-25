@@ -21,6 +21,16 @@ class MotorType extends Model
         'sampul_buku' => 'array',
     ];
 
+    public function getOtrAttribute($value)
+    {
+        return (int) round((float) $value);
+    }
+
+    public function getNoticePajakAttribute($value)
+    {
+        return (int) round((float) $value);
+    }
+
     public function colors()
     {
         return $this->hasMany(MotorColor::class);

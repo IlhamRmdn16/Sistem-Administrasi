@@ -31,14 +31,12 @@ class MotorTypeController extends Controller
 
         $motorTypes = $query->latest()->paginate($per_page)->withQueryString();
 
-        // Mengambil daftar tahun yang unik untuk dropdown filter
         $years = MotorType::select('tahun_pembuatan')
             ->whereNotNull('tahun_pembuatan')
             ->distinct()
             ->orderBy('tahun_pembuatan', 'desc')
             ->pluck('tahun_pembuatan');
 
-        // LOGIKA BARU: Mengisi celah nomor yang kosong
         $existingNumbers = MotorType::pluck('kode_tipe')
             ->map(function ($kode_tipe) {
                 return intval($kode_tipe);
@@ -79,8 +77,8 @@ class MotorTypeController extends Controller
                 'tahun_pembuatan' => $request->tahun_pembuatan,
                 'kode_motor' => $request->kode_motor,
                 'sampul_buku' => $request->sampul_buku,
-                'otr' => $request->otr,
-                'notice_pajak' => $request->notice_pajak,
+                'otr' => (int) round($request->otr),
+                'notice_pajak' => (int) round($request->notice_pajak),
             ]);
 
             foreach ($request->colors as $color) {
@@ -123,17 +121,37 @@ class MotorTypeController extends Controller
                 'tahun_pembuatan' => $request->tahun_pembuatan,
                 'kode_motor' => $request->kode_motor,
                 'sampul_buku' => $request->sampul_buku,
-                'otr' => $request->otr,
-                'notice_pajak' => $request->notice_pajak,
+                'otr' => (int) round($request->otr),
+                'notice_pajak' => (int) round($request->notice_pajak),
             ]);
 
-            $motorType->colors()->delete();
+            $submittedColorIds = [];
 
-            foreach ($request->colors as $color) {
-                $motorType->colors()->create([
-                    'warna' => $color['warna'],
-                    'kode_warna' => $color['kode_warna'],
-                ]);
+            foreach ($request->colors as $colorData) {
+                if (!empty($colorData['id'])) {
+                    $existingColor = $motorType->colors()->find($colorData['id']);
+                    if ($existingColor) {
+                        $existingColor->update([
+                            'warna' => $colorData['warna'],
+                            'kode_warna' => $colorData['kode_warna'],
+                        ]);
+                        $submittedColorIds[] = $existingColor->id;
+                    }
+                } else {
+                    $newColor = $motorType->colors()->create([
+                        'warna' => $colorData['warna'],
+                        'kode_warna' => $colorData['kode_warna'],
+                    ]);
+                    $submittedColorIds[] = $newColor->id;
+                }
+            }
+
+            $colorsToDelete = $motorType->colors()->whereNotIn('id', $submittedColorIds)->get();
+            foreach ($colorsToDelete as $oldColor) {
+                try {
+                    $oldColor->delete();
+                } catch (\Exception $e) {
+                }
             }
         });
 

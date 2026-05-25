@@ -15,11 +15,10 @@ class PenyerahanStnkBpkbController extends Controller
         $per_page = $request->input('per_page', 10);
         $status = $request->input('status');
 
-        // GATEKEEPER: Hanya muncul jika No. STNK sudah diinput oleh admin
         $query = SuratJalan::whereHas('samsat', function($q) {
                 $q->whereNotNull('no_stnk')->where('no_stnk', '!=', '');
             })
-            ->with(['samsat', 'spk.motorType', 'motorUnit', 'penyerahanStnkBpkb']);
+            ->with(['samsat', 'spk', 'motorUnit.type', 'penyerahanStnkBpkb']);
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -59,7 +58,6 @@ class PenyerahanStnkBpkbController extends Controller
 
         $penyerahan = PenyerahanStnkBpkb::firstOrNew(['surat_jalan_id' => $id]);
 
-        // Menyimpan data STNK
         $penyerahan->tgl_serah_stnk = $request->tgl_serah_stnk;
         $penyerahan->penerima_stnk = $request->penerima_stnk;
         $penyerahan->hubungan_stnk = $request->hubungan_stnk;
@@ -70,7 +68,6 @@ class PenyerahanStnkBpkbController extends Controller
             $penyerahan->foto_serah_stnk = $request->file('foto_stnk')->store('penyerahan', 'public');
         }
 
-        // Menyimpan data BPKB
         $penyerahan->tgl_serah_bpkb = $request->tgl_serah_bpkb;
         $penyerahan->penerima_bpkb = $request->penerima_bpkb;
         $penyerahan->hubungan_bpkb = $request->hubungan_bpkb;
@@ -88,7 +85,7 @@ class PenyerahanStnkBpkbController extends Controller
 
     public function print($id)
     {
-        $sjk = SuratJalan::with(['spk.motorType', 'motorUnit', 'samsat', 'penyerahanStnkBpkb'])->findOrFail($id);
+        $sjk = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'samsat', 'penyerahanStnkBpkb'])->findOrFail($id);
         return view('transaction.penyerahan-stnk-bpkb.print', compact('sjk'));
     }
 }

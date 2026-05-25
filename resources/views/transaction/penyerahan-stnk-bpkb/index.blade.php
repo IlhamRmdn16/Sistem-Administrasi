@@ -69,7 +69,7 @@
                                 @endif
                             </td>
                             <td class="py-4 px-6 text-sm">
-                                <div class="font-semibold text-gray-700 truncate max-w-[150px]">{{ $doc->spk->motorType->nama_type ?? '-' }}</div>
+                                <div class="font-semibold text-gray-700 truncate max-w-[150px]">{{ $doc->motorUnit->type->nama_type ?? '-' }}</div>
                                 <div class="text-xs font-mono font-bold text-gray-500 mt-0.5">Kunci: {{ $doc->motorUnit->no_kunci ?? '-' }}</div>
                             </td>
 
@@ -374,7 +374,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // FUNGSI KONVERSI: Mengubah Base64 hasil kamera menjadi File utuh agar Controller tidak error
     function dataURItoBlob(dataURI) {
         var byteString = atob(dataURI.split(',')[1]);
         var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -390,7 +389,6 @@
             mId: '', mNamaStnk: '', mMotor: '',
             mStnkReady: false, mBpkbReady: false, mIsKredit: false,
 
-            // Kamera Logic
             isCameraOpen: false, cameraTarget: '', stream: null,
             fFotoStnkBase64: null, fFotoBpkbBase64: null,
 
@@ -406,12 +404,12 @@
             openModal(doc, stnkReady, bpkbReady, isKredit) {
                 this.mId = doc.id;
                 this.mNamaStnk = doc.spk ? doc.spk.nama_stnk : '';
-                this.mMotor = doc.spk && doc.spk.motor_type ? doc.spk.motor_type.nama_type : '';
+                this.mMotor = doc.motor_unit && doc.motor_unit.type ? doc.motor_unit.type.nama_type : '';
                 this.mStnkReady = stnkReady;
                 this.mBpkbReady = bpkbReady;
                 this.mIsKredit = isKredit;
-                this.fFotoStnkBase64 = null; // reset preview
-                this.fFotoBpkbBase64 = null; // reset preview
+                this.fFotoStnkBase64 = null;
+                this.fFotoBpkbBase64 = null;
 
                 let p = doc.penyerahan_stnk_bpkb || {};
 
@@ -449,12 +447,10 @@
                 this.isDetailOpen = true;
             },
 
-            // --- WEBCAM API METHODS ---
             startCamera(target) {
                 this.cameraTarget = target;
                 this.isCameraOpen = true;
 
-                // Minta resolusi tinggi, browser/perangkat akan otomatis menyesuaikan rasionya
                 navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'environment',
@@ -469,7 +465,6 @@
                 .catch(err => {
                     this.isCameraOpen = false;
                     Swal.fire('Kamera Gagal', 'Pastikan Anda memberikan izin kamera dan menggunakan HTTPS.', 'error');
-                    console.error("Camera Error:", err);
                 });
             },
 
@@ -486,14 +481,11 @@
                 const canvas = this.$refs.canvasElement;
                 const ctx = canvas.getContext('2d');
 
-                // Ukuran canvas mengikuti rasio ASLI dari kamera perangkat (HP/PC)
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
 
-                // Gambar full frame tanpa potongan
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                // Konversi gambar dengan kompresi 80% agar ringan diserver
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
                 if(this.cameraTarget === 'stnk') {
@@ -506,13 +498,11 @@
             },
 
             submitData(e) {
-                // Validasi STNK
                 if(this.fTglStnk && !this.fFotoStnkExist && !this.fFotoStnkBase64) {
                     Swal.fire({ icon: 'warning', title: 'Oops', text: 'Foto bukti penyerahan STNK wajib diambil!' });
                     return;
                 }
 
-                // Validasi BPKB
                 if(this.fTglBpkb && this.fHubunganBpkb && this.fHubunganBpkb !== 'Pemilik' && !this.fFotoBpkbExist && !this.fFotoBpkbBase64) {
                     Swal.fire({ icon: 'warning', title: 'Oops', text: 'Karena BPKB diambil oleh perwakilan, foto bukti wajib diambil!' });
                     return;
@@ -523,7 +513,6 @@
                 formData.append('_token', '{{ csrf_token() }}');
                 formData.append('_method', 'PUT');
 
-                // Menyisipkan gambar Base64 menjadi bentuk File yang sah untuk Controller
                 if(this.fFotoStnkBase64) {
                     formData.append('foto_stnk', dataURItoBlob(this.fFotoStnkBase64), 'foto_stnk.jpg');
                 }

@@ -122,7 +122,7 @@
                                 <tr><td class="py-2 text-gray-500">Alamat Lengkap</td><td class="py-2 text-xs leading-relaxed" x-text="formatAlamat()"></td></tr>
                                 <tr><td class="py-2 text-gray-500">No. Telepon</td><td class="py-2" x-text="selectedDoc.spk?.telepon"></td></tr>
                                 <tr><td colspan="2" class="py-3"><div class="border-t border-gray-200"></div></td></tr>
-                                <tr><td class="py-2 text-gray-500">Kendaraan</td><td class="py-2 font-bold" x-text="selectedDoc.spk?.motor_type?.nama_type + ' (' + selectedDoc.spk?.motor_color?.warna + ')'"></td></tr>
+                                <tr><td class="py-2 text-gray-500">Kendaraan</td><td class="py-2 font-bold" x-text="(selectedDoc.motor_unit?.type?.nama_type ?? '-') + ' (' + (selectedDoc.motor_unit?.color?.warna ?? '-') + ')'"></td></tr>
                                 <tr><td class="py-2 text-gray-500">Mesin / Rangka</td><td class="py-2 text-xs font-mono" x-text="(selectedDoc.motor_unit?.no_mesin ?? '-') + ' / ' + (selectedDoc.motor_unit?.no_rangka ?? '-')"></td></tr>
                                 <tr><td colspan="2" class="py-3"><div class="border-t border-gray-200"></div></td></tr>
                                 <tr>
@@ -215,7 +215,7 @@
                                 </td>
                                 <td class="p-3">
                                     <div class="font-bold uppercase text-gray-900">{{ $kwt->suratJalan->spk->nama_stnk }}</div>
-                                    <div class="text-xs text-gray-500">{{ $kwt->suratJalan->spk->motorType->nama_type ?? '-' }}</div>
+                                    <div class="text-xs text-gray-500">{{ $kwt->suratJalan->motorUnit->type->nama_type ?? '-' }}</div>
                                 </td>
                                 <td class="p-3 text-xs">
                                     @if($kwt->bayar_kontan > 0) <div class="text-gray-700">Cash: Rp {{ number_format($kwt->bayar_kontan,0,',','.') }}</div> @endif
@@ -228,7 +228,6 @@
                                     <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">LUNAS</span>
                                 </td>
                                 <td class="p-3 text-center">
-                                    <!-- PERUBAHAN DI SINI: target="_blank" Dihapus! -->
                                     <a href="{{ route('kwitansi-progresif.print', $kwt->id) }}" class="bg-slate-100 border hover:bg-slate-200 text-gray-700 px-2 py-1 rounded text-xs font-bold transition-colors">
                                         Print Ulang
                                     </a>

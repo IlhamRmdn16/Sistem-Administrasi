@@ -112,7 +112,7 @@
                 field: "text",
                 direction: "asc"
             },
-            maxOptions: null // Menampilkan semua opsi hasil pencarian tanpa dibatasi
+            maxOptions: null
         });
     });
 </script>

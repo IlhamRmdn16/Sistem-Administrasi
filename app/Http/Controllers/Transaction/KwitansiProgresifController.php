@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class KwitansiProgresifController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $tab = $request->input('tab', 'buat');
 
@@ -20,12 +20,12 @@ class KwitansiProgresifController extends Controller
                 $q->where('pajak_progresif', '>', 0);
             })
             ->doesntHave('kwitansiProgresif')
-            ->with(['spk.motorType', 'spk.motorColor', 'spk.leasing', 'spk.sales', 'motorUnit', 'samsat'])
+            ->with(['spk.leasing', 'spk.sales', 'motorUnit.type', 'motorUnit.color', 'samsat'])
             ->get();
 
         $rekenings = Rekening::all();
 
-        $query = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.samsat']);
+        $query = KwitansiPajakProgresif::with(['suratJalan.spk', 'suratJalan.motorUnit.type', 'suratJalan.samsat']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -35,7 +35,7 @@ class KwitansiProgresifController extends Controller
                       $qSpk->where('nama_stnk', 'like', "%{$search}%")
                            ->orWhere('nama_pemohon', 'like', "%{$search}%");
                   })
-                  ->orWhereHas('suratJalan.spk.motorType', function($qType) use ($search) {
+                  ->orWhereHas('suratJalan.motorUnit.type', function($qType) use ($search) {
                       $qType->where('nama_type', 'like', "%{$search}%");
                   });
             });
@@ -102,7 +102,6 @@ class KwitansiProgresifController extends Controller
 
             DB::commit();
 
-            // Redirect langsung ke print (menghapus show/preview)
             return redirect()->route('kwitansi-progresif.print', $kwitansi->id);
 
         } catch (\Exception $e) {
@@ -113,8 +112,13 @@ class KwitansiProgresifController extends Controller
 
     public function print($id)
     {
-        $kwitansi = KwitansiPajakProgresif::with(['suratJalan.spk.motorType', 'suratJalan.spk.motorColor', 'suratJalan.spk.leasing', 'suratJalan.samsat', 'suratJalan.motorUnit', 'suratJalan.spk.sales'])
-                    ->findOrFail($id);
+        $kwitansi = KwitansiPajakProgresif::with([
+            'suratJalan.spk.leasing',
+            'suratJalan.samsat',
+            'suratJalan.motorUnit.type',
+            'suratJalan.motorUnit.color',
+            'suratJalan.spk.sales'
+        ])->findOrFail($id);
 
         return view('transaction.kwitansi-progresif.print', compact('kwitansi'));
     }

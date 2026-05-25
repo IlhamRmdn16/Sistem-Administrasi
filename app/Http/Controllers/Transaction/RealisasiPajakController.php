@@ -20,9 +20,11 @@ class RealisasiPajakController extends Controller
         $tanggal_realisasi = $request->input('tanggal_realisasi', date('Y-m-d'));
 
         if ($request->filled('pengajuan_id')) {
+            // Relasi disesuaikan: tambah motorUnit.type dan spk
             $selectedPengajuan = PengajuanStnk::with([
                 'details.suratJalan.samsat',
-                'details.suratJalan.spk.motorType'
+                'details.suratJalan.spk',
+                'details.suratJalan.motorUnit.type'
             ])->find($request->pengajuan_id);
 
             if ($selectedPengajuan) {
@@ -36,7 +38,8 @@ class RealisasiPajakController extends Controller
                 $tempGroup = [];
                 foreach ($filteredDetails as $detail) {
                     $sjk = $detail->suratJalan;
-                    $tipe = strtoupper($sjk->spk->motorType->nama_type ?? '-');
+                    // Ambil tipe motor melalui motorUnit
+                    $tipe = strtoupper($sjk->motorUnit->type->nama_type ?? '-');
                     $milik = $sjk->samsat->jumlah_motor;
                     $pajak = $sjk->samsat->pajak_progresif;
                     $nama = strtoupper($sjk->spk->nama_stnk ?? '-');
@@ -71,9 +74,11 @@ class RealisasiPajakController extends Controller
 
     public function print(Request $request)
     {
+        // Relasi disesuaikan: tambah motorUnit.type dan spk
         $pengajuan = PengajuanStnk::with([
             'details.suratJalan.samsat',
-            'details.suratJalan.spk.motorType'
+            'details.suratJalan.spk',
+            'details.suratJalan.motorUnit.type'
         ])->findOrFail($request->pengajuan_id);
 
         $tanggal_realisasi = $request->tanggal_realisasi ?? date('Y-m-d');
@@ -87,7 +92,8 @@ class RealisasiPajakController extends Controller
         $grandTotal = 0;
         foreach ($filteredDetails as $detail) {
             $sjk = $detail->suratJalan;
-            $tipe = strtoupper($sjk->spk->motorType->nama_type ?? '-');
+            // Ambil tipe motor melalui motorUnit
+            $tipe = strtoupper($sjk->motorUnit->type->nama_type ?? '-');
             $milik = $sjk->samsat->jumlah_motor;
             $pajak = $sjk->samsat->pajak_progresif;
             $nama = strtoupper($sjk->spk->nama_stnk ?? '-');

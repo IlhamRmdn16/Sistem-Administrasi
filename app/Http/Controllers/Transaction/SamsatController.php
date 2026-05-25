@@ -14,8 +14,10 @@ class SamsatController extends Controller
         $search = $request->input('search');
         $per_page = $request->input('per_page', 10);
         $status_dokumen = $request->input('status_dokumen');
+
+        // Eager load diperbaiki: motorType dan motorColor sekarang diakses melalui motorUnit
         $query = SuratJalan::whereHas('pengajuanDetail')
-            ->with(['samsat', 'spk.motorType', 'spk.motorColor', 'spk.leasing', 'motorUnit']);
+            ->with(['samsat', 'spk.leasing', 'motorUnit.type', 'motorUnit.color']);
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -38,10 +40,6 @@ class SamsatController extends Controller
             } elseif ($status_dokumen == 'stnk_saja') {
                 $query->whereHas('samsat', function($q) {
                     $q->whereNotNull('tgl_terima_stnk')->whereNull('tgl_terima_bpkb');
-                });
-            } elseif ($status_dokumen == 'bpkb_saja') {
-                $query->whereHas('samsat', function($q) {
-                    $q->whereNull('tgl_terima_stnk')->whereNotNull('tgl_terima_bpkb');
                 });
             } elseif ($status_dokumen == 'selesai') {
                 $query->whereHas('samsat', function($q) {

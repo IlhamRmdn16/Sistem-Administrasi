@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <title>Kwitansi Progresif - {{ $kwitansi->no_kwitansi }}</title>
     <style>
-        /* Ukuran 1/2 F4 Landscape: 21.5cm Lebar x 16.5cm Tinggi */
         @page { size: 215mm 165mm; margin: 5mm 8mm; }
 
-        /* Font Arial Sesuai Permintaan & Jarak Antar Teks */
         body { font-family: 'Arial', sans-serif; font-size: 11px; margin: 0; padding: 0; color: #000; line-height: 1.3; }
 
-        /* Header Logo Sesuai Aturan Contoh */
         .header-logo { width: 100%; border-bottom: 0.5px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
-        .header-logo img { max-height: 70px; width: auto; } /* Disesuaikan agar logo tidak kebesaran */
+        .header-logo img { max-height: 70px; width: auto; }
 
-        /* Tabel & Konten Sesuai Aturan Contoh */
         table { width: 100%; border-collapse: collapse; }
         td { vertical-align: top; padding: 2px 0; }
 
@@ -26,7 +22,6 @@
     $spk = $kwitansi->suratJalan->spk;
     $samsat = $kwitansi->suratJalan->samsat;
 
-    // Format Alamat Panjang
     $alamat_parts = [];
     if (!empty($spk->alamat)) $alamat_parts[] = $spk->alamat;
     if (!empty($spk->rt_rw)) $alamat_parts[] = 'RT/RW ' . $spk->rt_rw;
@@ -38,7 +33,6 @@
 
 <body onload="window.print()">
 
-    <!-- Posisi dan Penyebutan Header Persis Contoh -->
     <div class="header-logo">
         <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
     </div>
@@ -117,10 +111,8 @@
     <script>
         window.onafterprint = function() {
             if (window.opener) {
-                // Jika halaman dibuka via target="_blank", tutup otomatis tab ini
                 window.close();
             } else {
-                // Jika dibuka di tab yang sama, kembali ke halaman riwayat
                 window.location.replace("{{ route('kwitansi-progresif.index', ['tab' => 'riwayat']) }}");
             }
         };

@@ -29,7 +29,6 @@
                         <option value="">Semua Status Dokumen</option>
                         <option value="belum" {{ $status_dokumen == 'belum' ? 'selected' : '' }}>Belum Ada Dokumen</option>
                         <option value="stnk_saja" {{ $status_dokumen == 'stnk_saja' ? 'selected' : '' }}>STNK Selesai (BPKB Belum)</option>
-                        <option value="bpkb_saja" {{ $status_dokumen == 'bpkb_saja' ? 'selected' : '' }}>Hanya BPKB (STNK Belum)</option>
                         <option value="selesai" {{ $status_dokumen == 'selesai' ? 'selected' : '' }}>Selesai Keduanya</option>
                     </select>
                 </div>
@@ -53,7 +52,8 @@
             <table class="w-full text-left border-collapse">
     <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
         <tr>
-            <th class="py-4 px-6 font-semibold w-12 text-center">No</th> <th class="py-4 px-6 font-semibold">No. SJK / Tgl Kirim</th>
+            <th class="py-4 px-6 font-semibold w-12 text-center">No</th>
+            <th class="py-4 px-6 font-semibold">No. SJK / Tgl Kirim</th>
             <th class="py-4 px-6 font-semibold">Nama STNK / SPK</th>
             <th class="py-4 px-6 font-semibold">Unit & Pembayaran</th>
             <th class="py-4 px-6 font-semibold text-center">No. Kunci</th>
@@ -62,7 +62,8 @@
         </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
-        @forelse($dokumens as $index => $doc) @php
+        @forelse($dokumens as $index => $doc)
+            @php
                 $stnkSelesai = $doc->samsat && $doc->samsat->tgl_terima_stnk;
                 $bpkbSelesai = $doc->samsat && $doc->samsat->tgl_terima_bpkb;
 
@@ -72,12 +73,9 @@
                 if($stnkSelesai && $bpkbSelesai) {
                     $statusColor = 'bg-green-50 text-green-700 border-green-200';
                     $statusText = 'Selesai Keduanya';
-                } elseif($stnkSelesai && !$bpkbSelesai) {
+                } elseif($stnkSelesai) {
                     $statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
                     $statusText = 'STNK Selesai';
-                } elseif(!$stnkSelesai && $bpkbSelesai) {
-                    $statusColor = 'bg-blue-50 text-blue-700 border-blue-200';
-                    $statusText = 'Hanya BPKB';
                 }
 
                 $pembayaran = $doc->spk->leasing_id ? 'KREDIT - ' . ($doc->spk->leasing->nama_leasing ?? '') : 'KONTAN';
@@ -85,7 +83,8 @@
 
             <tr class="hover:bg-slate-50/50 transition-colors">
                 <td class="py-4 px-6 text-sm text-center text-gray-500 font-bold">
-                    {{ $dokumens->firstItem() + $index }} </td>
+                    {{ $dokumens->firstItem() + $index }}
+                </td>
                 <td class="py-4 px-6 text-sm">
                     <div class="font-bold text-gray-800">{{ $doc->no_bukti }}</div>
                     <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($doc->tanggal)->format('d/m/Y') }}</div>
@@ -95,7 +94,7 @@
                     <div class="text-xs text-gray-500 mt-0.5">{{ $doc->spk->no_spk ?? '-' }}</div>
                 </td>
                 <td class="py-4 px-6 text-sm">
-                    <div class="font-semibold text-gray-700 truncate max-w-[180px]">{{ $doc->spk->motorType->nama_type ?? '-' }}</div>
+                    <div class="font-semibold text-gray-700 truncate max-w-[180px]">{{ $doc->motorUnit->type->nama_type ?? '-' }}</div>
                     <div class="text-[10px] font-bold mt-1 px-1.5 py-0.5 inline-block rounded {{ $doc->spk->leasing_id ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700' }}">
                         {{ $pembayaran }}
                     </div>
@@ -286,9 +285,11 @@
                 }
 
                 this.dPembayaran = pembayaran;
-                this.dTipe = (doc.spk && doc.spk.motor_type) ? doc.spk.motor_type.nama_type : '-';
-                this.dWarna = (doc.spk && doc.spk.motor_color) ? doc.spk.motor_color.warna : '-';
-                this.dTahun = (doc.spk && doc.spk.motor_type) ? doc.spk.motor_type.tahun_pembuatan : '-';
+
+                // Variabel yang dipanggil sekarang diarahkan lewat motorUnit
+                this.dTipe = (doc.motor_unit && doc.motor_unit.type) ? doc.motor_unit.type.nama_type : '-';
+                this.dWarna = (doc.motor_unit && doc.motor_unit.color) ? doc.motor_unit.color.warna : '-';
+                this.dTahun = doc.motor_unit ? doc.motor_unit.tahun_pembuatan : '-';
                 this.dMesin = doc.motor_unit ? doc.motor_unit.no_mesin : '-';
                 this.dRangka = doc.motor_unit ? doc.motor_unit.no_rangka : '-';
                 this.dKunci = doc.motor_unit ? doc.motor_unit.no_kunci : '-';
@@ -331,7 +332,6 @@
                     return response.json();
                 })
                 .then(data => {
-                    // PENTING: Matikan loading seketika di sini sebelum memanggil Swal.fire
                     this.isEditing = false;
 
                     if(data.success) {
@@ -345,9 +345,7 @@
                     }
                 })
                 .catch(error => {
-                    // Matikan loading seketika jika error
                     this.isEditing = false;
-
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) errorMsg = Object.values(error.errors)[0][0];
                     Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: errorMsg });

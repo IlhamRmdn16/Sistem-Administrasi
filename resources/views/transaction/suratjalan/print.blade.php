@@ -144,8 +144,8 @@
                             <td>Tipe Motor</td>
                             <td class="text-center">:</td>
                             <td colspan="4" class="uppercase">
-                                {{ $sj->spk->motorType->nama_type }} / {{ $sj->spk->motorType->kode_motor ?? '-' }} / Warna: {{ $sj->spk->motorColor->warna }}
-                                <span style="float: right; margin-right: 15px;">Tahun : {{ $sj->spk->motorType->tahun_pembuatan ?? '-' }}</span>
+                                {{ $sj->motorUnit->type->nama_type ?? '-' }} / {{ $sj->motorUnit->type->kode_motor ?? '-' }} / Warna: {{ $sj->motorUnit->color->warna ?? '-' }}
+                                <span style="float: right; margin-right: 15px;">Tahun : {{ $sj->motorUnit->tahun_pembuatan ?? '-' }}</span>
                             </td>
                         </tr>
                         <tr>
@@ -210,18 +210,14 @@
         </div>
 
         <script>
-            // Buka jendela print saat halaman dimuat
             window.onload = function() {
                 window.print();
             };
 
-            // Logika cerdas setelah jendela print ditutup atau dicancel
             window.onafterprint = function() {
                 if (window.opener) {
-                    // Jika dibuka di tab baru (dari tabel), tutup otomatis
                     setTimeout(window.close, 500);
                 } else {
-                    // Jika dibuka di tab yang sama, kembalikan ke halaman index
                     setTimeout(function() {
                         window.location.href = "{{ route('suratjalan.index') }}";
                     }, 500);

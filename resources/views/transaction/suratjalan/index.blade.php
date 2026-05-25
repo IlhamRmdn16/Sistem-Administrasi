@@ -66,11 +66,11 @@
                                 <div class="text-xs text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($sj->tanggal)->format('d/m/Y') }}</div>
                             </td>
                             <td class="py-4 px-6 text-sm">
-                                <div class="font-bold text-gray-800 uppercase">{{ $sj->spk->nama_pemohon }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $sj->spk->no_spk }}</div>
+                                <div class="font-bold text-gray-800 uppercase">{{ $sj->spk->nama_pemohon ?? '-' }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ $sj->spk->no_spk ?? '-' }}</div>
                             </td>
                             <td class="py-4 px-6 text-sm text-gray-700">
-                                <div class="font-semibold truncate max-w-[150px]">{{ $sj->spk->motorType->nama_type }}</div>
+                                <div class="font-semibold truncate max-w-[150px]">{{ $sj->motorUnit->type->nama_type ?? '-' }}</div>
                                 <div class="text-xs text-gray-500 mt-0.5">Kunci: <span class="font-bold text-gray-800">{{ $sj->motorUnit->no_kunci ?? '-' }}</span></div>
                             </td>
                             <td class="py-4 px-6 text-sm">
@@ -328,7 +328,6 @@
     function suratJalanManager() {
         return {
             availableSpks: @json($availableSpks),
-            availableUnits: @json($availableUnits),
             pdiMans: @json($pdiMans),
 
             isCreateOpen: false,
@@ -384,17 +383,17 @@
                 this.selectedSpkName = s.nama_pemohon + ' - ' + s.no_spk;
                 this.cNamaPemohon = s.nama_pemohon;
                 this.cNoSpk = s.no_spk;
-                this.cNamaStnk = s.nama_stnk;
-                this.cTipeMotor = s.motor_type.nama_type;
-                this.cWarnaMotor = s.motor_color.warna;
 
-                let unit = this.availableUnits.find(u => u.motor_type_id == s.motor_type_id && u.motor_color_id == s.motor_color_id);
-                if (unit) {
-                    this.cNoKunci = unit.no_kunci || '-';
-                    this.cNoAccu = unit.no_accu || '-';
-                    this.cUnitId = unit.id;
+                if (s.motor_unit) {
+                    this.cTipeMotor = s.motor_unit.type.nama_type;
+                    this.cWarnaMotor = s.motor_unit.color.warna;
+                    this.cNoKunci = s.motor_unit.no_kunci || '-';
+                    this.cNoAccu = s.motor_unit.no_accu || '-';
+                    this.cUnitId = s.motor_unit.id;
                 } else {
-                    this.cNoKunci = 'STOK TIDAK TERSEDIA';
+                    this.cTipeMotor = '-';
+                    this.cWarnaMotor = '-';
+                    this.cNoKunci = '-';
                     this.cNoAccu = '-';
                     this.cUnitId = '';
                 }
@@ -475,12 +474,18 @@
 
                 this.eNamaPemohon = sj.spk.nama_pemohon;
                 this.eNoSpk = sj.spk.no_spk;
-                this.eNamaStnk = sj.spk.nama_stnk;
-                this.eTipeMotor = sj.spk.motor_type.nama_type;
-                this.eWarnaMotor = sj.spk.motor_color.warna;
 
-                this.eNoKunci = sj.motor_unit ? (sj.motor_unit.no_kunci || '-') : '-';
-                this.eNoAccu = sj.motor_unit ? (sj.motor_unit.no_accu || '-') : '-';
+                if (sj.motor_unit) {
+                    this.eTipeMotor = sj.motor_unit.type.nama_type;
+                    this.eWarnaMotor = sj.motor_unit.color.warna;
+                    this.eNoKunci = sj.motor_unit.no_kunci || '-';
+                    this.eNoAccu = sj.motor_unit.no_accu || '-';
+                } else {
+                    this.eTipeMotor = '-';
+                    this.eWarnaMotor = '-';
+                    this.eNoKunci = '-';
+                    this.eNoAccu = '-';
+                }
 
                 this.eNoStck = sj.no_stck || '';
                 this.eNoRegistrasi = sj.no_registrasi || '';

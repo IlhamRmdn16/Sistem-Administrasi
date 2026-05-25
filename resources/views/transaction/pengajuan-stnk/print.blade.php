@@ -13,14 +13,12 @@
         color: #000;
     }
 
-    /* Layout Header Baru Sesuai Aturan */
     .header-logo { width: 100%; border-bottom: 0.5px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
     .header-logo img { max-height: 70px; width: auto; }
 
     .section-title { font-weight: bold; margin: 8px 0 15px 0; text-transform: uppercase; font-size: 16px; text-align: center; text-decoration: underline; }
     .doc-info { margin-bottom: 15px; text-align: left; }
 
-    /* Tabel Styling (SAMA PERSIS, TIDAK DIUBAH) */
     table.data-table { width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 20px; }
     table.data-table th { border-bottom: 1px solid #000; padding: 6px; text-align: center; font-size: 11px; }
     table.data-table td { border: none; padding: 6px; }
@@ -30,7 +28,6 @@
     .text-center { text-align: center !important; }
     .font-bold { font-weight: bold; }
 
-    /* Signature (SAMA PERSIS, TIDAK DIUBAH) */
     .signature-wrapper { width: 100%; margin-top: 40px; text-align: right; }
     .sig-box { height: 70px; }
 
@@ -41,8 +38,6 @@
 </head>
 
 <body>
-
-    <!-- POSISI HEADER & JUDUL BARU -->
     <div class="header-logo">
         <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
     </div>
@@ -53,9 +48,7 @@
         <div>No. Pengajuan : {{ $pengajuan->no_bukti }}</div>
         <div style="margin-top: 5px;">Tgl Pengajuan : {{ \Carbon\Carbon::parse($pengajuan->tanggal)->format('d/m/Y') }}</div>
     </div>
-    <!-- END POSISI HEADER & JUDUL BARU -->
 
-    <!-- BAGIAN TABEL DAN KE BAWAH TIDAK ADA YANG DIUBAH SAMA SEKALI -->
     <table class="data-table">
         <thead>
             <tr>
@@ -75,7 +68,7 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="font-bold uppercase">{{ $d->suratJalan->spk->nama_stnk }}</td>
                     <td>{{ $d->suratJalan->spk->alamat }}</td>
-                    <td>{{ $d->suratJalan->spk->motorType->nama_type ?? '-' }}</td>
+                    <td>{{ $d->suratJalan->motorUnit->type->nama_type ?? '-' }}</td>
                     <td>{{ $d->suratJalan->motorUnit->no_mesin ?? '-' }}</td>
                     <td class="text-center">{{ number_format($d->notice_pajak, 0, ',', '.') }}</td>
                     <td class="text-center">{{ number_format($d->adm, 0, ',', '.') }}</td>
@@ -129,18 +122,14 @@
     </div>
 
     <script>
-        // Buka jendela print otomatis saat halaman dimuat
         window.onload = function() {
             window.print();
         };
 
-        // Logika cerdas setelah jendela print ditutup atau di-cancel
         window.onafterprint = function() {
             if (window.opener) {
-                // Jika dibuka di tab baru (contoh: target="_blank" dari tabel), tutup otomatis
                 setTimeout(window.close, 500);
             } else {
-                // Jika dibuka dari tab yang sama, kembali ke halaman sebelumnya
                 setTimeout(function() {
                     window.history.back();
                 }, 500);

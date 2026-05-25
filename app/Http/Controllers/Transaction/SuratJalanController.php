@@ -11,14 +11,14 @@ use Illuminate\Http\Request;
 
 class SuratJalanController extends Controller
 {
-   public function index(Request $request)
+  public function index(Request $request)
     {
         $search = $request->input('search');
         $dari_tanggal = $request->input('dari_tanggal');
         $sampai_tanggal = $request->input('sampai_tanggal');
         $per_page = $request->input('per_page', 10);
 
-        $query = SuratJalan::with(['spk.motorType', 'spk.motorColor', 'motorUnit', 'pdiMan']);
+        $query = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'pdiMan']);
 
         if ($dari_tanggal && $sampai_tanggal) {
             $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
@@ -38,7 +38,6 @@ class SuratJalanController extends Controller
         $now = now();
         $prefix = "SJK{$now->format('Y')}/{$now->format('m')}/";
 
-        // Logika isi celah kosong
         $existingNumbers = SuratJalan::where('no_bukti', 'like', "{$prefix}%")
             ->pluck('no_bukti')
             ->map(function ($no_bukti) {
@@ -54,14 +53,11 @@ class SuratJalanController extends Controller
         $autoNoBukti = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         $usedSpkIds = SuratJalan::pluck('spk_id')->toArray();
-        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorType', 'motorColor'])->get();
-
-        $usedUnitIds = SuratJalan::pluck('motor_unit_id')->filter()->toArray();
-        $availableUnits = MotorUnit::whereNotIn('id', $usedUnitIds)->get();
+        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorUnit.type', 'motorUnit.color'])->get();
 
         $pdiMans = PdiMan::orderBy('nama_pdi_man')->get();
 
-        return view('transaction.suratjalan.index', compact('suratJalans', 'autoNoBukti', 'availableSpks', 'availableUnits', 'pdiMans', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
+        return view('transaction.suratjalan.index', compact('suratJalans', 'autoNoBukti', 'availableSpks', 'pdiMans', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'search'));
     }
 
     public function store(Request $request)
@@ -117,7 +113,7 @@ class SuratJalanController extends Controller
 
     public function print($id)
     {
-        $sj = SuratJalan::with(['spk.motorType', 'spk.motorColor', 'motorUnit', 'pdiMan'])->findOrFail($id);
+        $sj = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'pdiMan'])->findOrFail($id);
         return view('transaction.suratjalan.print', compact('sj'));
     }
 }

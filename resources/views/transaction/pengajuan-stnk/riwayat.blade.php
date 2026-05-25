@@ -130,11 +130,11 @@
                                             </td>
                                             <td class="py-3 px-4 font-bold text-gray-800" x-text="s.spk.nama_stnk"></td>
                                             <td class="py-3 px-4 text-xs text-gray-600 truncate max-w-[200px]" x-text="buildAlamat(s.spk)"></td>
-                                            <td class="py-3 px-4 text-xs font-semibold" x-text="s.spk.motor_type.nama_type"></td>
-                                            <td class="py-3 px-4 font-mono text-xs" x-text="s.motor_unit.no_mesin"></td>
-                                            <td class="py-3 px-4 text-right font-mono text-xs" x-text="formatRupiah(s.spk.motor_type.notice_pajak)"></td>
+                                            <td class="py-3 px-4 text-xs font-semibold" x-text="s.motor_unit?.type?.nama_type || '-'"></td>
+                                            <td class="py-3 px-4 font-mono text-xs" x-text="s.motor_unit?.no_mesin || '-'"></td>
+                                            <td class="py-3 px-4 text-right font-mono text-xs" x-text="formatRupiah(s.motor_unit?.type?.notice_pajak)"></td>
                                             <td class="py-3 px-4 text-right font-mono text-xs" x-text="isChecked(s.id) ? formatRupiah(admValue) : '0'"></td>
-                                            <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="isChecked(s.id) ? formatRupiah(Number(s.spk.motor_type.notice_pajak || 0) + admValue) : '0'"></td>
+                                            <td class="py-3 px-4 text-right font-mono text-xs font-bold" x-text="isChecked(s.id) ? formatRupiah(Number(s.motor_unit?.type?.notice_pajak || 0) + admValue) : '0'"></td>
                                         </tr>
                                     </template>
                                     <tr class="bg-gray-50 font-bold border-t-2 border-gray-200">
@@ -224,7 +224,7 @@
             get totalPajak() {
                 return this.currentSuratJalans
                     .filter(s => this.isChecked(s.id))
-                    .reduce((sum, s) => sum + (Number(s.spk.motor_type.notice_pajak) || 0), 0);
+                    .reduce((sum, s) => sum + (Number(s.motor_unit?.type?.notice_pajak) || 0), 0);
             },
             get totalAdm() { return this.checkedCount * this.admValue; },
             get totalTambahan() {

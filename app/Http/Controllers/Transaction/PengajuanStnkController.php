@@ -37,7 +37,9 @@ class PengajuanStnkController extends Controller
         $admValue = $this->getAdmValue();
 
         $usedSuratJalanIds = PengajuanStnkDetail::pluck('surat_jalan_id')->toArray();
-        $availableSuratJalans = SuratJalan::with(['spk.motorType', 'motorUnit'])
+
+        // Mengubah relasi spk.motorType menjadi motorUnit.type
+        $availableSuratJalans = SuratJalan::with(['spk', 'motorUnit.type'])
             ->whereNotIn('id', $usedSuratJalanIds)
             ->get();
 
@@ -49,7 +51,8 @@ class PengajuanStnkController extends Controller
         $search = $request->input('search');
         $per_page = $request->input('per_page', 10);
 
-        $query = PengajuanStnk::with(['details.suratJalan.spk.motorType', 'tambahans']);
+        // Mengubah relasi details.suratJalan.spk.motorType menjadi details.suratJalan.motorUnit.type
+        $query = PengajuanStnk::with(['details.suratJalan.spk', 'details.suratJalan.motorUnit.type', 'tambahans']);
 
         if ($search) {
             $query->where('no_bukti', 'like', "%{$search}%");
@@ -59,7 +62,7 @@ class PengajuanStnkController extends Controller
         $admValue = $this->getAdmValue();
 
         $usedSuratJalanIds = PengajuanStnkDetail::pluck('surat_jalan_id')->toArray();
-        $availableSuratJalans = SuratJalan::with(['spk.motorType', 'motorUnit'])
+        $availableSuratJalans = SuratJalan::with(['spk', 'motorUnit.type'])
             ->whereNotIn('id', $usedSuratJalanIds)
             ->get();
 
@@ -88,8 +91,9 @@ class PengajuanStnkController extends Controller
             ]);
 
             foreach ($request->items as $item) {
-                $suratJalan = SuratJalan::with('spk.motorType')->find($item['id']);
-                $noticePajak = $suratJalan->spk->motorType->notice_pajak ?? 0;
+                // Mengambil nilai pajak dari motorUnit->type
+                $suratJalan = SuratJalan::with('motorUnit.type')->find($item['id']);
+                $noticePajak = $suratJalan->motorUnit->type->notice_pajak ?? 0;
 
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
@@ -139,8 +143,9 @@ class PengajuanStnkController extends Controller
 
             $pengajuan->details()->delete();
             foreach ($request->items as $item) {
-                $suratJalan = SuratJalan::with('spk.motorType')->find($item['id']);
-                $noticePajak = $suratJalan->spk->motorType->notice_pajak ?? 0;
+                // Mengambil nilai pajak dari motorUnit->type
+                $suratJalan = SuratJalan::with('motorUnit.type')->find($item['id']);
+                $noticePajak = $suratJalan->motorUnit->type->notice_pajak ?? 0;
 
                 PengajuanStnkDetail::create([
                     'pengajuan_stnk_id' => $pengajuan->id,
@@ -177,7 +182,7 @@ class PengajuanStnkController extends Controller
 
     public function print($id)
     {
-        $pengajuan = PengajuanStnk::with(['details.suratJalan.spk.motorType', 'details.suratJalan.motorUnit', 'tambahans'])->findOrFail($id);
+        $pengajuan = PengajuanStnk::with(['details.suratJalan.spk', 'details.suratJalan.motorUnit.type', 'tambahans'])->findOrFail($id);
         return view('transaction.pengajuan-stnk.print', compact('pengajuan'));
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Master\MotorTypeController;
 use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
+use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
@@ -90,3 +91,15 @@ Route::get('/transaction/penyerahan-bpkb-leasing/{leasing_id}', [PenyerahanBpkbL
 Route::post('/transaction/penyerahan-bpkb-leasing', [PenyerahanBpkbLeasingController::class, 'store'])->name('penyerahan-bpkb-leasing.store');
 Route::delete('/transaction/penyerahan-bpkb-leasing/{id}', [PenyerahanBpkbLeasingController::class, 'destroy'])->name('penyerahan-bpkb-leasing.destroy');
 Route::get('/transaction/penyerahan-bpkb-leasing/print/{id}', [PenyerahanBpkbLeasingController::class, 'print'])->name('penyerahan-bpkb-leasing.print');
+
+Route::prefix('transaction/kontrol-harga')->name('kontrol-harga.')->group(function () {
+    Route::get('/', [KontrolHargaPenjualanController::class, 'index'])->name('index');
+    Route::post('/store', [KontrolHargaPenjualanController::class, 'store'])->name('store');
+
+    Route::get('/{spk_id}/print-options', [KontrolHargaPenjualanController::class, 'printOptions'])->name('print-options');
+
+    // Rute sementara untuk halaman print masing-masing
+    Route::get('/{spk_id}/print/otr', [KontrolHargaPenjualanController::class, 'printOtr'])->name('print.otr');
+    Route::get('/{spk_id}/print/dp-po', [KontrolHargaPenjualanController::class, 'printDpPo'])->name('print.dp-po');
+    Route::get('/{spk_id}/print/otr-dp-po', [KontrolHargaPenjualanController::class, 'printOtrDpPo'])->name('print.otr-dp-po');
+});

@@ -9,6 +9,7 @@ use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
+use App\Http\Controllers\Transaction\PenyerahanBpkbLeasingController;
 use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
 use App\Http\Controllers\Transaction\RealisasiPajakController;
 use App\Http\Controllers\Transaction\SamsatController;
@@ -83,3 +84,9 @@ Route::prefix('kwitansi-progresif')->name('kwitansi-progresif.')->group(function
         Route::post('/store', [KwitansiProgresifController::class, 'store'])->name('store');
 Route::get('/{id}/print', [KwitansiProgresifController::class, 'print'])->name('print');
     });
+
+Route::get('/transaction/penyerahan-bpkb-leasing', [PenyerahanBpkbLeasingController::class, 'index'])->name('penyerahan-bpkb-leasing.index');
+Route::get('/transaction/penyerahan-bpkb-leasing/{leasing_id}', [PenyerahanBpkbLeasingController::class, 'show'])->name('penyerahan-bpkb-leasing.show');
+Route::post('/transaction/penyerahan-bpkb-leasing', [PenyerahanBpkbLeasingController::class, 'store'])->name('penyerahan-bpkb-leasing.store');
+Route::delete('/transaction/penyerahan-bpkb-leasing/{id}', [PenyerahanBpkbLeasingController::class, 'destroy'])->name('penyerahan-bpkb-leasing.destroy');
+Route::get('/transaction/penyerahan-bpkb-leasing/print/{id}', [PenyerahanBpkbLeasingController::class, 'print'])->name('penyerahan-bpkb-leasing.print');

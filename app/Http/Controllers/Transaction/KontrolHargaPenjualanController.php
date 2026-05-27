@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\KontrolHargaPenjualan;
 use App\Models\Spk;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -68,11 +69,42 @@ class KontrolHargaPenjualanController extends Controller
     }
 
     public function printOtr($spk_id)
-    {
-        $spk = Spk::with(['motorUnit.type'])->findOrFail($spk_id);
-        $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
-        return view('transaction.kontrol-harga.print.otr', compact('spk', 'kontrol'));
+{
+    $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
+
+    $suratJalan = \App\Models\SuratJalan::where('spk_id', $spk_id)->first();
+
+    if (!$suratJalan) {
+        return redirect()->route('kontrol-harga.print-options', $spk_id)
+                         ->with('error', 'Kuitansi OTR tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat untuk SPK ini.');
     }
+
+    $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+    if (empty($kontrol->no_kwitansi_otr)) {
+        DB::transaction(function () use ($kontrol) {
+            $now = Carbon::now();
+            $prefix = 'KWO' . $now->format('Y/m/');
+
+            $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_otr', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $urut = 1;
+            if ($lastDoc) {
+                $lastUrut = (int) substr($lastDoc->no_kwitansi_otr, -4);
+                $urut = $lastUrut + 1;
+            }
+
+            $kontrol->no_kwitansi_otr = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+            $kontrol->tgl_kwitansi_otr = $now->format('Y-m-d');
+            $kontrol->save();
+        });
+    }
+
+    return view('transaction.kontrol-harga.print.otr', compact('spk', 'kontrol', 'suratJalan'));
+}
 
     public function printDpPo($spk_id)
     {

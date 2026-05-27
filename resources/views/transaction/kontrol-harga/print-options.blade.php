@@ -12,6 +12,12 @@
         </a>
     </div>
 
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-center font-bold text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6 text-center">
         <div class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Konsumen</div>
         <h3 class="text-xl font-black text-gray-900 uppercase">{{ $spk->nama_stnk }}</h3>

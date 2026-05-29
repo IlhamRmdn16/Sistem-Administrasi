@@ -6,15 +6,16 @@
     <style>
         @page { size: 215mm 165mm landscape; margin: 8mm 10mm; }
 
-        body { font-family: 'Arial', sans-serif; font-size: 10px; margin: 0; padding: 0; color: #000; line-height: 1.3; }
+        body { font-family: 'Arial', sans-serif; font-size: 11px; margin: 0; padding: 0; color: #000; line-height: 1.3; }
 
-        .header-logo { width: 100%; border-bottom: 0.5px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
+        .header-table { width: 100%; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 15px; }
+        .header-logo { width: 75%; vertical-align: middle; }
         .header-logo img { max-height: 70px; width: auto; }
 
-        .section-title { font-weight: bold; margin: 8px 0 10px 0; text-transform: uppercase; font-size: 14px; text-align: center; text-decoration: underline; }
-
-        .header-info { width: 100%; margin-bottom: 15px; font-size: 11px; border: none; }
-        .header-info td { padding: 2px; border: none; vertical-align: top; }
+        .header-meta { width: 25%; vertical-align: top; }
+        .header-meta .title { text-transform: uppercase; text-decoration: underline; margin-bottom: 8px; }
+        .header-meta table { width: 100%; border-collapse: collapse; }
+        .header-meta td { padding: 1px 0; border: none; vertical-align: top; }
 
         .data-table { width: 100%; border-collapse: collapse; border: 1px solid #000; margin-bottom: 15px; }
         .data-table thead th { border: 1px solid #000; padding: 6px 4px; background-color: #f0f0f0; text-align: center; }
@@ -29,34 +30,37 @@
         .uppercase { text-transform: uppercase; }
 
         .signature-area { width: 100%; margin-top: 30px; display: table; page-break-inside: avoid; }
-        .signature-box { display: table-cell; width: 33.33%; text-align: center; vertical-align: bottom; font-weight: bold; }
+        .signature-box { display: table-cell; width: 33.33%; text-align: center; vertical-align: bottom; }
         .signature-space { height: 70px; }
     </style>
 </head>
 <body onload="window.print()">
 
-    <div class="header-logo">
-        <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
-    </div>
-
-    <div class="section-title">PENYERAHAN BPKB KE LEASING</div>
-
-    <table class="header-info">
+    <table class="header-table">
         <tr>
-            <td style="width: 70px;">No. Bukti</td>
-            <td style="width: 10px;">:</td>
-            <td><b>{{ $document->no_bukti }}</b></td>
-
-            <td style="width: 60px;">Leasing</td>
-            <td style="width: 10px;">:</td>
-            <td class="uppercase"><b>{{ $document->leasing->nama_leasing }}</b></td>
-        </tr>
-        <tr>
-            <td>Tanggal</td>
-            <td>:</td>
-            <td>{{ \Carbon\Carbon::parse($document->tanggal)->format('d/m/Y') }}</td>
-
-            <td colspan="3"></td>
+            <td class="header-logo">
+                <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
+            </td>
+            <td class="header-meta">
+                <div class="title">Penyerahan BPKB Ke Leasing</div>
+                <table>
+                    <tr>
+                        <td style="width: 70px;">No. Bukti</td>
+                        <td style="width: 10px;">:</td>
+                        <td>{{ $document->no_bukti }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tanggal</td>
+                        <td>:</td>
+                        <td>{{ \Carbon\Carbon::parse($document->tanggal)->format('d/m/Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Leasing</td>
+                        <td>:</td>
+                        <td class="uppercase">{{ $document->leasing->nama_leasing }}</td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 
@@ -81,12 +85,12 @@
             @endphp
             <tr>
                 <td class="col-no">{{ $index + 1 }}</td>
-                <td class="uppercase"><b>{{ $spk->nama_stnk }}</b></td>
+                <td class="uppercase">{{ $spk->nama_stnk }}</td>
                 <td>{{ $spk->alamat }}</td>
                 <td>{{ $motor->type->nama_type ?? '-' }}</td>
                 <td>{{ $motor->no_mesin ?? '-' }}</td>
-                <td class="text-center font-bold">{{ $samsat->no_polisi ?? '-' }}</td>
-                <td class="text-center font-bold" style="font-family: monospace;">{{ $samsat->no_bpkb }}</td>
+                <td class="text-center">{{ $samsat->no_polisi ?? '-' }}</td>
+                <td class="text-center" style="font-family: monospace;">{{ $samsat->no_bpkb }}</td>
             </tr>
             @endforeach
         </tbody>

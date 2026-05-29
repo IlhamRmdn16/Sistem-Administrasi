@@ -97,8 +97,6 @@ Route::prefix('transaction/kontrol-harga')->name('kontrol-harga.')->group(functi
     Route::post('/store', [KontrolHargaPenjualanController::class, 'store'])->name('store');
 
     Route::get('/{spk_id}/print-options', [KontrolHargaPenjualanController::class, 'printOptions'])->name('print-options');
-
-    // Rute sementara untuk halaman print masing-masing
     Route::get('/{spk_id}/print/otr', [KontrolHargaPenjualanController::class, 'printOtr'])->name('print.otr');
     Route::get('/{spk_id}/print/dp-po', [KontrolHargaPenjualanController::class, 'printDpPo'])->name('print.dp-po');
     Route::get('/{spk_id}/print/otr-dp-po', [KontrolHargaPenjualanController::class, 'printOtrDpPo'])->name('print.otr-dp-po');

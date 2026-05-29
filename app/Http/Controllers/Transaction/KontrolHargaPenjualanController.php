@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\KontrolHargaPenjualan;
 use App\Models\Spk;
+use App\Models\SuratJalan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,7 @@ class KontrolHargaPenjualanController extends Controller
 {
     $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
 
-    $suratJalan = \App\Models\SuratJalan::where('spk_id', $spk_id)->first();
+    $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
 
     if (!$suratJalan) {
         return redirect()->route('kontrol-harga.print-options', $spk_id)
@@ -108,15 +109,78 @@ class KontrolHargaPenjualanController extends Controller
 
     public function printDpPo($spk_id)
     {
-        $spk = Spk::with(['motorUnit.type'])->findOrFail($spk_id);
-        $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
-        return view('transaction.kontrol-harga.print.dp-po', compact('spk', 'kontrol'));
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
+
+        $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
+
+        if (!$suratJalan) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Kuitansi DP PO tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat untuk SPK ini.');
+        }
+
+        $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+        if (empty($kontrol->no_kwitansi_dp)) {
+            DB::transaction(function () use ($kontrol) {
+                $now = Carbon::now();
+                $prefix = 'KWD' . $now->format('Y/m/');
+
+                $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_dp', 'like', $prefix . '%')
+                    ->lockForUpdate()
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $urut = 1;
+                if ($lastDoc) {
+                    $lastUrut = (int) substr($lastDoc->no_kwitansi_dp, -4);
+                    $urut = $lastUrut + 1;
+                }
+
+                $kontrol->no_kwitansi_dp = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+                $kontrol->tgl_kwitansi_dp = $now->format('Y-m-d');
+                $kontrol->save();
+            });
+        }
+
+        return view('transaction.kontrol-harga.print.dp-po', compact('spk', 'kontrol', 'suratJalan'));
     }
 
     public function printOtrDpPo($spk_id)
     {
-        $spk = Spk::with(['motorUnit.type'])->findOrFail($spk_id);
-        $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
-        return view('transaction.kontrol-harga.print.otr-dp-po', compact('spk', 'kontrol'));
+        // Pastikan memanggil relasi leasing
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+
+        $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
+
+        if (!$suratJalan) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Kuitansi Penagihan Leasing (KWM) tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat.');
+        }
+
+        $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+        if (empty($kontrol->no_kwitansi_kwm)) {
+            DB::transaction(function () use ($kontrol) {
+                $now = Carbon::now();
+                $prefix = 'KWM' . $now->format('Y/m/');
+
+                $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_kwm', 'like', $prefix . '%')
+                    ->lockForUpdate()
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $urut = 1;
+                if ($lastDoc) {
+                    $lastUrut = (int) substr($lastDoc->no_kwitansi_kwm, -4);
+                    $urut = $lastUrut + 1;
+                }
+
+                $kontrol->no_kwitansi_kwm = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+                $kontrol->tgl_kwitansi_kwm = $now->format('Y-m-d');
+                $kontrol->save();
+            });
+        }
+
+        return view('transaction.kontrol-harga.print.otr-dp-po', compact('spk', 'kontrol', 'suratJalan'));
     }
 }

@@ -39,7 +39,7 @@
         @csrf
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
             <div class="overflow-x-auto custom-scrollbar pb-4">
-                <table class="w-full text-left border-collapse" style="min-width: 1500px;">
+                <table class="w-full text-left border-collapse" style="min-width: 1700px;">
                     <thead class="bg-slate-50 border-b border-gray-200">
                         <tr>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider sticky left-0 bg-slate-50 z-10 w-24 border-r border-gray-200">No. SPK</th>
@@ -50,8 +50,10 @@
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. AHM</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. Dealer</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. Main Dealer</th>
-                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. Leasing</th>
-                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">DLL</th>
+                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. Leasing 1</th>
+                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Sub. Leasing 2</th>
+                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">DLL 1</th>
+                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">DLL 2</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Ekstra</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-32">Nama Mediator</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-28">Mediator Fee</th>
@@ -80,8 +82,10 @@
                                 <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_ahm]" value="{{ $k->subsidi_ahm ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
                                 <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_dealer]" value="{{ $k->subsidi_dealer ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
                                 <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_main_dealer]" value="{{ $k->subsidi_main_dealer ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
-                                <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_leasing]" value="{{ $k->subsidi_leasing ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
-                                <td><input type="number" name="kontrol[{{ $spk->id }}][dll]" value="{{ $k->dll ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
+                                <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_leasing_1]" value="{{ $k->subsidi_leasing_1 ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
+                                <td><input type="number" name="kontrol[{{ $spk->id }}][subsidi_leasing_2]" value="{{ $k->subsidi_leasing_2 ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
+                                <td><input type="number" name="kontrol[{{ $spk->id }}][dll_1]" value="{{ $k->dll_1 ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
+                                <td><input type="number" name="kontrol[{{ $spk->id }}][dll_2]" value="{{ $k->dll_2 ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
                                 <td><input type="number" name="kontrol[{{ $spk->id }}][ekstra]" value="{{ $k->ekstra ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none" placeholder="0"></td>
 
                                 <td><input type="text" name="kontrol[{{ $spk->id }}][nama_mediator]" value="{{ $k->nama_mediator ?? '' }}" class="w-full text-xs p-1.5 border border-transparent hover:border-gray-300 focus:border-honda-red rounded outline-none uppercase" placeholder="-"></td>
@@ -92,7 +96,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="15" class="p-8 text-center text-gray-500 italic">Tidak ada data SPK pada periode tanggal ini.</td>
+                                <td colspan="17" class="p-8 text-center text-gray-500 italic">Tidak ada data SPK pada periode tanggal ini.</td>
                             </tr>
                         @endforelse
                     </tbody>

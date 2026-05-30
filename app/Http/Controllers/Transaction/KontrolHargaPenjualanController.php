@@ -43,8 +43,10 @@ class KontrolHargaPenjualanController extends Controller
                         'subsidi_ahm' => (int) round($data['subsidi_ahm'] ?? 0),
                         'subsidi_dealer' => (int) round($data['subsidi_dealer'] ?? 0),
                         'subsidi_main_dealer' => (int) round($data['subsidi_main_dealer'] ?? 0),
-                        'subsidi_leasing' => (int) round($data['subsidi_leasing'] ?? 0),
-                        'dll' => (int) round($data['dll'] ?? 0),
+                        'subsidi_leasing_1' => (int) round($data['subsidi_leasing_1'] ?? 0),
+                        'subsidi_leasing_2' => (int) round($data['subsidi_leasing_2'] ?? 0),
+                        'dll_1' => (int) round($data['dll_1'] ?? 0),
+                        'dll_2' => (int) round($data['dll_2'] ?? 0),
                         'ekstra' => (int) round($data['ekstra'] ?? 0),
                         'nama_mediator' => $data['nama_mediator'] ?? null,
                         'mediator_fee' => (int) round($data['mediator_fee'] ?? 0),
@@ -66,7 +68,8 @@ class KontrolHargaPenjualanController extends Controller
     public function printOptions($spk_id)
     {
         $spk = Spk::findOrFail($spk_id);
-        return view('transaction.kontrol-harga.print-options', compact('spk'));
+        $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
+        return view('transaction.kontrol-harga.print-options', compact('spk', 'kontrol'));
     }
 
     public function printOtr($spk_id)
@@ -182,6 +185,68 @@ class KontrolHargaPenjualanController extends Controller
         }
 
         return view('transaction.kontrol-harga.print.otr-dp-po', compact('spk', 'kontrol', 'suratJalan'));
+    }
+
+    public function printKw1($spk_id)
+    {
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
+        
+        if (!$suratJalan) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Kuitansi Subsidi (KW1) tidak dapat dicetak karena SJK belum dibuat.');
+        }
+
+        $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+        if (empty($kontrol->no_kwitansi_kw1)) {
+            DB::transaction(function () use ($kontrol) {
+                $now = Carbon::now();
+                $prefix = 'KW1' . $now->format('Y/m/');
+                
+                $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_kw1', 'like', $prefix . '%')
+                    ->lockForUpdate()->orderBy('id', 'desc')->first();
+
+                $urut = $lastDoc ? ((int) substr($lastDoc->no_kwitansi_kw1, -4)) + 1 : 1;
+                
+                $kontrol->no_kwitansi_kw1 = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+                $kontrol->tgl_kwitansi_kw1 = $now->format('Y-m-d');
+                $kontrol->save();
+            });
+        }
+
+        return view('transaction.kontrol-harga.print.kw1', compact('spk', 'kontrol', 'suratJalan'));
+    }
+
+    public function printKw2($spk_id)
+    {
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
+        
+        if (!$suratJalan) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Kuitansi Subsidi (KW2) tidak dapat dicetak karena SJK belum dibuat.');
+        }
+
+        $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+        if (empty($kontrol->no_kwitansi_kw2)) {
+            DB::transaction(function () use ($kontrol) {
+                $now = Carbon::now();
+                $prefix = 'KW2' . $now->format('Y/m/');
+                
+                $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_kw2', 'like', $prefix . '%')
+                    ->lockForUpdate()->orderBy('id', 'desc')->first();
+
+                $urut = $lastDoc ? ((int) substr($lastDoc->no_kwitansi_kw2, -4)) + 1 : 1;
+                
+                $kontrol->no_kwitansi_kw2 = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+                $kontrol->tgl_kwitansi_kw2 = $now->format('Y-m-d');
+                $kontrol->save();
+            });
+        }
+
+        return view('transaction.kontrol-harga.print.kw2', compact('spk', 'kontrol', 'suratJalan'));
     }
 
     public function printSuratPernyataanBpkb($spk_id)

@@ -183,4 +183,11 @@ class KontrolHargaPenjualanController extends Controller
 
         return view('transaction.kontrol-harga.print.otr-dp-po', compact('spk', 'kontrol', 'suratJalan'));
     }
+
+    public function printSuratPernyataanBpkb($spk_id)
+    {
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+
+        return view('transaction.kontrol-harga.print.surat-pernyataan-bpkb', compact('spk'));
+    }
 }

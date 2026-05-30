@@ -100,4 +100,5 @@ Route::prefix('transaction/kontrol-harga')->name('kontrol-harga.')->group(functi
     Route::get('/{spk_id}/print/otr', [KontrolHargaPenjualanController::class, 'printOtr'])->name('print.otr');
     Route::get('/{spk_id}/print/dp-po', [KontrolHargaPenjualanController::class, 'printDpPo'])->name('print.dp-po');
     Route::get('/{spk_id}/print/otr-dp-po', [KontrolHargaPenjualanController::class, 'printOtrDpPo'])->name('print.otr-dp-po');
+    Route::get('/{spk_id}/print/surat-pernyataan-bpkb', [KontrolHargaPenjualanController::class, 'printSuratPernyataanBpkb'])->name('print.surat-pernyataan-bpkb');
 });

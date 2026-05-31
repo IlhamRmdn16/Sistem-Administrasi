@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
+use App\Http\Controllers\Transaction\KuitansiKonsumenController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
@@ -103,4 +104,13 @@ Route::prefix('transaction/kontrol-harga')->name('kontrol-harga.')->group(functi
     Route::get('/{spk_id}/print/surat-pernyataan-bpkb', [KontrolHargaPenjualanController::class, 'printSuratPernyataanBpkb'])->name('print.surat-pernyataan-bpkb');
     Route::get('/{spk_id}/print/kw1', [KontrolHargaPenjualanController::class, 'printKw1'])->name('print.kw1');
 Route::get('/{spk_id}/print/kw2', [KontrolHargaPenjualanController::class, 'printKw2'])->name('print.kw2');
+});
+
+Route::prefix('transaction/kuitansi-konsumen')->name('kuitansi-konsumen.')->group(function () {
+    Route::get('/', [KuitansiKonsumenController::class, 'index'])->name('index');
+    Route::post('/store', [KuitansiKonsumenController::class, 'store'])->name('store');
+    Route::get('/print/{id}', [KuitansiKonsumenController::class, 'print'])->name('print');
+
+    // Endpoint API/AJAX untuk pencarian live
+    Route::get('/api/search', [KuitansiKonsumenController::class, 'searchApi'])->name('search-api');
 });

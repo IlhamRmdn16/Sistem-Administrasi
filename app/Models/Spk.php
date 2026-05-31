@@ -24,4 +24,14 @@ class Spk extends Model
     public function leasing() {
         return $this->belongsTo(Leasing::class);
     }
+
+    public function kuitansiKonsumens()
+    {
+        return $this->hasMany(KuitansiKonsumen::class, 'spk_id');
+    }
+    
+    public function kontrolHarga()
+    {
+        return $this->hasOne(KontrolHargaPenjualan::class, 'spk_id');
+    }
 }

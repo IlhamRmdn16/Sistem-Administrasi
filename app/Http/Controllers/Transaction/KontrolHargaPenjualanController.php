@@ -267,8 +267,11 @@ class KontrolHargaPenjualanController extends Controller
         $nilaiTransfer = $kuitansis->sum('bayar_transfer');
         $bayar = $setor + $nilaiTransfer;
 
+        // Ambil nama rekening + nomor rekening unik yang digunakan untuk transfer
         $rekeningList = $kuitansis->where('bayar_transfer', '>', 0)
-                                  ->pluck('rekening.nama_rekening')
+                                  ->map(function($k) {
+                                      return $k->rekening ? $k->rekening->nama_rekening . ' ' . $k->rekening->nomor_rekening : null;
+                                  })
                                   ->filter()
                                   ->unique()
                                   ->implode(', ');

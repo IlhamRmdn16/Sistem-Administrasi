@@ -4,32 +4,31 @@
     <meta charset="UTF-8">
     <title>SETORAN SPK - {{ $spk->nama_stnk }}</title>
     <style>
-        /* Ukuran 1/3 F4 Portrait */
-        @page { size: 110mm 215mm portrait; margin: 8mm; }
+        /* Ukuran Murni 1/3 F4 Vertikal / Portrait (Lebar 110mm, Tinggi 215mm) */
+        @page { size: 110mm 215mm portrait; margin: 4mm 6mm; }
 
-        body { font-family: 'Arial', sans-serif; font-size: 10px; margin: 0; padding: 0; color: #000; line-height: 1.4; }
+        body { font-family: 'Arial', sans-serif; font-size: 9.5px; margin: 0; padding: 0; color: #000; line-height: 1.3; }
 
-        .title-main { font-size: 12px; font-weight: bold; text-align: center; text-decoration: underline; margin-bottom: 12px; text-transform: uppercase; }
+        /* Tabel Utama pembagi Kiri & Kanan secara transparan */
+        .main-container-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .main-container-table > tbody > tr > td { vertical-align: top; width: 50%; padding: 0; border: none; }
 
+        /* Tabel Konten di dalam masing-masing kolom */
         .content-table { width: 100%; border-collapse: collapse; }
-        /* Kolom dibiarkan tanpa border untuk efek transparan */
-        .content-table td { padding: 3px 2px; vertical-align: top; border: none; }
+        .content-table td { padding: 1.5px 0; border: none; vertical-align: top; text-align: left; }
 
-        .col-label { width: 45%; font-weight: bold; }
-        .col-colon { width: 5%; text-align: center; }
-        .col-value { width: 50%; }
+        /* Pengaturan lebar sub-kolom internal */
+        .col-label { width: 42%; text-align: left; }
+        .col-colon { width: 6%; text-align: left; }
+        .col-value { width: 52%; text-align: left; }
 
         .uppercase { text-transform: uppercase; }
-        .font-bold { font-weight: bold; }
-        .text-right { text-align: right; }
 
-        /* Garis pembatas minimalis (horizontal line) */
-        .divider td { border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 4px; }
+        /* Spacer vertikal dinamis */
+        .vertical-spacer { height: 12px; }
     </style>
 </head>
 <body onload="window.print()">
-
-    <div class="title-main">SETORAN SPK</div>
 
     @php
         $isKredit = (strtolower($spk->jenis_pembayaran) === 'kredit' || !empty($spk->leasing_id));
@@ -48,148 +47,158 @@
 
         $refund = $kontrol->refund_transfer ?? 0;
 
-        // Sisa tagihan
         $sisa = $murni - $bayar;
         $sisa = $sisa > 0 ? $sisa : 0;
     @endphp
 
-    <table class="content-table">
+    <table class="main-container-table">
         <tr>
-            <td class="col-label">Tanggal Cetak</td>
-            <td class="col-colon">:</td>
-            <td class="col-value">{{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</td>
-        </tr>
-        <tr>
-            <td class="col-label">Konsumen</td>
-            <td class="col-colon">:</td>
-            <td class="col-value uppercase">{{ $spk->nama_stnk }}</td>
-        </tr>
-        <tr class="divider">
-            <td class="col-label">Tipe Motor</td>
-            <td class="col-colon">:</td>
-            <td class="col-value uppercase">{{ $spk->motorUnit->type->kode_motor ?? '-' }}</td>
-        </tr>
+            <td style="padding-right: 6px;">
+                <table class="content-table">
+                    <tr>
+                        <td class="col-label">Tanggal</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">Konsumen</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value uppercase">{{ $spk->nama_stnk }}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">Tipe Motor</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value uppercase">{{ $spk->motorUnit->type->nama_type ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">Leasing</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value uppercase">{{ $isKredit ? ($spk->leasing->nama_leasing ?? '-') : 'KONTAN' }}</td>
+                    </tr>
 
-        <tr>
-            <td class="col-label">{{ $isKredit ? 'Leasing' : 'Keterangan' }}</td>
-            <td class="col-colon">:</td>
-            <td class="col-value uppercase font-bold">{{ $isKredit ? ($spk->leasing->nama_leasing ?? '-') : 'TUNAI' }}</td>
-        </tr>
+                    <tr><td colspan="3"><div class="vertical-spacer"></div><div class="vertical-spacer"></div></td></tr>
 
-        <tr>
-            <td class="col-label">{{ $labelAwal }}</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right font-bold">{{ number_format($awal, 0, ',', '.') }}</td>
-        </tr>
+                    @if($nilaiTransfer > 0)
+                    <tr>
+                        <td class="col-label">Rekening</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value uppercase">{{ $rekeningList }}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-label">Nilai Transfer</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($nilaiTransfer, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
 
-        @if($discount > 0)
-        <tr>
-            <td class="col-label">Discount</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($discount, 0, ',', '.') }}</td>
-        </tr>
-        @endif
+                    <tr><td colspan="3"><div class="vertical-spacer"></div></td></tr>
 
-        <tr class="divider">
-            <td class="col-label">{{ $labelMurni }}</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right font-bold">{{ number_format($murni, 0, ',', '.') }}</td>
-        </tr>
+                    @if($refund > 0)
+                    <tr>
+                        <td class="col-label">RefundTransfer</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($refund, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+                </table>
+            </td>
 
-        @if($subAhm > 0)
-        <tr>
-            <td class="col-label">Sub AHM</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($subAhm, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-        @if($subMain > 0)
-        <tr>
-            <td class="col-label">Sub Main Dealer</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($subMain, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-        @if($subDealer > 0)
-        <tr>
-            <td class="col-label">Sub Dealer</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($subDealer, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-        @if($subLeasing > 0)
-        <tr>
-            <td class="col-label">Sub Leasing</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($subLeasing, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-        @if($dll > 0)
-        <tr>
-            <td class="col-label">DLL</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($dll, 0, ',', '.') }}</td>
-        </tr>
-        @endif
+            <td style="padding-left: 6px;">
+                <table class="content-table">
+                    <tr>
+                        <td class="col-label">{{ $labelAwal }}</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($awal, 0, ',', '.') }}</td>
+                    </tr>
 
-        @if(!empty($kontrol->nama_mediator) || ($kontrol->mediator_fee ?? 0) > 0)
-        <tr>
-            <td class="col-label">Mediator</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">
-                <div class="uppercase">{{ $kontrol->nama_mediator }}</div>
-                <div>{{ number_format($kontrol->mediator_fee, 0, ',', '.') }}</div>
+                    @if($subAhm > 0)
+                    <tr>
+                        <td class="col-label">Sub AHM</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($subAhm, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    @if($subMain > 0)
+                    <tr>
+                        <td class="col-label">Sub MAIN</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($subMain, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    @if($subDealer > 0)
+                    <tr>
+                        <td class="col-label">Sub DEALER</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($subDealer, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    @if($subLeasing > 0)
+                    <tr>
+                        <td class="col-label">Sub LEASE</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($subLeasing, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    <tr>
+                        <td class="col-label">{{ $labelMurni }}</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($murni, 0, ',', '.') }}</td>
+                    </tr>
+
+                    @if($discount > 0)
+                    <tr>
+                        <td class="col-label">Discount</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($discount, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    @if($dll > 0)
+                    <tr>
+                        <td class="col-label">DLL</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($dll, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    <tr>
+                        <td class="col-label">Bayar</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($bayar, 0, ',', '.') }}</td>
+                    </tr>
+
+                    @if(!empty($kontrol->nama_mediator) || ($kontrol->mediator_fee ?? 0) > 0)
+                    <tr>
+                        <td class="col-label">Mediator</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($kontrol->mediator_fee, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    <tr><td colspan="3"><div class="vertical-spacer"></div></td></tr>
+
+                    @if($sisa > 0)
+                    <tr>
+                        <td class="col-label">Sisa</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($sisa, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+
+                    @if($setor > 0)
+                    <tr>
+                        <td class="col-label">SETOR</td>
+                        <td class="col-colon">:</td>
+                        <td class="col-value">{{ number_format($setor, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+                </table>
             </td>
         </tr>
-        @endif
-
-        @if(($subAhm + $subMain + $subDealer + $subLeasing + $dll + ($kontrol->mediator_fee ?? 0)) > 0)
-        <tr class="divider"><td colspan="3"></td></tr>
-        @endif
-
-        @if($nilaiTransfer > 0)
-        <tr>
-            <td class="col-label">Rekening</td>
-            <td class="col-colon">:</td>
-            <td class="col-value uppercase">{{ $rekeningList }}</td>
-        </tr>
-        <tr>
-            <td class="col-label">Nilai Transfer</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($nilaiTransfer, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-
-        @if($refund > 0)
-        <tr>
-            <td class="col-label">Refund Transfer</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right">{{ number_format($refund, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-
-        @if($setor > 0)
-        <tr>
-            <td class="col-label">Setor (Tunai Fisik)</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right font-bold">{{ number_format($setor, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-
-        <tr class="divider">
-            <td class="col-label">TOTAL BAYAR</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right font-bold">{{ number_format($bayar, 0, ',', '.') }}</td>
-        </tr>
-
-        @if($sisa > 0)
-        <tr>
-            <td class="col-label">Sisa (Kekurangan)</td>
-            <td class="col-colon">:</td>
-            <td class="col-value text-right font-bold">{{ number_format($sisa, 0, ',', '.') }}</td>
-        </tr>
-        @endif
-
     </table>
 
 </body>

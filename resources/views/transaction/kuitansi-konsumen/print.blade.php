@@ -8,24 +8,26 @@
 
         body { font-family: 'Arial', sans-serif; font-size: 11px; margin: 0; padding: 0; color: #000; line-height: 1.4; }
 
-        .header-table { width: 100%; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
-        .header-logo { width: 75%; vertical-align: middle; }
+        .header-logo { width: 100%; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
         .header-logo img { max-height: 60px; width: auto; }
 
-        .header-meta { width: 25%; vertical-align: top; }
-        .header-meta table { width: 100%; font-size: 11px; border-collapse: collapse; }
-        .header-meta td { padding: 1px 0; border: none; vertical-align: top; }
-
-        .title-container { width: 100%; margin-bottom: 15px; }
-        .title-main { font-size: 11px; font-weight: bold; text-align: center; text-decoration: underline; letter-spacing: 2px; }
+        .title-container { width: 100%; margin-bottom: 15px; text-align: center; }
+        .title-main { font-size: 12px; font-weight: bold; text-decoration: underline; letter-spacing: 2px; text-transform: uppercase; }
 
         .content-table { width: 100%; margin-bottom: 10px; font-size: 11px; border-collapse: collapse; }
         .content-table td { padding: 4px 6px; border: none; vertical-align: top; }
+        .content-table td.label-col { width: 150px; }
+        .content-table td.colon-col { width: 10px; }
 
         .uppercase { text-transform: uppercase; }
         .font-bold { font-weight: bold; }
 
         .amount-text { font-size: 12px; font-weight: bold; }
+
+        .signature-container { width: 100%; margin-top: 20px; display: table; text-align: center; font-size: 11px; font-weight: bold; }
+        .signature-row { display: table-row; }
+        .signature-cell { display: table-cell; width: 50%; vertical-align: top; }
+        .signature-space { height: 60px; }
     </style>
 </head>
 <body onload="window.print()">
@@ -36,135 +38,114 @@
         $display_name = $nama_pemohon === $nama_stnk ? $nama_pemohon : $nama_pemohon . ' QQ ' . $nama_stnk;
 
         $totalBayarIni = $kuitansi->bayar_kontan + $kuitansi->bayar_transfer;
+
+        // Logika Status Lunas
+        $statusKeterangan = $sisa <= 0 ? 'LUNAS' : 'PEMBAYARAN BERTAHAP';
+        if ($kuitansi->keterangan) {
+            $statusKeterangan .= ' (' . strtoupper($kuitansi->keterangan) . ')';
+        }
+
+        // Format Alamat Memanjang
+        $alamatLengkap = $spk->alamat .
+                         ($spk->rt_rw ? ' RT/RW ' . $spk->rt_rw : '') .
+                         ($spk->kecamatan ? ', KEC. ' . $spk->kecamatan : '') .
+                         ($spk->kota_kabupaten ? ', ' . $spk->kota_kabupaten : '');
+
+        $bulanIndo = [
+            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        $tgl_cetak = \Carbon\Carbon::parse($kuitansi->tanggal);
+        $tanggalIndo = $tgl_cetak->format('d') . ' ' . $bulanIndo[$tgl_cetak->month] . ' ' . $tgl_cetak->format('Y');
     @endphp
 
-    <table class="header-table">
-        <tr>
-            <td class="header-logo">
-                <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
-            </td>
-            <td class="header-meta">
-                <table>
-                    <tr>
-                        <td style="width: 70px;">No. Kuitansi</td>
-                        <td style="width: 10px;">:</td>
-                        <td><b>{{ $kuitansi->no_kuitansi }}</b></td>
-                    </tr>
-                    <tr>
-                        <td>No. SJ</td>
-                        <td>:</td>
-                        <td>{{ $suratJalan->no_bukti ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>No. SPK</td>
-                        <td>:</td>
-                        <td>{{ $spk->no_spk }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tanggal</td>
-                        <td>:</td>
-                        <td>{{ \Carbon\Carbon::parse($kuitansi->tanggal)->format('d/m/Y') }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+    <div class="header-logo">
+        <img src="{{ asset('images/spk/logo.jpeg') }}" alt="Logo Dealer">
+    </div>
 
     <div class="title-container">
-        <div class="title-main">KUITANSI PEMBAYARAN KONSUMEN</div>
+        <div class="title-main">KUITANSI</div>
     </div>
 
     <table class="content-table">
         <tr>
-            <td style="width: 130px;">Telah Diterima Dari</td>
-            <td style="width: 10px;">:</td>
-            <td class="uppercase font-bold">{{ $nama_pemohon }}</td>
+            <td class="label-col">No. Kuitansi</td>
+            <td class="colon-col">:</td>
+            <td class="font-bold">{{ $kuitansi->no_kuitansi }}</td>
         </tr>
         <tr>
-            <td>Penjualan Atas Nama</td>
-            <td>:</td>
+            <td class="label-col">No. SPK</td>
+            <td class="colon-col">:</td>
+            <td>{{ $spk->no_spk }}</td>
+        </tr>
+        <tr>
+            <td class="label-col">Sudah Terima Dari</td>
+            <td class="colon-col">:</td>
             <td class="uppercase font-bold">{{ $display_name }}</td>
         </tr>
         <tr>
-            <td>Uang Sejumlah</td>
-            <td>:</td>
+            <td class="label-col">Alamat Lengkap</td>
+            <td class="colon-col">:</td>
+            <td class="uppercase">{{ $alamatLengkap }}</td>
+        </tr>
+        <tr>
+            <td class="label-col">Keterangan</td>
+            <td class="colon-col">:</td>
+            <td class="font-bold uppercase">{{ $statusKeterangan }}</td>
+        </tr>
+        <tr>
+            <td class="label-col">Uang Sejumlah</td>
+            <td class="colon-col">:</td>
             <td>
                 <span class="amount-text">Rp {{ number_format($totalBayarIni, 0, ',', '.') }},-</span>
             </td>
         </tr>
         <tr>
-            <td>Terbilang</td>
-            <td>:</td>
-            <td class="font-bold" style="font-style: italic; background-color: #f5f5f5; padding: 6px;">
+            <td class="label-col">Terbilang</td>
+            <td class="colon-col">:</td>
+            <td class="font-bold" style="font-style: italic; background-color: #f9f9f9; padding: 6px;">
                 {{ ucwords(\Terbilang::make($totalBayarIni)) }} Rupiah
             </td>
         </tr>
-        <tr>
-            <td>Keterangan</td>
-            <td>:</td>
-            <td class="font-bold uppercase">PEMBAYARAN KENDARAAN BERMOTOR HONDA {{ $kuitansi->keterangan ? '('.$kuitansi->keterangan.')' : '' }}</td>
-        </tr>
-        <tr>
-            <td>Tipe</td>
-            <td>:</td>
-            <td class="uppercase font-bold">{{ $spk->motorUnit->type->kode_motor ?? '-' }} ({{ $spk->motorUnit->type->nama_type ?? '-' }}) Tahun: {{ $spk->motorUnit->tahun_pembuatan ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td>Warna</td>
-            <td>:</td>
-            <td class="uppercase">{{ $spk->motorUnit->color->warna ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td>No. Mesin</td>
-            <td>:</td>
-            <td class="uppercase font-bold" style="font-family: monospace;">{{ $spk->motorUnit->no_mesin ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td>No. Rangka</td>
-            <td>:</td>
-            <td class="uppercase" style="font-family: monospace;">{{ $spk->motorUnit->no_rangka ?? '-' }}</td>
-        </tr>
 
+        <!-- Baris Kontan (Muncul jika > 0) -->
+        @if($kuitansi->bayar_kontan > 0)
         <tr>
-            <td colspan="3" style="padding-top: 15px;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 60%; vertical-align: top;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
-                                <tr>
-                                    <td style="width: 130px; padding: 2px 6px;">Tagihan (Nett)</td>
-                                    <td style="width: 10px; padding: 2px 0;">:</td>
-                                    <td class="font-bold">Rp {{ number_format($targetTagihan, 0, ',', '.') }},-</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 2px 6px;">Dibayar (Kuitansi Ini)</td>
-                                    <td style="padding: 2px 0;">:</td>
-                                    <td class="font-bold">Rp {{ number_format($totalBayarIni, 0, ',', '.') }},-</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 2px 6px;">Status Sisa / Kurang</td>
-                                    <td style="padding: 2px 0;">:</td>
-                                    <td class="font-bold text-red-600">
-                                        @if($sisa > 0)
-                                            Rp {{ number_format($sisa, 0, ',', '.') }},-
-                                        @else
-                                            LUNAS
-                                        @endif
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td style="width: 40%; vertical-align: top; text-align: center; font-weight: bold; font-size: 11px;">
-                            Garut, {{ \Carbon\Carbon::parse($kuitansi->tanggal)->translatedFormat('d F Y') }}<br>
-                            Hormat Kami,<br>
-                            <div style="height: 50px;"></div>
-                            ( ............................................................ )
-                        </td>
-                    </tr>
-                </table>
+            <td class="label-col">Jumlah Kontan</td>
+            <td class="colon-col">:</td>
+            <td class="font-bold">Rp {{ number_format($kuitansi->bayar_kontan, 0, ',', '.') }},-</td>
+        </tr>
+        @endif
+
+        <!-- Baris Transfer (Muncul jika > 0) -->
+        @if($kuitansi->bayar_transfer > 0)
+        <tr>
+            <td class="label-col">Jumlah Transfer</td>
+            <td class="colon-col">:</td>
+            <td class="font-bold">Rp {{ number_format($kuitansi->bayar_transfer, 0, ',', '.') }},-
+                @if($kuitansi->rekening_id)
+                    <span style="font-weight: normal; margin-left: 10px;">(Ke Rek: {{ $kuitansi->rekening->nama_rekening ?? '' }})</span>
+                @endif
             </td>
         </tr>
+        @endif
     </table>
+
+    <div class="signature-container">
+        <div class="signature-row">
+            <div class="signature-cell">
+                Mengetahui,<br>
+                <div class="signature-space"></div>
+                ( ............................................................ )
+            </div>
+            <div class="signature-cell">
+                Garut, {{ $tanggalIndo }}<br>
+                Yang Menerima,<br>
+                <div class="signature-space"></div>
+                ( ............................................................ )
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

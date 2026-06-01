@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\KontrolHargaPenjualan;
+use App\Models\KuitansiKonsumen;
 use App\Models\Spk;
 use App\Models\SuratJalan;
 use Carbon\Carbon;
@@ -191,7 +192,7 @@ class KontrolHargaPenjualanController extends Controller
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
-        
+
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
                              ->with('error', 'Kuitansi Subsidi (KW1) tidak dapat dicetak karena SJK belum dibuat.');
@@ -203,12 +204,12 @@ class KontrolHargaPenjualanController extends Controller
             DB::transaction(function () use ($kontrol) {
                 $now = Carbon::now();
                 $prefix = 'KW1' . $now->format('Y/m/');
-                
+
                 $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_kw1', 'like', $prefix . '%')
                     ->lockForUpdate()->orderBy('id', 'desc')->first();
 
                 $urut = $lastDoc ? ((int) substr($lastDoc->no_kwitansi_kw1, -4)) + 1 : 1;
-                
+
                 $kontrol->no_kwitansi_kw1 = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
                 $kontrol->tgl_kwitansi_kw1 = $now->format('Y-m-d');
                 $kontrol->save();
@@ -222,7 +223,7 @@ class KontrolHargaPenjualanController extends Controller
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
-        
+
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
                              ->with('error', 'Kuitansi Subsidi (KW2) tidak dapat dicetak karena SJK belum dibuat.');
@@ -234,12 +235,12 @@ class KontrolHargaPenjualanController extends Controller
             DB::transaction(function () use ($kontrol) {
                 $now = Carbon::now();
                 $prefix = 'KW2' . $now->format('Y/m/');
-                
+
                 $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_kw2', 'like', $prefix . '%')
                     ->lockForUpdate()->orderBy('id', 'desc')->first();
 
                 $urut = $lastDoc ? ((int) substr($lastDoc->no_kwitansi_kw2, -4)) + 1 : 1;
-                
+
                 $kontrol->no_kwitansi_kw2 = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
                 $kontrol->tgl_kwitansi_kw2 = $now->format('Y-m-d');
                 $kontrol->save();
@@ -247,6 +248,34 @@ class KontrolHargaPenjualanController extends Controller
         }
 
         return view('transaction.kontrol-harga.print.kw2', compact('spk', 'kontrol', 'suratJalan'));
+    }
+
+    public function printSetoranSpk($spk_id)
+    {
+        $spk = Spk::with(['motorUnit.type', 'leasing'])->findOrFail($spk_id);
+        $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
+
+        if (!$kontrol) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Silakan simpan data Kontrol Harga terlebih dahulu sebelum mencetak Setoran SPK.');
+        }
+
+        // Rangkum data dari Kuitansi Konsumen
+        $kuitansis = KuitansiKonsumen::with('rekening')->where('spk_id', $spk_id)->get();
+
+        $setor = $kuitansis->sum('bayar_kontan');
+        $nilaiTransfer = $kuitansis->sum('bayar_transfer');
+        $bayar = $setor + $nilaiTransfer;
+
+        $rekeningList = $kuitansis->where('bayar_transfer', '>', 0)
+                                  ->pluck('rekening.nama_rekening')
+                                  ->filter()
+                                  ->unique()
+                                  ->implode(', ');
+
+        return view('transaction.kontrol-harga.print.setoran-spk', compact(
+            'spk', 'kontrol', 'setor', 'nilaiTransfer', 'bayar', 'rekeningList'
+        ));
     }
 
     public function printSuratPernyataanBpkb($spk_id)

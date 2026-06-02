@@ -70,18 +70,20 @@ class MotorTypeController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            $motorType = MotorType::create([
+            MotorType::create([
                 'kode_tipe' => $request->kode_tipe,
                 'jenis' => $request->jenis,
                 'nama_type' => $request->nama_type,
                 'tahun_pembuatan' => $request->tahun_pembuatan,
                 'kode_motor' => $request->kode_motor,
                 'sampul_buku' => $request->sampul_buku,
-                'otr' => (int) round($request->otr),
-                'notice_pajak' => (int) round($request->notice_pajak),
+                // Perbaikan: Konversi langsung ke int murni tanpa round()
+                'otr' => intval($request->otr),
+                'notice_pajak' => intval($request->notice_pajak),
             ]);
 
             foreach ($request->colors as $color) {
+                $motorType = MotorType::where('kode_motor', $request->kode_motor)->first();
                 $motorType->colors()->create([
                     'warna' => $color['warna'],
                     'kode_warna' => $color['kode_warna'],
@@ -121,8 +123,9 @@ class MotorTypeController extends Controller
                 'tahun_pembuatan' => $request->tahun_pembuatan,
                 'kode_motor' => $request->kode_motor,
                 'sampul_buku' => $request->sampul_buku,
-                'otr' => (int) round($request->otr),
-                'notice_pajak' => (int) round($request->notice_pajak),
+                // Perbaikan: Konversi langsung ke int murni tanpa round()
+                'otr' => intval($request->otr),
+                'notice_pajak' => intval($request->notice_pajak),
             ]);
 
             $submittedColorIds = [];

@@ -19,6 +19,8 @@ class MotorType extends Model
 
     protected $casts = [
         'sampul_buku' => 'array',
+        'otr' => 'integer',
+        'notice_pajak' => 'integer',
     ];
 
     public function getOtrAttribute($value)

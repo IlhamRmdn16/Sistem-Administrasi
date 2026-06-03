@@ -17,16 +17,45 @@ class PenagihanLeasingController extends Controller
     {
         $leasings = Leasing::all();
 
+        // Tangkap parameter request
+        $search = $request->input('search');
+        $filter_leasing = $request->input('filter_leasing');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $per_page = $request->input('per_page', 10); // Default 10 baris
+
         $historyQuery = PenagihanLeasing::with(['leasing', 'details']);
-        if ($request->has('filter_leasing') && $request->filter_leasing != '') {
-            $historyQuery->where('leasing_id', $request->filter_leasing);
+
+        // 1. Filter Berdasarkan Leasing
+        if ($filter_leasing) {
+            $historyQuery->where('leasing_id', $filter_leasing);
         }
-        $histories = $historyQuery->latest()->paginate(15)->withQueryString();
 
-        return view('transaction.penagihan-leasing.index', compact('leasings', 'histories'));
+        // 2. Filter Rentang Tanggal (Periode)
+        if ($start_date && $end_date) {
+            $historyQuery->whereBetween('tanggal', [$start_date, $end_date]);
+        } elseif ($start_date) {
+            $historyQuery->where('tanggal', '>=', $start_date);
+        } elseif ($end_date) {
+            $historyQuery->where('tanggal', '<=', $end_date);
+        }
+
+        // 3. Pencarian Berdasarkan No Bukti atau Nama Leasing
+        if ($search) {
+            $historyQuery->where(function($q) use ($search) {
+                $q->where('no_bukti', 'like', "%{$search}%")
+                  ->orWhereHas('leasing', function($qLeasing) use ($search) {
+                      $qLeasing->where('nama_leasing', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $histories = $historyQuery->latest()->paginate($per_page)->withQueryString();
+
+        return view('transaction.penagihan-leasing.index', compact(
+            'leasings', 'histories', 'search', 'filter_leasing', 'start_date', 'end_date', 'per_page'
+        ));
     }
-
-    // Endpoint API untuk menarik SJK yang belum ditagih berdasarkan Leasing terpilih
     public function getPending($leasing_id)
     {
         // Cari ID Surat Jalan yang sudah masuk ke tabel penagihan detail

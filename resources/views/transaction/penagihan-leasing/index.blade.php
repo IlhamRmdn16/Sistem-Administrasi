@@ -92,16 +92,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-xs">
-
-                            <!-- STATE JIKA BELUM PILIH LEASING ATAU KOSONG -->
                             <tr x-show="pendingData.length === 0">
                                 <td colspan="13" class="p-10 text-center text-gray-400 italic">
                                     <div x-show="!isLoading" x-text="selectedLeasing ? 'Tidak ada Surat Jalan yang menunggu ditagih untuk Leasing ini.' : 'Silakan pilih Leasing di atas terlebih dahulu.'"></div>
                                     <div x-show="isLoading" class="text-blue-500 font-bold">Sedang memuat data...</div>
                                 </td>
                             </tr>
-
-                            <!-- RENDER DATA DARI ALPINE -->
                             <template x-for="(item, index) in pendingData" :key="item.id">
                                 <tr class="hover:bg-slate-50 transition-colors cursor-pointer" @click="toggleRow(item.id)">
                                     <td class="p-3 text-center" @click.stop>
@@ -125,7 +121,6 @@
                     </table>
                 </div>
 
-                <!-- FOOTER TOTAL & TOMBOL SIMPAN -->
                 <div x-show="pendingData.length > 0" class="p-4 bg-white border-t border-gray-100 flex justify-between items-center">
                     <div class="text-sm">
                         Total Tagihan Dipilih: <span class="font-black text-lg text-red-600 ml-2" x-text="formatRp(totalSisa)"></span>
@@ -141,20 +136,71 @@
     <!-- ================= TAB 2: RIWAYAT & ARSIP ================= -->
     <div x-show="activeTab === 'riwayat'" style="display: none;">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
-            <div class="p-4 bg-slate-50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <form action="{{ route('penagihan-leasing.index') }}" method="GET" class="w-full sm:w-auto flex items-center gap-3">
+
+            <!-- PANEL PENCARIAN & FILTER KOMPREHENSIF -->
+            <div class="p-4 bg-slate-50 border-b border-gray-100">
+                <form action="{{ route('penagihan-leasing.index') }}" method="GET" class="flex flex-col sm:flex-row flex-wrap items-end gap-4">
                     <input type="hidden" name="tab" value="riwayat">
-                    <select name="filter_leasing" class="border border-gray-300 rounded-lg py-2 px-3 outline-none focus:border-honda-red text-sm font-bold uppercase">
-                        <option value="">-- Semua Leasing --</option>
-                        @foreach($leasings as $l)
-                            <option value="{{ $l->id }}" {{ request('filter_leasing') == $l->id ? 'selected' : '' }}>{{ $l->nama_leasing }}</option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="bg-gray-800 text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-gray-900 transition-colors">Filter</button>
-                    @if(request('filter_leasing'))
-                        <a href="{{ route('penagihan-leasing.index') }}?tab=riwayat" class="text-xs font-bold text-gray-500 hover:text-red-500 bg-gray-100 p-2 rounded">Reset</a>
-                    @endif
+
+                    <!-- Search Input -->
+                    <div class="flex-1 w-full sm:min-w-[200px]">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cari Data</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Bukti atau Leasing..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 px-3 outline-none focus:border-honda-red text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Filter Rentang Tanggal -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Periode Tanggal</label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" name="start_date" value="{{ request('start_date') }}" class="border border-gray-300 rounded-lg py-2 px-3 outline-none focus:border-honda-red text-sm">
+                            <span class="text-gray-400 text-sm">s/d</span>
+                            <input type="date" name="end_date" value="{{ request('end_date') }}" class="border border-gray-300 rounded-lg py-2 px-3 outline-none focus:border-honda-red text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Filter Leasing -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Filter Leasing</label>
+                        <select name="filter_leasing" class="border border-gray-300 rounded-lg py-2 px-3 outline-none focus:border-honda-red text-sm font-bold uppercase">
+                            <option value="">-- Semua --</option>
+                            @foreach($leasings as $l)
+                                <option value="{{ $l->id }}" {{ request('filter_leasing') == $l->id ? 'selected' : '' }}>{{ $l->nama_leasing }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Paginasi Per Baris -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tampil</label>
+                        <select name="per_page" class="border border-gray-300 rounded-lg py-2 px-3 outline-none focus:border-honda-red text-sm">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 baris</option>
+                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 baris</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 baris</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 baris</option>
+                        </select>
+                    </div>
+
+                    <!-- Tombol Aksi -->
+                    <div class="flex gap-2">
+                        <button type="submit" class="bg-gray-800 text-white font-semibold px-5 py-2 rounded-lg text-sm hover:bg-gray-900 transition-colors">Terapkan</button>
+
+                        @if(request('search') || request('filter_leasing') || request('start_date') || request('end_date') || (request('per_page') && request('per_page') != 10))
+                            <a href="{{ route('penagihan-leasing.index') }}?tab=riwayat" class="bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-gray-300 transition-colors flex items-center justify-center">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
                 </form>
+            </div>
+
+            <!-- INFO HASIL PENCARIAN -->
+            <div class="px-4 py-2 bg-white border-b border-gray-100 flex justify-between items-center text-xs text-gray-500 font-medium">
+                <span>Menampilkan <span class="font-bold text-gray-800">{{ $histories->firstItem() ?? 0 }}</span> - <span class="font-bold text-gray-800">{{ $histories->lastItem() ?? 0 }}</span> dari total <span class="font-bold text-gray-800">{{ $histories->total() }}</span> riwayat dokumen.</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -195,7 +241,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-10 text-center text-gray-400 italic">Belum ada riwayat penagihan yang dibuat.</td>
+                                <td colspan="6" class="py-10 text-center text-gray-400 italic">Belum ada riwayat penagihan yang ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -212,7 +258,6 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('penagihanManager', () => ({
-            // Ambil parameter tab dari URL agar jika di-refresh karena filter, posisinya tidak pindah
             activeTab: new URLSearchParams(window.location.search).get('tab') || 'baru',
             selectedLeasing: '',
             pendingData: [],

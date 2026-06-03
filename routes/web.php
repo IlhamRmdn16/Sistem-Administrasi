@@ -10,6 +10,7 @@ use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
 use App\Http\Controllers\Transaction\KuitansiKonsumenController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
+use App\Http\Controllers\Transaction\PenagihanLeasingController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
 use App\Http\Controllers\Transaction\PenyerahanBpkbLeasingController;
 use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
@@ -114,4 +115,12 @@ Route::prefix('transaction/kuitansi-konsumen')->name('kuitansi-konsumen.')->grou
 
     // Endpoint API/AJAX untuk pencarian live
     Route::get('/api/search', [KuitansiKonsumenController::class, 'searchApi'])->name('search-api');
+});
+
+Route::prefix('transaction/penagihan-leasing')->name('penagihan-leasing.')->group(function () {
+    Route::get('/', [PenagihanLeasingController::class, 'index'])->name('index');
+    Route::get('/api/pending/{leasing_id}', [PenagihanLeasingController::class, 'getPending'])->name('api.pending');
+    Route::post('/store', [PenagihanLeasingController::class, 'store'])->name('store');
+    Route::delete('/{id}', [PenagihanLeasingController::class, 'destroy'])->name('destroy');
+    Route::get('/print/{id}', [PenagihanLeasingController::class, 'print'])->name('print');
 });

@@ -11,6 +11,7 @@ use App\Http\Controllers\Transaction\KuitansiKonsumenController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PenagihanLeasingController;
+use App\Http\Controllers\Transaction\PencairanLeasingController;
 use App\Http\Controllers\Transaction\PengajuanStnkController;
 use App\Http\Controllers\Transaction\PenyerahanBpkbLeasingController;
 use App\Http\Controllers\Transaction\PenyerahanStnkBpkbController;
@@ -123,4 +124,11 @@ Route::prefix('transaction/penagihan-leasing')->name('penagihan-leasing.')->grou
     Route::post('/store', [PenagihanLeasingController::class, 'store'])->name('store');
     Route::delete('/{id}', [PenagihanLeasingController::class, 'destroy'])->name('destroy');
     Route::get('/print/{id}', [PenagihanLeasingController::class, 'print'])->name('print');
+});
+
+Route::prefix('transaction/pencairan-leasing')->name('pencairan-leasing.')->group(function () {
+    Route::get('/', [PencairanLeasingController::class, 'index'])->name('index');
+    Route::get('/api/pending/{leasing_id}', [PencairanLeasingController::class, 'getPending'])->name('api.pending');
+    Route::post('/store', [PencairanLeasingController::class, 'store'])->name('store');
+    Route::delete('/{id}', [PencairanLeasingController::class, 'destroy'])->name('destroy');
 });

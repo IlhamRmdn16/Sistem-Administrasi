@@ -6,7 +6,7 @@
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
             <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
-            Kuitansi Lain-Lain (Booking / Inden)
+            Kuitansi Lain-Lain
         </h2>
         <p class="text-sm text-gray-500 mt-1 ml-4">Kelola penerimaan dana di luar transaksi reguler penjualan.</p>
     </div>

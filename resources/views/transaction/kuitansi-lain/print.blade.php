@@ -36,9 +36,9 @@
         // Format Alamat Memanjang Konsisten
         $alamatLengkap = $kuitansi->alamat .
                          ($kuitansi->rt_rw ? ' RT/RW ' . $kuitansi->rt_rw : '') .
-                         ($kuitansi->desa ? ', DS. ' . $kuitansi->desa : '') .
+                         ($kuitansi->desa ? ', DESA ' . $kuitansi->desa : '') .
                          ($kuitansi->kecamatan ? ', KEC. ' . $kuitansi->kecamatan : '') .
-                         ($kuitansi->kabupaten_kota ? ', ' . $kuitansi->kabupaten_kota : '');
+                         ($kuitansi->kabupaten_kota ? ', KAB. ' . $kuitansi->kabupaten_kota : '');
 
         // Format Tanggal Indonesia
         $bulanIndo = [

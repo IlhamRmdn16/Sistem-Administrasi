@@ -8,6 +8,7 @@ use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
 use App\Http\Controllers\Transaction\KuitansiKonsumenController;
+use App\Http\Controllers\Transaction\KuitansiLainLainController;
 use App\Http\Controllers\Transaction\KwitansiProgresifController;
 use App\Http\Controllers\Transaction\MotorUnitController;
 use App\Http\Controllers\Transaction\PenagihanLeasingController;
@@ -131,4 +132,12 @@ Route::prefix('transaction/pencairan-leasing')->name('pencairan-leasing.')->grou
     Route::get('/api/pending/{leasing_id}', [PencairanLeasingController::class, 'getPending'])->name('api.pending');
     Route::post('/store', [PencairanLeasingController::class, 'store'])->name('store');
     Route::delete('/{id}', [PencairanLeasingController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('transaction/kuitansi-lain')->name('kuitansi-lain.')->group(function () {
+    Route::get('/', [KuitansiLainLainController::class, 'index'])->name('index');
+    Route::post('/store', [KuitansiLainLainController::class, 'store'])->name('store');
+    Route::put('/{id}', [KuitansiLainLainController::class, 'update'])->name('update');
+    Route::delete('/{id}', [KuitansiLainLainController::class, 'destroy'])->name('destroy');
+    Route::get('/print/{id}', [KuitansiLainLainController::class, 'print'])->name('print');
 });

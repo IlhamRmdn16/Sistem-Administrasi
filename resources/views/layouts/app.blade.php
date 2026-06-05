@@ -89,6 +89,8 @@
                                     <a href="{{ route('penyerahan-bpkb-leasing.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Penyerahan BPKB ke Leasing</a>
                                     <a href="{{ route('kwitansi-progresif.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Kwitansi Pajak Progresif</a>
                                     <a href="{{ route('pencairan-leasing.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Pencairan Leasing Pokok</a>
+                                    <hr class="border-gray-200 my-1">
+                                    <a href="{{ route('kuitansi-lain.index') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red transition-colors">Kuitansi Lain-Lain</a>
                                 </div>
                             </div>
                         </nav>
@@ -170,6 +172,8 @@
                             <a href="{{ route('penyerahan-bpkb-leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Penyerahan BPKB ke Leasing</a>
                             <a href="{{ route('kwitansi-progresif.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kwitansi Pajak Progresif</a>
                              <a href="{{ route('pencairan-leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Pencairan Leasing Pokok</a>
+                             <hr class="border-gray-200 my-1">
+                             <a href="{{ route('kuitansi-lain.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kuitansi Lain-Lain</a>
                         </div>
                     </div>
 

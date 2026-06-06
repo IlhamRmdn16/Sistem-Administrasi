@@ -33,14 +33,12 @@
                             <span class="font-extrabold text-xl tracking-tight text-gray-900">DealerSys</span>
                         </div>
 
-                        <!-- NAVIGASI DESKTOP -->
                         <nav class="hidden md:flex items-center space-x-1">
                             <a href="#" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                                 Dashboard
                             </a>
 
-                            <!-- MENU MASTER DATA -->
                             @canany(['akses-master-motor', 'akses-master-sales', 'akses-master-leasing', 'akses-master-pdiman', 'akses-master-rekening', 'akses-master-biaya'])
                             <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
@@ -49,7 +47,7 @@
                                     <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
 
-                                <div x-show="dropdownOpen" x-transition class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                                <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                                     @can('akses-master-motor') <a href="{{ route('motor-type.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Motor</a> @endcan
                                     @can('akses-master-sales') <a href="{{ route('sales.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP</a> @endcan
                                     @can('akses-master-leasing') <a href="{{ route('leasing.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Leasing</a> @endcan
@@ -63,7 +61,6 @@
                             </div>
                             @endcanany
 
-                            <!-- MENU TRANSAKSI -->
                             @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain'])
                             <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
@@ -72,7 +69,7 @@
                                     <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </button>
 
-                                <div x-show="dropdownOpen" x-transition class="absolute left-0 mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
+                                <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
                                     @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Registrasi Unit</a> @endcan
 
                                     @canany(['akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen'])
@@ -109,43 +106,56 @@
                             </div>
                             @endcanany
 
-                           <!-- MENU PENGATURAN AKSES (DROPDOWN) -->
-@canany(['akses-manajemen-role', 'akses-manajemen-user'])
-<div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
-    <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        Pengaturan Akses
-        <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-    </button>
+                            @canany(['akses-manajemen-role', 'akses-manajemen-user'])
+                            <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                                <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    Pengaturan Akses
+                                    <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
 
-    <div x-show="dropdownOpen" x-transition class="absolute right-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
-        @can('akses-manajemen-role') 
-            <a href="{{ route('roles.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen Role (Akses)</a> 
-        @endcan
-        @can('akses-manajemen-user') 
-            <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen User</a> 
-        @endcan
-    </div>
-</div>
-@endcanany
+                                <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute right-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                                    @can('akses-manajemen-role') 
+                                        <a href="{{ route('roles.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen Role (Akses)</a> 
+                                    @endcan
+                                    @can('akses-manajemen-user') 
+                                        <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen User</a> 
+                                    @endcan
+                                </div>
+                            </div>
+                            @endcanany
 
                         </nav>
                     </div>
 
                     <!-- PROFIL PENGGUNA KANAN -->
                     <div class="flex items-center gap-2 sm:gap-4 pl-4">
-                        <button class="hidden sm:flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none">
-                            <div class="flex flex-col items-end">
-                                <!-- NAMA USER DINAMIS DARI AUTH -->
-                                <span class="text-sm font-bold text-gray-800 leading-none">{{ Auth::user()->name ?? 'Administrator' }}</span>
-                                <!-- NAMA ROLE PERTAMA DARI SPATIE -->
-                                <span class="text-xs text-gray-500 mt-1">{{ Auth::user()->roles->pluck('name')->first() ?? 'Super Admin' }}</span>
-                            </div>
-                            <div class="h-9 w-9 rounded-full bg-honda-red border-2 border-white shadow-sm flex items-center justify-center text-white font-bold text-base overflow-hidden relative">
-                                {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                            </div>
-                        </button>
+                        
+                        <!-- DROPDOWN PROFIL DESKTOP (TERMASUK LOGOUT) -->
+                        <div x-data="{ profileOpen: false }" @click.away="profileOpen = false" class="relative hidden sm:block">
+                            <button @click="profileOpen = !profileOpen" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-sm font-bold text-gray-800 leading-none">{{ Auth::user()->name ?? 'Administrator' }}</span>
+                                    <span class="text-xs text-gray-500 mt-1">{{ Auth::user()->roles->pluck('name')->first() ?? 'Super Admin' }}</span>
+                                </div>
+                                <div class="h-9 w-9 rounded-full bg-honda-red border-2 border-white shadow-sm flex items-center justify-center text-white font-bold text-base overflow-hidden relative">
+                                    {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                                </div>
+                            </button>
 
+                            <!-- MENU KELUAR SYSTEM -->
+                            <div x-show="profileOpen" x-transition style="display: none;" class="absolute right-0 mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-red-600 font-bold hover:bg-red-50 transition-colors flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        Keluar Sistem
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- TOMBOL HAMBURGER UNTUK MOBILE -->
                         <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-honda-red focus:outline-none transition-colors ml-1">
                             <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                             <svg x-show="mobileMenuOpen" style="display:none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -154,7 +164,6 @@
                 </div>
             </div>
 
-            <!-- NAVIGASI MOBILE (HP) DENGAN CAN SPATIE -->
             <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-lg">
                 <nav class="px-4 pt-2 pb-6 space-y-1 max-h-[80vh] overflow-y-auto">
 
@@ -168,7 +177,7 @@
                             <span>Master Data</span>
                             <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div x-show="subOpen" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                        <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             @can('akses-master-motor') <a href="{{ route('motor-type.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Motor</a> @endcan
                             @can('akses-master-sales') <a href="{{ route('sales.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales</a> @endcan
                             @can('akses-master-leasing') <a href="{{ route('leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Leasing</a> @endcan
@@ -185,7 +194,7 @@
                             <span>Transaksi</span>
                             <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div x-show="subOpen" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                        <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Registrasi Unit</a> @endcan
                             @can('akses-spk') <a href="{{ route('spk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">SPK</a> @endcan
                             @can('akses-kontrol-harga') <a href="{{ route('kontrol-harga.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kontrol Harga Penjualan</a> @endcan
@@ -204,25 +213,23 @@
                     </div>
                     @endcanany
 
-                   <!-- SETTINGS / ROLE PERMISSION KHUSUS MOBILE -->
-@canany(['akses-manajemen-role', 'akses-manajemen-user'])
-<div x-data="{ subOpen: false }">
-    <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
-        <span>Pengaturan Akses</span>
-        <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-    </button>
-    <div x-show="subOpen" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-        @can('akses-manajemen-role') 
-            <a href="{{ route('roles.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen Role</a> 
-        @endcan
-        @can('akses-manajemen-user') 
-            <a href="{{ route('users.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen User</a> 
-        @endcan
-    </div>
-</div>
-@endcanany
+                    @canany(['akses-manajemen-role', 'akses-manajemen-user'])
+                    <div x-data="{ subOpen: false }">
+                        <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
+                            <span>Pengaturan Akses</span>
+                            <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            @can('akses-manajemen-role') 
+                                <a href="{{ route('roles.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen Role</a> 
+                            @endcan
+                            @can('akses-manajemen-user') 
+                                <a href="{{ route('users.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen User</a> 
+                            @endcan
+                        </div>
+                    </div>
+                    @endcanany
 
-                    <!-- PROFIL MOBILE -->
                     <div class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3 px-3">
                         <div class="h-10 w-10 rounded-full bg-honda-red flex items-center justify-center text-white font-bold text-lg">
                             {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -233,7 +240,6 @@
                         </div>
                     </div>
 
-                    <!-- TOMBOL LOGOUT -->
                     <div class="mt-4 px-3">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

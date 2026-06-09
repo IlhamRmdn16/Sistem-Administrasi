@@ -8,7 +8,6 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    // Mengelompokkan Hak Akses agar tampilan Checkbox rapi per-Modul
     private $permissionGroups = [
         'Modul Master Data' => [
             'akses-master-motor' => 'Master Motor',
@@ -36,6 +35,7 @@ class RoleController extends Controller
             'akses-samsat' => 'Penerimaan STNK / BPKB',
             'akses-pajak-progresif' => 'Pajak Progresif',
             'akses-penyerahan-stnk' => 'Penyerahan STNK / BPKB ke Konsumen',
+            'akses-cetak-blanko-samsat' => 'Cetak Blanko Samsat',
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',
@@ -67,8 +67,7 @@ class RoleController extends Controller
         DB::beginTransaction();
         try {
             $role = Role::create(['name' => $request->name]);
-            
-            // Pasangkan permissions yang diceklis
+
             if ($request->has('permissions')) {
                 $role->syncPermissions($request->permissions);
             }
@@ -88,8 +87,8 @@ class RoleController extends Controller
         }
 
         $permissionGroups = $this->permissionGroups;
-        $rolePermissions = $role->permissions->pluck('name')->toArray(); // Ambil array permission yang dimiliki
-        
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
+
         return view('settings.roles.edit', compact('role', 'permissionGroups', 'rolePermissions'));
     }
 
@@ -107,8 +106,6 @@ class RoleController extends Controller
         DB::beginTransaction();
         try {
             $role->update(['name' => $request->name]);
-            
-            // Update permissions yang diceklis
             $role->syncPermissions($request->permissions ?? []);
 
             DB::commit();

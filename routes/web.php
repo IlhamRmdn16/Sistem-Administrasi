@@ -8,6 +8,7 @@ use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Transaction\CetakBlankoSamsatController;
 use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
 use App\Http\Controllers\Transaction\KuitansiKonsumenController;
 use App\Http\Controllers\Transaction\KuitansiLainLainController;
@@ -42,59 +43,46 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class)->except(['show']);
 
     Route::prefix('master')->group(function () {
-
-        // Motor Type
         Route::get('/motor-type', [MotorTypeController::class, 'index'])->name('motor-type.index');
         Route::post('/motor-type', [MotorTypeController::class, 'store'])->name('motor-type.store');
         Route::put('/motor-type/{id}', [MotorTypeController::class, 'update'])->name('motor-type.update');
         Route::delete('/motor-type/{id}', [MotorTypeController::class, 'destroy'])->name('motor-type.destroy');
 
-        // Sales
         Route::resource('/sales', SalesController::class)->except(['create', 'show', 'edit']);
-
-        // Leasing
         Route::resource('/leasing', LeasingController::class)->except(['create', 'show', 'edit']);
 
-        // Rekening
         Route::get('/rekening', [RekeningController::class, 'index'])->name('rekening.index');
         Route::post('/rekening', [RekeningController::class, 'store'])->name('rekening.store');
         Route::put('/rekening/{id}', [RekeningController::class, 'update'])->name('rekening.update');
         Route::delete('/rekening/{id}', [RekeningController::class, 'destroy'])->name('rekening.destroy');
 
-        // PDI Man
         Route::get('/pdi-man', [PdiManController::class, 'index'])->name('pdiman.index');
         Route::post('/pdi-man', [PdiManController::class, 'store'])->name('pdiman.store');
         Route::put('/pdi-man/{id}', [PdiManController::class, 'update'])->name('pdiman.update');
         Route::delete('/pdi-man/{id}', [PdiManController::class, 'destroy'])->name('pdiman.destroy');
 
-        // Biaya Administrasi
         Route::resource('/biaya-administrasi', BiayaAdministrasiController::class);
     });
 
     Route::prefix('transaction')->group(function () {
-
-        // Motor Unit
         Route::get('/motor-unit', [MotorUnitController::class, 'index'])->name('motor-unit.index');
         Route::post('/motor-unit', [MotorUnitController::class, 'store'])->name('motor-unit.store');
         Route::put('/motor-unit/{id}', [MotorUnitController::class, 'update'])->name('motor-unit.update');
         Route::delete('/motor-unit/{id}', [MotorUnitController::class, 'destroy'])->name('motor-unit.destroy');
         Route::get('/motor-unit/{id}/print', [MotorUnitController::class, 'print'])->name('motor-unit.print');
 
-        // SPK
         Route::get('/spk', [SpkController::class, 'index'])->name('spk.index');
         Route::post('/spk', [SpkController::class, 'store'])->name('spk.store');
         Route::put('/spk/{id}', [SpkController::class, 'update'])->name('spk.update');
         Route::delete('/spk/{id}', [SpkController::class, 'destroy'])->name('spk.destroy');
         Route::get('/spk/{id}/print', [SpkController::class, 'print'])->name('spk.print');
 
-        // Surat Jalan
         Route::get('/suratjalan', [SuratJalanController::class, 'index'])->name('suratjalan.index');
         Route::post('/suratjalan', [SuratJalanController::class, 'store'])->name('suratjalan.store');
         Route::put('/suratjalan/{id}', [SuratJalanController::class, 'update'])->name('suratjalan.update');
         Route::delete('/suratjalan/{id}', [SuratJalanController::class, 'destroy'])->name('suratjalan.destroy');
         Route::get('/suratjalan/{id}/print', [SuratJalanController::class, 'print'])->name('suratjalan.print');
 
-        // Kontrol Harga Penjualan
         Route::prefix('kontrol-harga')->name('kontrol-harga.')->group(function () {
             Route::get('/', [KontrolHargaPenjualanController::class, 'index'])->name('index');
             Route::post('/store', [KontrolHargaPenjualanController::class, 'store'])->name('store');
@@ -108,7 +96,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/{spk_id}/print/setoran-spk', [KontrolHargaPenjualanController::class, 'printSetoranSpk'])->name('print.setoran-spk');
         });
 
-        // Kuitansi Konsumen
         Route::prefix('kuitansi-konsumen')->name('kuitansi-konsumen.')->group(function () {
             Route::get('/', [KuitansiKonsumenController::class, 'index'])->name('index');
             Route::post('/store', [KuitansiKonsumenController::class, 'store'])->name('store');
@@ -116,7 +103,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/api/search', [KuitansiKonsumenController::class, 'searchApi'])->name('search-api');
         });
 
-        // Kuitansi Lain-Lain
         Route::prefix('kuitansi-lain')->name('kuitansi-lain.')->group(function () {
             Route::get('/', [KuitansiLainLainController::class, 'index'])->name('index');
             Route::post('/store', [KuitansiLainLainController::class, 'store'])->name('store');
@@ -125,7 +111,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/print/{id}', [KuitansiLainLainController::class, 'print'])->name('print');
         });
 
-        // Penagihan Leasing
         Route::prefix('penagihan-leasing')->name('penagihan-leasing.')->group(function () {
             Route::get('/', [PenagihanLeasingController::class, 'index'])->name('index');
             Route::get('/api/pending/{leasing_id}', [PenagihanLeasingController::class, 'getPending'])->name('api.pending');
@@ -134,7 +119,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/print/{id}', [PenagihanLeasingController::class, 'print'])->name('print');
         });
 
-        // Pencairan Leasing
         Route::prefix('pencairan-leasing')->name('pencairan-leasing.')->group(function () {
             Route::get('/', [PencairanLeasingController::class, 'index'])->name('index');
             Route::get('/api/pending/{leasing_id}', [PencairanLeasingController::class, 'getPending'])->name('api.pending');
@@ -142,7 +126,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [PencairanLeasingController::class, 'destroy'])->name('destroy');
         });
 
-        // Penyerahan BPKB Leasing
         Route::prefix('penyerahan-bpkb-leasing')->name('penyerahan-bpkb-leasing.')->group(function () {
             Route::get('/', [PenyerahanBpkbLeasingController::class, 'index'])->name('index');
             Route::get('/{leasing_id}', [PenyerahanBpkbLeasingController::class, 'show'])->name('show');
@@ -174,6 +157,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [KwitansiProgresifController::class, 'index'])->name('index');
         Route::post('/store', [KwitansiProgresifController::class, 'store'])->name('store');
         Route::get('/{id}/print', [KwitansiProgresifController::class, 'print'])->name('print');
+    });
+
+    Route::prefix('cetak-blanko-samsat')->name('cetak-blanko-samsat.')->group(function () {
+        Route::get('/', [CetakBlankoSamsatController::class, 'index'])->name('index');
+        Route::get('/{id}/print', [CetakBlankoSamsatController::class, 'print'])->name('print');
     });
 
 });

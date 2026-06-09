@@ -16,7 +16,8 @@ class SuratJalan extends Model
         'pdi_man_id',
         'no_stck',
         'no_registrasi',
-        'berlaku_sd'
+        'berlaku_sd',
+        'is_cetak_samsat'
     ];
 
     public function spk()
@@ -50,7 +51,7 @@ class SuratJalan extends Model
     }
 
     public function kwitansiProgresif()
-    { 
-        return $this->hasOne(KwitansiPajakProgresif::class, 'surat_jalan_id'); 
+    {
+        return $this->hasOne(KwitansiPajakProgresif::class, 'surat_jalan_id');
     }
 }

@@ -34,7 +34,7 @@
                         </div>
 
                         <nav class="hidden md:flex items-center space-x-1">
-                            <a href="#" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
+                            <a href="{{ route('dashboard') }}" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                                 Dashboard
                             </a>
@@ -61,7 +61,7 @@
                             </div>
                             @endcanany
 
-                            @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain'])
+                            @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
                             <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -86,10 +86,11 @@
                                     <a href="{{ route('penagihan-leasing.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Penagihan Leasing</a>
                                     @endcan
 
-                                    @canany(['akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing'])
+                                    @canany(['akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-cetak-blanko-samsat'])
                                     <hr class="border-gray-200 my-1">
                                     @endcanany
 
+                                    @can('akses-cetak-blanko-samsat') <a href="{{ route('cetak-blanko-samsat.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Cetak Blanko Samsat</a> @endcan
                                     @can('akses-pengajuan-stnk') <a href="{{ route('pengajuan-stnk.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Pengajuan STNK</a> @endcan
                                     @can('akses-samsat') <a href="{{ route('samsat.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Penerimaan STNK / BPKB</a> @endcan
                                     @can('akses-pajak-progresif') <a href="{{ route('realisasi-pajak.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Cetak Realisasi Pajak Progresif</a> @endcan
@@ -115,11 +116,11 @@
                                 </button>
 
                                 <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute right-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
-                                    @can('akses-manajemen-role') 
-                                        <a href="{{ route('roles.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen Role (Akses)</a> 
+                                    @can('akses-manajemen-role')
+                                        <a href="{{ route('roles.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen Role</a>
                                     @endcan
-                                    @can('akses-manajemen-user') 
-                                        <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen User</a> 
+                                    @can('akses-manajemen-user')
+                                        <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Manajemen User</a>
                                     @endcan
                                 </div>
                             </div>
@@ -128,10 +129,8 @@
                         </nav>
                     </div>
 
-                    <!-- PROFIL PENGGUNA KANAN -->
                     <div class="flex items-center gap-2 sm:gap-4 pl-4">
-                        
-                        <!-- DROPDOWN PROFIL DESKTOP (TERMASUK LOGOUT) -->
+
                         <div x-data="{ profileOpen: false }" @click.away="profileOpen = false" class="relative hidden sm:block">
                             <button @click="profileOpen = !profileOpen" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none">
                                 <div class="flex flex-col items-end">
@@ -143,7 +142,6 @@
                                 </div>
                             </button>
 
-                            <!-- MENU KELUAR SYSTEM -->
                             <div x-show="profileOpen" x-transition style="display: none;" class="absolute right-0 mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -155,7 +153,6 @@
                             </div>
                         </div>
 
-                        <!-- TOMBOL HAMBURGER UNTUK MOBILE -->
                         <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-honda-red focus:outline-none transition-colors ml-1">
                             <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                             <svg x-show="mobileMenuOpen" style="display:none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -164,10 +161,10 @@
                 </div>
             </div>
 
-            <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-lg">
+            <div x-show="mobileMenuOpen" x-transition class="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-lg" style="display: none;">
                 <nav class="px-4 pt-2 pb-6 space-y-1 max-h-[80vh] overflow-y-auto">
 
-                    <a href="#" class="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg">
+                    <a href="{{ route('dashboard') }}" class="block px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg">
                         Dashboard
                     </a>
 
@@ -188,7 +185,7 @@
                     </div>
                     @endcanany
 
-                    @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain'])
+                    @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
                     <div x-data="{ subOpen: false }">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
                             <span>Transaksi</span>
@@ -201,6 +198,7 @@
                             @can('akses-surat-jalan') <a href="{{ route('suratjalan.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Surat Jalan</a> @endcan
                             @can('akses-kuitansi-konsumen') <a href="{{ route('kuitansi-konsumen.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kuitansi Konsumen</a> @endcan
                             @can('akses-penagihan-leasing') <a href="{{ route('penagihan-leasing.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Penagihan Leasing</a> @endcan
+                            @can('akses-cetak-blanko-samsat') <a href="{{ route('cetak-blanko-samsat.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Cetak Blanko Samsat</a> @endcan
                             @can('akses-pengajuan-stnk') <a href="{{ route('pengajuan-stnk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Pengajuan STNK</a> @endcan
                             @can('akses-samsat') <a href="{{ route('samsat.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Penerimaan STNK / BPKB</a> @endcan
                             @can('akses-pajak-progresif') <a href="{{ route('realisasi-pajak.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Cetak Realisasi Pajak Progresif</a> @endcan
@@ -220,11 +218,11 @@
                             <svg :class="subOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-                            @can('akses-manajemen-role') 
-                                <a href="{{ route('roles.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen Role</a> 
+                            @can('akses-manajemen-role')
+                                <a href="{{ route('roles.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen Role</a>
                             @endcan
-                            @can('akses-manajemen-user') 
-                                <a href="{{ route('users.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen User</a> 
+                            @can('akses-manajemen-user')
+                                <a href="{{ route('users.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Manajemen User</a>
                             @endcan
                         </div>
                     </div>
@@ -270,7 +268,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // [Script Notifikasi Swal Tetap Sama]
             @if(session('success'))
                 Swal.fire({
                     icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}',

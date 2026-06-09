@@ -10,30 +10,27 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            font-size: 11pt;
+            font-size: 8pt;
             text-transform: uppercase;
             color: #000;
         }
 
         .kelompok-1 {
             position: absolute;
-            top: 11cm;
+            top: 11.3cm;
             left: 7cm;
-            right: 5cm; /* Paksa batas tulisan berhenti 5cm sebelum pinggir kanan kertas */
+            right: 5cm;
         }
 
         .kelompok-2 {
             position: absolute;
-            /* Jika kelompok 1 isinya 4 baris (sekitar 2cm total tinggi),
-               dan Anda ingin jarak 0.9cm setelahnya, maka top-nya sekitar 13.9cm.
-               Silakan diubah sedikit jika kurang pas saat diprint. */
-            top: 13.9cm;
+            top: 13.3cm;
             left: 7cm;
-            right: 5cm; /* Paksa batas tulisan berhenti 5cm sebelum pinggir kanan kertas */
+            right: 5cm;
         }
 
         .baris {
-            margin-bottom: 0.1cm;
+            margin-bottom: 0.08cm;
             line-height: 1;
         }
 
@@ -67,8 +64,7 @@
 
         // ALAMAT DIRINGKAS: Hanya Alamat Jalan, Desa, dan Kecamatan
         $alamatRingkas = $spk->alamat .
-                         ($spk->desa_kelurahan ? ', ' . $spk->desa_kelurahan : '') .
-                         ($spk->kecamatan ? ', KEC. ' . $spk->kecamatan : '');
+                         ($spk->kota_kabupaten ? ', ' . $spk->kota_kabupaten : '');
 
         $kontak = $spk->telepon;
         if($spk->email) {
@@ -85,10 +81,10 @@
 
     <div class="kelompok-2">
         <div class="baris">HONDA</div>
-        <div class="baris">{{ $motor->type->nama_type ?? '-' }}</div>
+        <div class="baris">{{ $motor->type->kode_motor ?? '-' }}</div>
         <div class="baris">{!! '&nbsp;' !!}</div>
         <div class="baris">{{ $motor->type->jenis ?? '-' }}</div>
-        <div class="baris">{!! '&nbsp;' !!}</div>
+        <div class="baris">SEPEDA MOTOR</div>
         <div class="baris">{{ $motor->tahun_pembuatan ?? '-' }}</div>
         <div class="baris">{!! '&nbsp;' !!}</div>
         <div class="baris">{{ $motor->no_rangka ?? '-' }}</div>
@@ -97,9 +93,8 @@
         <div class="baris">{!! '&nbsp;' !!}</div>
         <div class="baris">{!! '&nbsp;' !!}</div>
         <div class="baris">{!! '&nbsp;' !!}</div>
-        <div class="baris">DUA</div>
         <div class="baris">{!! '&nbsp;' !!}</div>
-        <div class="baris">{!! $samsat->no_bpkb ?? '&nbsp;' !!}</div>
+        <div class="baris">{!! '&nbsp;' !!}</div>
     </div>
 
     <button class="no-print btn-print-floating" onclick="window.print()">

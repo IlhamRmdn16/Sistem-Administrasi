@@ -17,6 +17,9 @@ class MotorUnit extends Model
         'no_kunci',
         'tahun_pembuatan',
         'no_accu',
+        'posisi_stok',
+        'lokasi_pop_id',
+        'status_unit'
     ];
 
     public function type()
@@ -27,5 +30,10 @@ class MotorUnit extends Model
     public function color()
     {
         return $this->belongsTo(MotorColor::class, 'motor_color_id');
+    }
+
+    public function lokasiPop()
+    {
+        return $this->belongsTo(Sales::class, 'lokasi_pop_id');
     }
 }

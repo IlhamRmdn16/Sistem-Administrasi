@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    private $permissionGroups = [
+   private $permissionGroups = [
         'Modul Master Data' => [
             'akses-master-motor' => 'Master Motor',
             'akses-master-sales' => 'Master Sales/POP',
@@ -19,6 +19,7 @@ class RoleController extends Controller
         ],
         'Modul Transaksi Penjualan' => [
             'akses-registrasi-unit' => 'Registrasi Unit Masuk',
+            'akses-mutasi-stok' => 'Mutasi Stok Unit',
             'akses-spk' => 'Pembuatan SPK',
             'akses-kontrol-harga' => 'Kontrol Harga Penjualan',
             'akses-surat-jalan' => 'Surat Jalan (SJK)',

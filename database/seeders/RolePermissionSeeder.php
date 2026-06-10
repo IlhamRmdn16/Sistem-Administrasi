@@ -22,7 +22,9 @@ class RolePermissionSeeder extends Seeder
             'akses-master-pdiman',
             'akses-master-rekening',
             'akses-master-biaya',
+            
             'akses-registrasi-unit',
+            'akses-mutasi-stok',
             'akses-spk',
             'akses-kontrol-harga',
             'akses-surat-jalan',
@@ -36,6 +38,7 @@ class RolePermissionSeeder extends Seeder
             'akses-pencairan-leasing',
             'akses-kuitansi-lain',
             'akses-cetak-blanko-samsat',
+            
             'akses-manajemen-role',
             'akses-manajemen-user',
         ];

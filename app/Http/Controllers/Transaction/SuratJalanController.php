@@ -8,6 +8,7 @@ use App\Models\PdiMan;
 use App\Models\Spk;
 use App\Models\SuratJalan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SuratJalanController extends Controller
 {
@@ -18,7 +19,8 @@ class SuratJalanController extends Controller
         $sampai_tanggal = $request->input('sampai_tanggal');
         $per_page = $request->input('per_page', 10);
 
-        $query = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'pdiMan']);
+        // Tambahkan relasi motorUnit.lokasiPop agar bisa ditampilkan
+        $query = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'motorUnit.lokasiPop', 'pdiMan']);
 
         if ($dari_tanggal && $sampai_tanggal) {
             $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
@@ -53,7 +55,8 @@ class SuratJalanController extends Controller
         $autoNoBukti = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         $usedSpkIds = SuratJalan::pluck('spk_id')->toArray();
-        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorUnit.type', 'motorUnit.color'])->get();
+        // Tarik data SPK yang motornya juga ditarik info lokasinya
+        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorUnit.type', 'motorUnit.color', 'motorUnit.lokasiPop'])->get();
 
         $pdiMans = PdiMan::orderBy('nama_pdi_man')->get();
 
@@ -73,12 +76,28 @@ class SuratJalanController extends Controller
             'berlaku_sd' => 'nullable|date',
         ]);
 
-        SuratJalan::create($request->all());
+        DB::beginTransaction();
+        try {
+            // 1. Buat Surat Jalan
+            SuratJalan::create($request->all());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Surat Jalan berhasil diterbitkan!'
-        ]);
+            // 2. Ubah Status Motor Menjadi Terjual
+            MotorUnit::where('id', $request->motor_unit_id)->update([
+                'status_unit' => 'Terjual'
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat Jalan berhasil diterbitkan! Stok unit otomatis berkurang.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menerbitkan Surat Jalan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -104,11 +123,28 @@ class SuratJalanController extends Controller
 
     public function destroy($id)
     {
-        SuratJalan::findOrFail($id)->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Surat Jalan berhasil dihapus!'
-        ]);
+        DB::beginTransaction();
+        try {
+            $sj = SuratJalan::findOrFail($id);
+     
+            MotorUnit::where('id', $sj->motor_unit_id)->update([
+                'status_unit' => 'Tersedia'
+            ]);
+
+            $sj->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat Jalan dihapus! Stok unit dikembalikan sebagai Tersedia.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Surat Jalan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function print($id)

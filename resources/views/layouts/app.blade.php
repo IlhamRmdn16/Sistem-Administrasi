@@ -61,7 +61,7 @@
                             </div>
                             @endcanany
 
-                            @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
+                            @canany(['akses-registrasi-unit', 'akses-mutasi-stok', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
                             <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -71,6 +71,7 @@
 
                                 <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
                                     @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Registrasi Unit</a> @endcan
+                                    @can('akses-mutasi-stok') <a href="{{ route('mutasi-stok.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Mutasi Stok Unit</a> @endcan
 
                                     @canany(['akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen'])
                                     <hr class="border-gray-200 my-1">
@@ -185,7 +186,7 @@
                     </div>
                     @endcanany
 
-                    @canany(['akses-registrasi-unit', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
+                    @canany(['akses-registrasi-unit', 'akses-mutasi-stok', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
                     <div x-data="{ subOpen: false }">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
                             <span>Transaksi</span>
@@ -193,6 +194,7 @@
                         </button>
                         <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Registrasi Unit</a> @endcan
+                            @can('akses-mutasi-stok') <a href="{{ route('mutasi-stok.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Mutasi Stok Unit</a> @endcan
                             @can('akses-spk') <a href="{{ route('spk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">SPK</a> @endcan
                             @can('akses-kontrol-harga') <a href="{{ route('kontrol-harga.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kontrol Harga Penjualan</a> @endcan
                             @can('akses-surat-jalan') <a href="{{ route('suratjalan.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Surat Jalan</a> @endcan

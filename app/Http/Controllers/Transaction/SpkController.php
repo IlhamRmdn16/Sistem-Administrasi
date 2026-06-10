@@ -21,7 +21,11 @@ class SpkController extends Controller
         $sales = Sales::orderBy('nama_sales')->get();
         $leasings = Leasing::orderBy('nama_leasing')->get();
 
-        $motorUnits = MotorUnit::with(['type', 'color'])->get();
+        // Hanya mengambil unit yang statusnya 'Tersedia' beserta informasi lokasinya
+        $motorUnits = MotorUnit::with(['type', 'color', 'lokasiPop'])
+                        ->where('status_unit', 'Tersedia')
+                        ->get();
+                        
         $usedUnitIds = Spk::pluck('motor_unit_id')->filter()->toArray();
 
         $query = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing']);

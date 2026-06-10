@@ -72,6 +72,10 @@
                             <td class="py-4 px-6 text-sm text-gray-700">
                                 <div class="font-semibold truncate max-w-[150px]">{{ $sj->motorUnit->type->nama_type ?? '-' }}</div>
                                 <div class="text-xs text-gray-500 mt-0.5">Kunci: <span class="font-bold text-gray-800">{{ $sj->motorUnit->no_kunci ?? '-' }}</span></div>
+                                <div class="text-[9px] inline-block mt-1 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase">
+                                    Lokasi: {{ $sj->motorUnit->posisi_stok ?? '-' }}
+                                    {{ ($sj->motorUnit->posisi_stok === 'POP' && $sj->motorUnit->lokasiPop) ? '('.$sj->motorUnit->lokasiPop->nama_sales.')' : '' }}
+                                </div>
                             </td>
                             <td class="py-4 px-6 text-sm">
                                 <div class="font-semibold text-gray-700 uppercase">{{ $sj->pdiMan->nama_pdi_man ?? '-' }}</div>
@@ -134,12 +138,17 @@
                                     <span x-text="selectedSpkName || 'Pilih / Cari SPK...'"></span>
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
-                                <div x-show="openSpkDropdown" class="absolute w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                <div x-show="openSpkDropdown" class="absolute w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                                     <div class="sticky top-0 bg-gray-50 p-2 border-b">
                                         <input type="text" x-model="searchSpk" placeholder="Ketik nama atau No SPK..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                     </div>
                                     <template x-for="s in availableSpks.filter(x => x.nama_pemohon.toLowerCase().includes(searchSpk.toLowerCase()) || x.no_spk.toLowerCase().includes(searchSpk.toLowerCase()))" :key="s.id">
-                                        <div @click="selectSpk(s)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50" x-text="s.nama_pemohon + ' - ' + s.no_spk"></div>
+                                        <div @click="selectSpk(s)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
+                                            <div class="font-bold text-gray-800" x-text="s.nama_pemohon + ' - ' + s.no_spk"></div>
+                                            <div class="text-[10px] text-gray-500 mt-0.5" x-text="'Motor: ' + (s.motor_unit ? s.motor_unit.type.nama_type : '-')"></div>
+                                            <div class="text-[9px] inline-block mt-1 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                                 x-text="'Lokasi: ' + (s.motor_unit ? s.motor_unit.posisi_stok : '-') + (s.motor_unit && s.motor_unit.posisi_stok === 'POP' && s.motor_unit.lokasi_pop ? ' ('+s.motor_unit.lokasi_pop.nama_sales+')' : '')"></div>
+                                        </div>
                                     </template>
                                 </div>
                             </div>
@@ -547,12 +556,12 @@
     function confirmDeleteAjax(id, button) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
-            text: "Dokumen Surat Jalan ini akan dihapus permanen!",
+            text: "Dokumen Surat Jalan ini akan dihapus permanen! Status motor akan kembali menjadi Tersedia.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
+            confirmButtonText: 'Ya, Hapus & Kembalikan Stok!',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -570,7 +579,7 @@
                             icon: 'success',
                             title: 'Terhapus!',
                             text: data.message,
-                            timer: 2000,
+                            timer: 3000,
                             showConfirmButton: false
                         });
                         button.closest('tr').remove();

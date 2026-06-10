@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\MotorTypeController;
 use App\Http\Controllers\Master\PdiManController;
 use App\Http\Controllers\Master\RekeningController;
 use App\Http\Controllers\Master\SalesController;
+use App\Http\Controllers\MutasiStokController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Transaction\CetakBlankoSamsatController;
 use App\Http\Controllers\Transaction\KontrolHargaPenjualanController;
@@ -76,6 +77,14 @@ Route::middleware('auth')->group(function () {
         Route::put('/spk/{id}', [SpkController::class, 'update'])->name('spk.update');
         Route::delete('/spk/{id}', [SpkController::class, 'destroy'])->name('spk.destroy');
         Route::get('/spk/{id}/print', [SpkController::class, 'print'])->name('spk.print');
+
+        Route::prefix('mutasi-stok')->name('mutasi-stok.')->group(function () {
+            Route::get('/', [MutasiStokController::class, 'index'])->name('index');
+            Route::get('/create', [MutasiStokController::class, 'create'])->name('create');
+            Route::post('/', [MutasiStokController::class, 'store'])->name('store');
+            Route::get('/{id}', [MutasiStokController::class, 'show'])->name('show');
+            Route::get('/api/available-units', [MutasiStokController::class, 'getAvailableUnits'])->name('api.available-units');
+        });
 
         Route::get('/suratjalan', [SuratJalanController::class, 'index'])->name('suratjalan.index');
         Route::post('/suratjalan', [SuratJalanController::class, 'store'])->name('suratjalan.store');

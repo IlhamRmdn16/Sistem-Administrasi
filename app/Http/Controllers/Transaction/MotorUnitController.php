@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\MotorType;
 use App\Models\MotorUnit;
+use App\Models\Sales;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -18,15 +19,13 @@ class MotorUnitController extends Controller
         $per_page = $request->input('per_page', 10);
         
         $types = MotorType::with('colors')->get();
+        
+        $lokasiStatis = ['Gudang 1', 'Gudang 2', 'Showroom Pusat', 'Showroom GP'];
+        $pops = Sales::where('jenis_sales', 'pop')->get();
 
-        $query = MotorUnit::with(['type', 'color']);
+        $query = MotorUnit::with(['type', 'color', 'lokasiPop']);
 
-        // Menggunakan kolom created_at atau tanggal_sp untuk filter periode.
-        // Di sini kita gunakan tanggal_sp berdasarkan format dd/mm/yyyy yang tersimpan di kolom no_sp
         if ($dari_tanggal && $sampai_tanggal) {
-             // Karena tanggal bergabung di kolom no_sp dengan format "No / dd/mm/yyyy"
-             // Pendekatan terbaik adalah memfilter rentang tanggal jika Anda menyimpan tanggal_sp terpisah
-             // Jika 'tanggal_sp' tidak ada di database, kita asumsikan menggunakan 'created_at' untuk filter periode pendaftaran unit.
             $query->whereBetween('created_at', [$dari_tanggal . ' 00:00:00', $sampai_tanggal . ' 23:59:59']);
         }
 
@@ -41,7 +40,7 @@ class MotorUnitController extends Controller
 
         $motorUnits = $query->latest()->paginate($per_page)->withQueryString();
 
-        return view('transaction.motor-unit.index', compact('motorUnits', 'types', 'search', 'dari_tanggal', 'sampai_tanggal', 'per_page'));
+        return view('transaction.motor-unit.index', compact('motorUnits', 'types', 'search', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'lokasiStatis', 'pops'));
     }
 
     public function store(Request $request)
@@ -58,6 +57,8 @@ class MotorUnitController extends Controller
             'no_kunci' => 'required',
             'tahun_pembuatan' => 'required',
             'no_accu' => 'required',
+            'posisi_stok' => 'required',
+            'lokasi_pop_id' => 'required_if:posisi_stok,POP'
         ]);
 
         $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
@@ -74,6 +75,9 @@ class MotorUnitController extends Controller
             'no_kunci' => $request->no_kunci,
             'tahun_pembuatan' => $request->tahun_pembuatan,
             'no_accu' => $request->no_accu,
+            'posisi_stok' => $request->posisi_stok,
+            'lokasi_pop_id' => $request->posisi_stok === 'POP' ? $request->lokasi_pop_id : null,
+            'status_unit' => 'Tersedia'
         ]);
 
         return response()->json([
@@ -96,6 +100,8 @@ class MotorUnitController extends Controller
             'no_kunci' => 'required',
             'tahun_pembuatan' => 'required',
             'no_accu' => 'required',
+            'posisi_stok' => 'required',
+            'lokasi_pop_id' => 'required_if:posisi_stok,POP'
         ]);
 
         $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
@@ -114,6 +120,8 @@ class MotorUnitController extends Controller
             'no_kunci' => $request->no_kunci,
             'tahun_pembuatan' => $request->tahun_pembuatan,
             'no_accu' => $request->no_accu,
+            'posisi_stok' => $request->posisi_stok,
+            'lokasi_pop_id' => $request->posisi_stok === 'POP' ? $request->lokasi_pop_id : null,
         ]);
 
         return response()->json([

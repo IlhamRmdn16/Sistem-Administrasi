@@ -25,8 +25,6 @@ class SalesController extends Controller
 
         $sales = $query->latest()->paginate($per_page)->withQueryString();
 
-        // LOGIKA PENOMORAN MENGISI CELAH KOSONG YANG DIPERKUAT
-        // Menggunakan regex untuk membuang semua karakter selain angka agar konversi ke integer benar-benar akurat
         $existingNumbers = Sales::pluck('kode_sales')
             ->map(function ($kode_sales) {
                 return (int) preg_replace('/[^0-9]/', '', $kode_sales);
@@ -38,7 +36,6 @@ class SalesController extends Controller
             $nextNumber++;
         }
 
-        // Generate nomor dengan padding nol di depan (misal: 001, 002, dst)
         $autoKodeSales = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         return view('master.sales.index', compact('sales', 'autoKodeSales', 'search', 'per_page'));

@@ -182,17 +182,19 @@
                                     <label class="block text-xs text-gray-600 mb-1">Pilih Unit Tersedia *</label>
                                     <div @click.away="openMotor = false" class="relative">
                                         <div @click="openMotor = !openMotor" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white cursor-pointer flex justify-between items-center">
-                                            <span x-text="selectedMotorName || 'Cari Unit / No Mesin...'"></span>
-                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            <span x-text="selectedMotorName || 'Cari Unit / No Mesin...'" class="truncate block max-w-xs"></span>
+                                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
-                                        <div x-show="openMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        <div x-show="openMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                                             <div class="sticky top-0 bg-gray-50 p-2 border-b">
                                                 <input type="text" x-model="searchMotor" placeholder="Ketik tipe atau No Mesin..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                             </div>
                                             <template x-for="u in units.filter(x => !usedUnitIds.includes(x.id) && (x.type.nama_type.toLowerCase().includes(searchMotor.toLowerCase()) || x.no_mesin.toLowerCase().includes(searchMotor.toLowerCase())))" :key="u.id">
-                                                <div @click="setMotor(u)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
-                                                    <span class="font-bold" x-text="u.type.nama_type"></span> - <span x-text="u.color.warna"></span><br>
-                                                    <span class="text-xs text-gray-500" x-text="'Mesin: ' + u.no_mesin"></span>
+                                                <div @click="setMotor(u)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
+                                                    <div class="font-bold text-gray-800" x-text="u.type.nama_type + ' - ' + u.color.warna"></div>
+                                                    <div class="text-[11px] font-bold text-gray-500 mt-0.5" x-text="'M: ' + u.no_mesin + ' | R: ' + u.no_rangka"></div>
+                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                                         x-text="'LOKASI: ' + u.posisi_stok + (u.posisi_stok === 'POP' && u.lokasi_pop ? ' - ' + u.lokasi_pop.nama_sales : '')"></div>
                                                 </div>
                                             </template>
                                         </div>
@@ -356,18 +358,19 @@
                                     <label class="block text-xs text-gray-600 mb-1">Pilih Unit *</label>
                                     <div @click.away="eOpenMotor = false" class="relative">
                                         <div @click="eOpenMotor = !eOpenMotor" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white cursor-pointer flex justify-between items-center">
-                                            <span x-text="eMotorName || 'Cari Unit / No Mesin...'"></span>
-                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            <span x-text="eMotorName || 'Cari Unit / No Mesin...'" class="truncate block max-w-xs"></span>
+                                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
-                                        <div x-show="eOpenMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        <div x-show="eOpenMotor" class="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                                             <div class="sticky top-0 bg-gray-50 p-2 border-b">
                                                 <input type="text" x-model="eSearchMotor" placeholder="Ketik tipe atau No Mesin..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                             </div>
-                                            <!-- Menampilkan unit yang belum dipakai ATAU unit yang sedang dipakai oleh SPK ini -->
                                             <template x-for="u in units.filter(x => (!usedUnitIds.includes(x.id) || x.id == eUnit) && (x.type.nama_type.toLowerCase().includes(eSearchMotor.toLowerCase()) || x.no_mesin.toLowerCase().includes(eSearchMotor.toLowerCase())))" :key="u.id">
-                                                <div @click="setEditMotor(u)" class="p-2.5 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
-                                                    <span class="font-bold" x-text="u.type.nama_type"></span> - <span x-text="u.color.warna"></span><br>
-                                                    <span class="text-xs text-gray-500" x-text="'Mesin: ' + u.no_mesin"></span>
+                                                <div @click="setEditMotor(u)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
+                                                    <div class="font-bold text-gray-800" x-text="u.type.nama_type + ' - ' + u.color.warna"></div>
+                                                    <div class="text-[11px] font-bold text-gray-500 mt-0.5" x-text="'M: ' + u.no_mesin + ' | R: ' + u.no_rangka"></div>
+                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                                         x-text="'LOKASI: ' + u.posisi_stok + (u.posisi_stok === 'POP' && u.lokasi_pop ? ' - ' + u.lokasi_pop.nama_sales : '')"></div>
                                                 </div>
                                             </template>
                                         </div>
@@ -479,7 +482,11 @@
             cWarna: '', cTahun: '', cOtr: 0,
             setMotor(u) {
                 this.cUnit = u.id; 
-                this.selectedMotorName = u.type.nama_type + ' (' + u.no_mesin + ')'; 
+                let lokasi = u.posisi_stok;
+                if (lokasi === 'POP' && u.lokasi_pop) {
+                    lokasi += ' - ' + u.lokasi_pop.nama_sales;
+                }
+                this.selectedMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi; 
                 this.cTahun = u.tahun_pembuatan; 
                 this.cOtr = u.type.otr;
                 this.cWarna = u.color.warna; 
@@ -538,7 +545,11 @@
             setEditSales(s) { this.eSales = s.id; this.eSalesName = s.nama_sales; this.eOpenSales = false; },
             setEditMotor(u) {
                 this.eUnit = u.id; 
-                this.eMotorName = u.type.nama_type + ' (' + u.no_mesin + ')'; 
+                let lokasi = u.posisi_stok;
+                if (lokasi === 'POP' && u.lokasi_pop) {
+                    lokasi += ' - ' + u.lokasi_pop.nama_sales;
+                }
+                this.eMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi; 
                 this.eTahun = u.tahun_pembuatan; 
                 this.eOtr = u.type.otr;
                 this.eWarna = u.color.warna; 
@@ -570,7 +581,11 @@
                 this.eUnit = spk.motor_unit_id;
                 let u = this.units.find(x => x.id == spk.motor_unit_id);
                 if(u) {
-                    this.eMotorName = u.type.nama_type + ' (' + u.no_mesin + ')';
+                    let lokasi = u.posisi_stok;
+                    if (lokasi === 'POP' && u.lokasi_pop) {
+                        lokasi += ' - ' + u.lokasi_pop.nama_sales;
+                    }
+                    this.eMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi;
                     this.eTahun = u.tahun_pembuatan;
                     this.eOtr = spk.harga_otr;
                     this.eWarna = u.color.warna;

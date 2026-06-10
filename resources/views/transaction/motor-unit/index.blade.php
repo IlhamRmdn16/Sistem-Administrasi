@@ -53,7 +53,7 @@
                     <tr class="bg-slate-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
                         <th class="py-4 px-6 font-semibold">Dokumen (DO/SP)</th>
                         <th class="py-4 px-6 font-semibold">Tipe & Warna</th>
-                        <th class="py-4 px-6 font-semibold">Identitas Unit</th>
+                        <th class="py-4 px-6 font-semibold">Identitas & Lokasi Unit</th>
                         <th class="py-4 px-6 font-semibold text-center w-32">Aksi</th>
                     </tr>
                 </thead>
@@ -72,8 +72,12 @@
                                 </div>
                             </td>
                             <td class="py-4 px-6 text-sm">
-                                <div class="text-gray-800"><span class="text-gray-500 text-xs mr-1">M:</span>{{ $unit->no_mesin }}</div>
-                                <div class="text-gray-800 mt-1"><span class="text-gray-500 text-xs mr-1">R:</span>{{ $unit->no_rangka }}</div>
+                                <div class="text-gray-800"><span class="text-gray-500 text-[10px] mr-1 uppercase">M:</span>{{ $unit->no_mesin }}</div>
+                                <div class="text-gray-800"><span class="text-gray-500 text-[10px] mr-1 uppercase">R:</span>{{ $unit->no_rangka }}</div>
+                                <div class="mt-1.5 inline-flex items-center gap-1 py-0.5 px-2 rounded-md bg-slate-100 text-[10px] font-bold text-slate-600 uppercase border border-slate-200">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    {{ $unit->posisi_stok }} {{ $unit->posisi_stok === 'POP' && $unit->lokasiPop ? '- ' . $unit->lokasiPop->nama_sales : '' }}
+                                </div>
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
@@ -122,7 +126,7 @@
 
                 <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-slate-50">
                     <h3 class="text-lg font-bold text-gray-900">Registrasi Penerimaan Unit</h3>
-                    <button @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <button type="button" @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -145,6 +149,33 @@
                                     <span class="text-gray-500 font-bold px-1">/</span>
                                     <input type="date" name="tanggal_sp" x-model="cTanggal" required
                                         class="w-48 border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-3 outline-none transition-all text-gray-800">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-8 bg-blue-50/50 p-5 sm:p-6 rounded-xl border border-blue-100">
+                            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Posisi Awal Kendaraan (Stok)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Disimpan Di Lokasi</label>
+                                    <select name="posisi_stok" x-model="cPosisiStok" required
+                                        class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white font-bold">
+                                        <option value="">-- Pilih Lokasi --</option>
+                                        <template x-for="lok in lokasiStatis" :key="lok">
+                                            <option :value="lok" x-text="lok"></option>
+                                        </template>
+                                        <option value="POP">POP (Titip Pameran)</option>
+                                    </select>
+                                </div>
+                                <div x-show="cPosisiStok === 'POP'" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Pilih Cabang POP</label>
+                                    <select name="lokasi_pop_id" x-model="cLokasiPopId" :required="cPosisiStok === 'POP'"
+                                        class="w-full border border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
+                                        <option value="">-- Pilih POP --</option>
+                                        <template x-for="p in pops" :key="p.id">
+                                            <option :value="p.id" x-text="p.nama_sales"></option>
+                                        </template>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -258,7 +289,7 @@
 
                 <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-slate-50">
                     <h3 class="text-lg font-bold text-gray-900">Edit Data Unit Kendaraan</h3>
-                    <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <button type="button" @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-500 focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -282,6 +313,33 @@
                                     <span class="text-gray-500 font-bold px-1">/</span>
                                     <input type="date" name="tanggal_sp" x-model="eTanggal" required
                                         class="w-48 border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-3 outline-none transition-all text-gray-800">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-8 bg-blue-50/50 p-5 sm:p-6 rounded-xl border border-blue-100">
+                            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Posisi Awal Kendaraan (Stok)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Disimpan Di Lokasi</label>
+                                    <select name="posisi_stok" x-model="ePosisiStok" required
+                                        class="w-full border border-gray-300 focus:border-honda-red focus:ring-4 focus:ring-red-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white font-bold">
+                                        <option value="">-- Pilih Lokasi --</option>
+                                        <template x-for="lok in lokasiStatis" :key="lok">
+                                            <option :value="lok" x-text="lok" :selected="lok === ePosisiStok"></option>
+                                        </template>
+                                        <option value="POP" :selected="ePosisiStok === 'POP'">POP (Titip Pameran)</option>
+                                    </select>
+                                </div>
+                                <div x-show="ePosisiStok === 'POP'" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Pilih Cabang POP</label>
+                                    <select name="lokasi_pop_id" x-model="eLokasiPopId" :required="ePosisiStok === 'POP'"
+                                        class="w-full border border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 rounded-lg shadow-sm py-2.5 px-4 outline-none transition-all text-gray-800 bg-white">
+                                        <option value="">-- Pilih POP --</option>
+                                        <template x-for="p in pops" :key="p.id">
+                                            <option :value="p.id" x-text="p.nama_sales" :selected="p.id == eLokasiPopId"></option>
+                                        </template>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -385,10 +443,13 @@
     function unitManager() {
         return {
             types: @json($types),
+            lokasiStatis: @json($lokasiStatis),
+            pops: @json($pops),
             todayDateInput: new Date().toISOString().split('T')[0],
 
             isCreateModalOpen: false,
             isSubmitting: false,
+            cPosisiStok: '', cLokasiPopId: '',
             cType: '', cKodeType: '',
             cAvailableColors: [], cColor: '', cKodeWarna: '',
             cKunci: '', cTahun: '', cAccu: '',
@@ -396,6 +457,7 @@
 
             isEditModalOpen: false,
             isEditing: false,
+            ePosisiStok: '', eLokasiPopId: '',
             eId: '', eDo: '', eSp: '', eTanggal: '', eMesin: '', eRangka: '', eSeri: '',
             eType: '', eKodeType: '',
             eAvailableColors: [], eColor: '', eKodeWarna: '',
@@ -476,6 +538,8 @@
             openEditModal(unit) {
                 this.eId = unit.id;
                 this.eDo = unit.no_do;
+                this.ePosisiStok = unit.posisi_stok || '';
+                this.eLokasiPopId = unit.lokasi_pop_id || '';
 
                 let spParts = unit.no_sp.split(' / ');
                 this.eSp = spParts[0] || '';

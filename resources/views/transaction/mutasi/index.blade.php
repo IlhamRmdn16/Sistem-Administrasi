@@ -6,12 +6,12 @@
         <div>
             <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
-                Mutasi Stok Unit
+                {{ $judul }}
             </h2>
-            <p class="text-sm text-gray-500 mt-1 ml-4">Kelola perpindahan fisik unit motor antar lokasi dan POP.</p>
+            <p class="text-sm text-gray-500 mt-1 ml-4">Riwayat dokumen perpindahan unit untuk {{ $judul }}.</p>
         </div>
-        <a href="{{ route('mutasi-stok.create') }}" class="bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 px-5 rounded-lg text-sm transition-colors">
-            + Buat Mutasi Baru
+        <a href="{{ route('mutasi.create', $jenis) }}" class="bg-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 px-5 rounded-lg text-sm transition-colors">
+            + Buat Dokumen Baru
         </a>
     </div>
 
@@ -44,12 +44,12 @@
                             </td>
                             <td class="py-3 px-4 text-center font-bold">{{ $item->details->count() }} Unit</td>
                             <td class="py-3 px-4 text-center">
-                                <a href="{{ route('mutasi-stok.show', $item->id) }}" class="text-blue-600 hover:underline text-xs font-bold">Detail</a>
+                                <a href="{{ route('mutasi.show', $item->id) }}" class="text-blue-600 hover:underline text-xs font-bold">Detail</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-10 text-center text-gray-400 italic">Belum ada data mutasi.</td>
+                            <td colspan="6" class="py-10 text-center text-gray-400 italic">Belum ada data riwayat mutasi.</td>
                         </tr>
                     @endforelse
                 </tbody>

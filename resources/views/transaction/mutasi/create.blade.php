@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto" x-data="mutasiForm()">
+<div class="max-w-7xl mx-auto" x-data="mutasiForm('{{ $kunciAsal }}', '{{ $kunciTujuan }}')">
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
-            <a href="{{ route('mutasi-stok.index') }}" class="text-gray-400 hover:text-honda-red transition-colors">
+            <a href="{{ route('mutasi.index', $jenis) }}" class="text-gray-400 hover:text-honda-red transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
-            Buat Mutasi Stok
+            Buat {{ $judul }}
         </h2>
     </div>
 
-    <form action="{{ route('mutasi-stok.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <form action="{{ route('mutasi.store', $jenis) }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         @csrf
-        
+
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                 <h3 class="text-sm font-bold text-gray-800 uppercase border-b border-gray-100 pb-2 mb-4">Informasi Dokumen</h3>
-                
+
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">No. Bukti</label>
                     <input type="text" name="no_bukti" value="{{ $noBukti }}" required readonly class="w-full border border-gray-300 rounded p-2 text-sm bg-gray-50 font-bold text-gray-700">
                 </div>
-                
+
                 <div class="mb-4">
                     <label class="block text-xs font-bold text-gray-500 mb-1">Tanggal</label>
                     <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" required class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-honda-red">
@@ -36,16 +36,17 @@
 
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                 <h3 class="text-sm font-bold text-gray-800 uppercase border-b border-gray-100 pb-2 mb-4">Rute Mutasi</h3>
-                
+
                 <div class="mb-4">
                     <label class="block text-[10px] font-bold text-red-600 uppercase mb-1">Dari Lokasi Asal</label>
-                    <select x-model="lokasiAsal" name="lokasi_asal" required @change="fetchUnits()" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-red-500 mb-2 font-bold">
+                    <select x-model="lokasiAsal" @change="fetchUnits()" :disabled="isAsalLocked" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-red-500 mb-2 font-bold disabled:bg-gray-100">
                         <option value="">-- Pilih Lokasi Asal --</option>
                         @foreach($lokasiStatis as $lok)
                             <option value="{{ $lok }}">{{ $lok }}</option>
                         @endforeach
                     </select>
-                    
+                    <input type="hidden" name="lokasi_asal" :value="lokasiAsal">
+
                     <select x-show="lokasiAsal === 'POP'" x-model="lokasiAsalPopId" name="lokasi_asal_pop_id" @change="fetchUnits()" style="display: none;" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-red-500 bg-red-50">
                         <option value="">-- Pilih Nama POP --</option>
                         @foreach($pops as $pop)
@@ -56,12 +57,13 @@
 
                 <div>
                     <label class="block text-[10px] font-bold text-green-600 uppercase mb-1">Ke Lokasi Tujuan</label>
-                    <select x-model="lokasiTujuan" name="lokasi_tujuan" required class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-green-500 mb-2 font-bold">
+                    <select x-model="lokasiTujuan" :disabled="isTujuanLocked" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-green-500 mb-2 font-bold disabled:bg-gray-100">
                         <option value="">-- Pilih Lokasi Tujuan --</option>
                         @foreach($lokasiStatis as $lok)
                             <option value="{{ $lok }}">{{ $lok }}</option>
                         @endforeach
                     </select>
+                    <input type="hidden" name="lokasi_tujuan" :value="lokasiTujuan">
 
                     <select x-show="lokasiTujuan === 'POP'" name="lokasi_tujuan_pop_id" style="display: none;" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-green-500 bg-green-50">
                         <option value="">-- Pilih Nama POP --</option>
@@ -71,7 +73,7 @@
                     </select>
                 </div>
             </div>
-            
+
             <button type="submit" class="w-full bg-honda-red hover:bg-red-800 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors">
                 Simpan Mutasi
             </button>
@@ -80,7 +82,7 @@
         <div class="lg:col-span-2">
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm h-full flex flex-col">
                 <h3 class="text-sm font-bold text-gray-800 uppercase border-b border-gray-100 pb-2 mb-4">Pilih Unit & Keranjang Mutasi</h3>
-                
+
                 <div class="flex items-end gap-2 mb-6">
                     <div class="flex-1 relative">
                         <label class="block text-xs font-bold text-gray-500 mb-1">Cari Motor di Lokasi Asal</label>
@@ -134,15 +136,23 @@
 </div>
 
 <script>
-    function mutasiForm() {
+    function mutasiForm(kunciAsal, kunciTujuan) {
         return {
-            lokasiAsal: '',
+            lokasiAsal: kunciAsal || '',
             lokasiAsalPopId: '',
-            lokasiTujuan: '',
+            lokasiTujuan: kunciTujuan || '',
+            isAsalLocked: kunciAsal !== '',
+            isTujuanLocked: kunciTujuan !== '',
             availableUnits: [],
             selectedUnitId: '',
             cart: [],
-            
+
+            init() {
+                if (this.lokasiAsal !== '') {
+                    this.fetchUnits();
+                }
+            },
+
             fetchUnits() {
                 if(this.lokasiAsal === 'POP' && this.lokasiAsalPopId === '') {
                     this.availableUnits = [];
@@ -153,20 +163,20 @@
                     return;
                 }
 
-                let url = `/transaction/mutasi-stok/api/available-units?posisi_stok=${this.lokasiAsal}`;
+                let url = `/transaction/mutasi/api/available-units?posisi_stok=${this.lokasiAsal}`;
                 if (this.lokasiAsal === 'POP') url += `&lokasi_pop_id=${this.lokasiAsalPopId}`;
 
                 fetch(url)
                     .then(res => res.json())
                     .then(data => {
                         this.availableUnits = data;
-                        this.cart = []; 
+                        this.cart = [];
                     });
             },
 
             addUnitToCart() {
                 if(this.selectedUnitId === '') return;
-                
+
                 const isAlreadyInCart = this.cart.some(item => item.id == this.selectedUnitId);
                 if (isAlreadyInCart) {
                     alert('Unit ini sudah ada di keranjang!');

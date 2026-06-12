@@ -78,13 +78,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/spk/{id}', [SpkController::class, 'destroy'])->name('spk.destroy');
         Route::get('/spk/{id}/print', [SpkController::class, 'print'])->name('spk.print');
 
-        Route::prefix('mutasi-stok')->name('mutasi-stok.')->group(function () {
-            Route::get('/', [MutasiStokController::class, 'index'])->name('index');
-            Route::get('/create', [MutasiStokController::class, 'create'])->name('create');
-            Route::post('/', [MutasiStokController::class, 'store'])->name('store');
-            Route::get('/{id}', [MutasiStokController::class, 'show'])->name('show');
-            Route::get('/api/available-units', [MutasiStokController::class, 'getAvailableUnits'])->name('api.available-units');
-        });
+        Route::get('/transaction/mutasi/api/available-units', [MutasiStokController::class, 'getAvailableUnits'])->name('mutasi.api.units');
+        Route::get('/transaction/mutasi/detail/{id}', [MutasiStokController::class, 'show'])->name('mutasi.show');
+        Route::get('/transaction/mutasi/{jenis}', [MutasiStokController::class, 'index'])->name('mutasi.index');
+        Route::get('/transaction/mutasi/{jenis}/create', [MutasiStokController::class, 'create'])->name('mutasi.create');
+        Route::post('/transaction/mutasi/{jenis}', [MutasiStokController::class, 'store'])->name('mutasi.store');
 
         Route::get('/suratjalan', [SuratJalanController::class, 'index'])->name('suratjalan.index');
         Route::post('/suratjalan', [SuratJalanController::class, 'store'])->name('suratjalan.store');

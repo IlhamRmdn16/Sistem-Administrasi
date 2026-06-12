@@ -4,9 +4,9 @@
 <div class="max-w-4xl mx-auto">
     <div class="mb-6">
         <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
-            <a href="{{ route('mutasi-stok.index') }}" class="text-gray-400 hover:text-honda-red transition-colors">
+            <button onclick="window.history.back()" class="text-gray-400 hover:text-honda-red transition-colors focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            </a>
+            </button>
             Detail Mutasi
         </h2>
     </div>
@@ -30,7 +30,7 @@
                 <p class="text-sm font-bold text-green-600">{{ $mutasi->lokasi_tujuan }} {{ $mutasi->tujuanPop ? '('.$mutasi->tujuanPop->nama_sales.')' : '' }}</p>
             </div>
         </div>
-        
+
         <div class="p-5">
             <p class="text-xs font-bold text-gray-800 mb-3">Daftar Unit yang Dimutasi:</p>
             <div class="border border-gray-200 rounded-lg overflow-hidden">
@@ -58,7 +58,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             @if($mutasi->keterangan)
             <div class="mt-4 p-3 bg-yellow-50 rounded text-xs text-yellow-800">
                 <span class="font-bold">Keterangan:</span> {{ $mutasi->keterangan }}

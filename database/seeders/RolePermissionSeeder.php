@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Hash;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -22,9 +21,14 @@ class RolePermissionSeeder extends Seeder
             'akses-master-pdiman',
             'akses-master-rekening',
             'akses-master-biaya',
-            
+
             'akses-registrasi-unit',
-            'akses-mutasi-stok',
+            'akses-mutasi-ke-showroom',
+            'akses-mutasi-dari-showroom',
+            'akses-mutasi-ke-pop',
+            'akses-mutasi-dari-pop',
+            'akses-mutasi-ke-gp',
+            'akses-mutasi-dari-gp',
             'akses-spk',
             'akses-kontrol-harga',
             'akses-surat-jalan',
@@ -38,7 +42,7 @@ class RolePermissionSeeder extends Seeder
             'akses-pencairan-leasing',
             'akses-kuitansi-lain',
             'akses-cetak-blanko-samsat',
-            
+
             'akses-manajemen-role',
             'akses-manajemen-user',
         ];

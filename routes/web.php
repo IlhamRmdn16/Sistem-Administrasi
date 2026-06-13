@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/transaction/mutasi/{jenis}', [MutasiStokController::class, 'index'])->name('mutasi.index');
         Route::get('/transaction/mutasi/{jenis}/create', [MutasiStokController::class, 'create'])->name('mutasi.create');
         Route::post('/transaction/mutasi/{jenis}', [MutasiStokController::class, 'store'])->name('mutasi.store');
+        Route::delete('/transaction/mutasi/{id}', [MutasiStokController::class, 'destroy'])->name('mutasi.destroy');
 
         Route::get('/suratjalan', [SuratJalanController::class, 'index'])->name('suratjalan.index');
         Route::post('/suratjalan', [SuratJalanController::class, 'store'])->name('suratjalan.store');

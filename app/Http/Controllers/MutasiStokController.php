@@ -22,31 +22,53 @@ class MutasiStokController extends Controller
             'dari-pop' => ['kunci' => 'asal', 'val' => 'POP', 'judul' => 'Mutasi Dari POP', 'prefix' => 'MDP'],
             'ke-gp' => ['kunci' => 'tujuan', 'val' => 'Showroom GP', 'judul' => 'Mutasi Ke GP', 'prefix' => 'MKG'],
             'dari-gp' => ['kunci' => 'asal', 'val' => 'Showroom GP', 'judul' => 'Mutasi Dari GP', 'prefix' => 'MDG'],
+            'antar-gudang' => ['kunci' => 'antar-gudang', 'val' => 'Gudang', 'judul' => 'Mutasi Antar Gudang', 'prefix' => 'MAG'],
         ];
 
         return $config[$jenis] ?? abort(404);
     }
 
-    public function index($jenis)
+    public function index(Request $request, $jenis)
     {
         $config = $this->getMutasiConfig($jenis);
-        $kolom = $config['kunci'] === 'asal' ? 'lokasi_asal' : 'lokasi_tujuan';
 
-        $mutasis = Mutasi::with(['details.motorUnit', 'asalPop', 'tujuanPop'])
-            ->where($kolom, $config['val'])
-            ->latest()
-            ->paginate(15);
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        $query = Mutasi::with(['details.motorUnit', 'asalPop', 'tujuanPop']);
+
+        if ($config['kunci'] === 'antar-gudang') {
+            $query->whereIn('lokasi_asal', ['Gudang 1', 'Gudang 2'])
+                  ->whereIn('lokasi_tujuan', ['Gudang 1', 'Gudang 2']);
+        } else {
+            $kolom = $config['kunci'] === 'asal' ? 'lokasi_asal' : 'lokasi_tujuan';
+            $query->where($kolom, $config['val']);
+        }
+
+        if ($dari_tanggal && $sampai_tanggal) {
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+        }
+
+        if ($search) {
+            $query->where('no_bukti', 'like', "%{$search}%");
+        }
+
+        $mutasis = $query->latest()->paginate($per_page)->withQueryString();
 
         $judul = $config['judul'];
 
-        return view('transaction.mutasi.index', compact('mutasis', 'judul', 'jenis'));
+        return view('transaction.mutasi.index', compact('mutasis', 'judul', 'jenis', 'dari_tanggal', 'sampai_tanggal', 'search', 'per_page'));
     }
 
     public function create($jenis)
     {
         $config = $this->getMutasiConfig($jenis);
-        $lokasiStatis = $this->lokasiStatis;
         $pops = Sales::where('jenis_sales', 'pop')->get();
+
+        $opsiAsal = $config['kunci'] === 'antar-gudang' ? ['Gudang 1', 'Gudang 2'] : $this->lokasiStatis;
+        $opsiTujuan = $config['kunci'] === 'antar-gudang' ? ['Gudang 1', 'Gudang 2'] : $this->lokasiStatis;
 
         $prefixLengkap = $config['prefix'] . date('Y/m/');
         $lastMutasi = Mutasi::where('no_bukti', 'like', $prefixLengkap . '%')
@@ -60,7 +82,7 @@ class MutasiStokController extends Controller
         $kunciAsal = $config['kunci'] === 'asal' ? $config['val'] : '';
         $kunciTujuan = $config['kunci'] === 'tujuan' ? $config['val'] : '';
 
-        return view('transaction.mutasi.create', compact('lokasiStatis', 'pops', 'noBukti', 'judul', 'jenis', 'kunciAsal', 'kunciTujuan'));
+        return view('transaction.mutasi.create', compact('opsiAsal', 'opsiTujuan', 'pops', 'noBukti', 'judul', 'jenis', 'kunciAsal', 'kunciTujuan'));
     }
 
     public function getAvailableUnits(Request $request)
@@ -82,7 +104,7 @@ class MutasiStokController extends Controller
             'no_bukti' => 'required|unique:mutasis',
             'tanggal' => 'required|date',
             'lokasi_asal' => 'required|string',
-            'lokasi_tujuan' => 'required|string',
+            'lokasi_tujuan' => 'required|string|different:lokasi_asal',
             'motor_unit_ids' => 'required|array|min:1',
         ]);
 
@@ -122,5 +144,29 @@ class MutasiStokController extends Controller
     {
         $mutasi = Mutasi::with(['details.motorUnit.type', 'details.motorUnit.color', 'asalPop', 'tujuanPop'])->findOrFail($id);
         return view('transaction.mutasi.show', compact('mutasi'));
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $mutasi = Mutasi::with('details')->findOrFail($id);
+
+            foreach ($mutasi->details as $detail) {
+                MotorUnit::where('id', $detail->motor_unit_id)->update([
+                    'posisi_stok' => $mutasi->lokasi_asal,
+                    'lokasi_pop_id' => $mutasi->lokasi_asal_pop_id,
+                ]);
+            }
+
+            $mutasi->details()->delete();
+            $mutasi->delete();
+
+            DB::commit();
+            return back()->with('success', 'Dokumen mutasi berhasil dibatalkan. Stok unit telah dikembalikan ke lokasi semula.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal membatalkan mutasi: ' . $e->getMessage()]);
+        }
     }
 }

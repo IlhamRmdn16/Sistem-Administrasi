@@ -515,7 +515,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -525,7 +525,7 @@
                     this.isSubmitting = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',
@@ -604,7 +604,7 @@
                 let formData = new FormData(event.target);
 
                 fetch('/transaction/motor-unit/' + this.eId, {
-                    method: 'POST', 
+                    method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -627,7 +627,7 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -637,7 +637,7 @@
                     this.isEditing = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
                     if(error.errors) {
-                        errorMsg = Object.values(error.errors)[0][0]; 
+                        errorMsg = Object.values(error.errors)[0][0];
                     }
                     Swal.fire({
                         icon: 'error',

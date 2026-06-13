@@ -11,6 +11,16 @@
         </h2>
     </div>
 
+    @if($errors->any())
+        <div class="mb-6 bg-red-50 border-l-4 border-honda-red p-4 rounded-r-lg">
+            <ul class="text-xs font-bold text-red-600 list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('mutasi.store', $jenis) }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         @csrf
 
@@ -41,7 +51,7 @@
                     <label class="block text-[10px] font-bold text-red-600 uppercase mb-1">Dari Lokasi Asal</label>
                     <select x-model="lokasiAsal" @change="fetchUnits()" :disabled="isAsalLocked" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-red-500 mb-2 font-bold disabled:bg-gray-100">
                         <option value="">-- Pilih Lokasi Asal --</option>
-                        @foreach($lokasiStatis as $lok)
+                        @foreach($opsiAsal as $lok)
                             <option value="{{ $lok }}">{{ $lok }}</option>
                         @endforeach
                     </select>
@@ -59,7 +69,7 @@
                     <label class="block text-[10px] font-bold text-green-600 uppercase mb-1">Ke Lokasi Tujuan</label>
                     <select x-model="lokasiTujuan" :disabled="isTujuanLocked" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-green-500 mb-2 font-bold disabled:bg-gray-100">
                         <option value="">-- Pilih Lokasi Tujuan --</option>
-                        @foreach($lokasiStatis as $lok)
+                        @foreach($opsiTujuan as $lok)
                             <option value="{{ $lok }}">{{ $lok }}</option>
                         @endforeach
                     </select>
@@ -86,15 +96,16 @@
                 <div class="flex items-end gap-2 mb-6">
                     <div class="flex-1 relative">
                         <label class="block text-xs font-bold text-gray-500 mb-1">Cari Motor di Lokasi Asal</label>
-                        <select x-model="selectedUnitId" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-honda-red font-mono">
+                        <select x-model="selectedUnitId" class="w-full border border-gray-300 rounded p-2 text-sm outline-none focus:border-honda-red font-mono" :disabled="isLoading">
                             <option value="">-- Ketik/Pilih No Rangka atau Mesin --</option>
                             <template x-for="unit in availableUnits" :key="unit.id">
                                 <option :value="unit.id" x-text="unit.type.nama_type + ' | M: ' + unit.no_mesin + ' | R: ' + unit.no_rangka"></option>
                             </template>
                         </select>
-                        <div x-show="availableUnits.length === 0 && lokasiAsal !== ''" style="display: none;" class="absolute top-full left-0 mt-1 text-[10px] text-red-500 font-bold">Tidak ada unit tersedia di lokasi asal ini.</div>
+                        <div x-show="isLoading" style="display: none;" class="absolute top-full left-0 mt-1 text-[10px] text-blue-500 font-bold">Sedang memuat data...</div>
+                        <div x-show="!isLoading && availableUnits.length === 0 && lokasiAsal !== ''" style="display: none;" class="absolute top-full left-0 mt-1 text-[10px] text-red-500 font-bold">Tidak ada unit tersedia di lokasi asal ini.</div>
                     </div>
-                    <button type="button" @click="addUnitToCart()" class="bg-gray-800 text-white font-bold px-5 py-2 rounded text-sm hover:bg-gray-900">Tambahkan</button>
+                    <button type="button" @click="addUnitToCart()" class="bg-gray-800 text-white font-bold px-5 py-2 rounded text-sm hover:bg-gray-900 disabled:opacity-50" :disabled="isLoading">Tambahkan</button>
                 </div>
 
                 <div class="flex-1 overflow-x-auto border border-gray-200 rounded-lg">
@@ -146,6 +157,7 @@
             availableUnits: [],
             selectedUnitId: '',
             cart: [],
+            isLoading: false,
 
             init() {
                 if (this.lokasiAsal !== '') {
@@ -163,14 +175,29 @@
                     return;
                 }
 
-                let url = `/transaction/mutasi/api/available-units?posisi_stok=${this.lokasiAsal}`;
-                if (this.lokasiAsal === 'POP') url += `&lokasi_pop_id=${this.lokasiAsalPopId}`;
+                this.isLoading = true;
+
+                let baseUrl = "{{ route('mutasi.api.units') }}";
+                let url = `${baseUrl}?posisi_stok=${encodeURIComponent(this.lokasiAsal)}`;
+
+                if (this.lokasiAsal === 'POP') {
+                    url += `&lokasi_pop_id=${this.lokasiAsalPopId}`;
+                }
 
                 fetch(url)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network error');
+                        return res.json();
+                    })
                     .then(data => {
                         this.availableUnits = data;
                         this.cart = [];
+                        this.isLoading = false;
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        this.isLoading = false;
+                        alert('Gagal mengambil data unit.');
                     });
             },
 

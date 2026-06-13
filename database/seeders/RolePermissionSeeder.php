@@ -29,6 +29,7 @@ class RolePermissionSeeder extends Seeder
             'akses-mutasi-dari-pop',
             'akses-mutasi-ke-gp',
             'akses-mutasi-dari-gp',
+            'akses-mutasi-antar-gudang',
             'akses-spk',
             'akses-kontrol-harga',
             'akses-surat-jalan',

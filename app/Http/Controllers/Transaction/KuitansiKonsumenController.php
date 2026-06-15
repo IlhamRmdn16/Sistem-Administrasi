@@ -23,16 +23,30 @@ class KuitansiKonsumenController extends Controller
     public function searchApi(Request $request)
     {
         $keyword = $request->q;
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
 
-        $spks = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing', 'kuitansiKonsumens', 'kontrolHarga'])
-            ->where('no_spk', 'like', "%{$keyword}%")
-            ->orWhere('nama_pemohon', 'like', "%{$keyword}%")
-            ->orWhere('nama_stnk', 'like', "%{$keyword}%")
-            ->limit(10)
-            ->get();
+        $query = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing', 'kuitansiKonsumens', 'kontrolHarga']);
+
+        // Isolasi Data Pencarian: Admin GP hanya bisa akses GPK, selain GP hanya bisa akses SPK
+        if ($isAdminGp) {
+            $query->where('no_spk', 'like', 'GPK%');
+        } else {
+            $query->where('no_spk', 'like', 'SPK%');
+        }
+
+        // Bungkus query keyword dalam closure agar tidak merusak filter prefix di atas
+        if ($keyword) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('no_spk', 'like', "%{$keyword}%")
+                  ->orWhere('nama_pemohon', 'like', "%{$keyword}%")
+                  ->orWhere('nama_stnk', 'like', "%{$keyword}%");
+            });
+        }
+
+        $spks = $query->limit(10)->get();
 
         $results = $spks->map(function($spk) {
-            $suratJalan = SuratJalan::where('spk_id', $spk->id)->first();
+            $suratJalans = SuratJalan::where('spk_id', $spk->id)->first();
             $discount = $spk->kontrolHarga->discount ?? 0;
 
             $isKredit = (strtolower($spk->jenis_pembayaran) === 'kredit' || !empty($spk->leasing_id));
@@ -58,7 +72,7 @@ class KuitansiKonsumenController extends Controller
                 'leasing' => $spk->leasing->nama_leasing ?? '-',
                 'tenor' => $spk->tenor_bulan,
                 'discount' => $discount,
-                'sjk' => $suratJalan->no_bukti ?? 'Belum Ada',
+                'sjk' => $suratJalans->no_bukti ?? 'Belum Ada',
 
                 // Kalkulasi Realtime
                 'target_tagihan' => $targetTagihan,
@@ -103,6 +117,16 @@ class KuitansiKonsumenController extends Controller
             DB::beginTransaction();
 
             $spk = Spk::with('kontrolHarga')->findOrFail($request->spk_id);
+            $isAdminGp = auth()->user()->hasRole('Admin GP');
+
+            // Validasi Keamanan Sisi Server (Mencegah tembakan ID antar role lewat inspect element)
+            if ($isAdminGp && !str_starts_with($spk->no_spk, 'GPK')) {
+                return back()->with('error', 'Anda tidak memiliki hak akses untuk memproses dokumen ini.');
+            }
+            if (!$isAdminGp && !str_starts_with($spk->no_spk, 'SPK')) {
+                return back()->with('error', 'Anda tidak memiliki hak akses untuk memproses dokumen ini.');
+            }
+
             $discount = $spk->kontrolHarga->discount ?? 0;
 
             $isKredit = (strtolower($spk->jenis_pembayaran) === 'kredit' || !empty($spk->leasing_id));
@@ -114,7 +138,6 @@ class KuitansiKonsumenController extends Controller
             $sisaTagihan = $targetTagihan - $terbayarSebelumnya;
             $kelebihan = $inputTotal - $sisaTagihan;
 
-            // Jika ada kelebihan bayar, dan transaksinya pakai transfer, simpan ke Refund Transfer
             if ($kelebihan > 0 && $bayarTransfer > 0) {
                 $tambahanRefund = min($kelebihan, $bayarTransfer);
 
@@ -123,7 +146,7 @@ class KuitansiKonsumenController extends Controller
                 $kontrol->save();
             }
 
-            // Generate No. TTK
+            // Generate No. Kuitansi (Format nomor tetap TTK untuk semua jenis admin)
             $now = Carbon::parse($request->tanggal);
             $prefix = 'TTK' . $now->format('Y/m/');
 

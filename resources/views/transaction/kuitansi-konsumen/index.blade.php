@@ -28,10 +28,10 @@
 
         <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div class="mb-5 relative">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Cari Konsumen (No SPK / Nama)</label>
-                <input type="text" id="searchInput" class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:border-honda-red text-sm" placeholder="Ketik nama atau No SPK..." autocomplete="off">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Cari Konsumen (No {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }} / Nama)</label>
+                <input type="text" id="searchInput" class="w-full border border-gray-300 rounded-lg p-3 outline-none focus:border-honda-red text-sm" placeholder="Ketik nama atau No {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}..." autocomplete="off">
                 <div id="searchDropdown" class="absolute w-full bg-white border border-gray-200 shadow-lg rounded-lg mt-1 hidden z-50 max-h-60 overflow-y-auto">
-                    </div>
+                </div>
             </div>
 
             <form action="{{ route('kuitansi-konsumen.store') }}" method="POST" id="ttkForm" class="hidden">
@@ -103,7 +103,7 @@
         <div class="lg:col-span-7 space-y-6 hidden" id="detailPanel">
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <h3 class="font-black text-gray-800 uppercase border-b border-gray-100 pb-3 mb-4 flex justify-between">
-                    Informasi SPK
+                    Informasi {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}
                     <span id="detNoSpk" class="text-honda-red"></span>
                 </h3>
 
@@ -135,7 +135,7 @@
                         </tr>
                     </thead>
                     <tbody id="historyTable" class="divide-y divide-gray-100 text-xs">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -151,9 +151,8 @@
         const emptyState = document.getElementById('emptyState');
         const detailPanel = document.getElementById('detailPanel');
 
-        let currentData = null; // Menyimpan data SPK aktif
+        let currentData = null;
 
-        // Event listener pencarian
         searchInput.addEventListener('input', function() {
             let q = this.value;
             if(q.length < 2) {
@@ -180,7 +179,6 @@
                 });
         });
 
-        // Hide dropdown on click outside
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                 searchDropdown.classList.add('hidden');
@@ -196,23 +194,19 @@
             searchInput.value = item.nama_pemohon + ' - ' + item.no_spk;
             searchDropdown.classList.add('hidden');
 
-            // Tampilkan Form & Panel Kanan
             emptyState.classList.add('hidden');
             ttkForm.classList.remove('hidden');
             detailPanel.classList.remove('hidden');
 
-            // Isi Value Form
             document.getElementById('form_spk_id').value = item.id;
             document.getElementById('inputKontan').value = '';
             document.getElementById('inputTransfer').value = '';
             document.getElementById('rekeningBox').classList.add('hidden');
 
-            // Set Data Panel Kiri
             document.getElementById('tagihanNett').innerText = formatRp(item.target_tagihan);
             updateStatusLabel(item.sisa, item.is_lunas);
-            calculateSisa(); // Hitung ulang
+            calculateSisa();
 
-            // Set Data Panel Kanan
             document.getElementById('detNoSpk').innerText = item.no_spk;
             document.getElementById('detPemohon').innerText = item.nama_pemohon;
             document.getElementById('detStnk').innerText = item.nama_stnk;
@@ -226,7 +220,6 @@
             document.getElementById('detLeasing').innerText = item.leasing !== '-' ? `${item.leasing} (${item.tenor} Bln)` : 'CASH / TUNAI';
             document.getElementById('detSjk').innerText = item.sjk;
 
-            // Render History
             const histTbody = document.getElementById('historyTable');
             histTbody.innerHTML = '';
             if(item.history.length === 0) {
@@ -255,7 +248,7 @@
                 badge.className = "text-xl font-black text-green-600";
                 btn.disabled = true;
                 btn.className = "w-full bg-gray-300 text-gray-500 font-bold py-3 rounded-lg uppercase tracking-wider text-sm cursor-not-allowed";
-                btn.innerText = "SPK SUDAH LUNAS";
+                btn.innerText = "DOKUMEN SUDAH LUNAS";
             } else {
                 badge.innerText = "BELUM LUNAS (Sisa: " + formatRp(sisaAsli) + ")";
                 badge.className = "text-sm font-black text-red-600 mt-1";
@@ -271,7 +264,6 @@
             let valKontan = parseInt(document.getElementById('inputKontan').value) || 0;
             let valTransfer = parseInt(document.getElementById('inputTransfer').value) || 0;
 
-            // Munculkan kolom rekening jika transfer > 0
             const rekBox = document.getElementById('rekeningBox');
             if(valTransfer > 0) rekBox.classList.remove('hidden');
             else rekBox.classList.add('hidden');
@@ -293,7 +285,6 @@
             }
         }
 
-        // Listener Kalkulator
         document.getElementById('inputKontan').addEventListener('input', calculateSisa);
         document.getElementById('inputTransfer').addEventListener('input', calculateSisa);
     });

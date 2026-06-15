@@ -47,7 +47,8 @@
 
         // Format Alamat Memanjang
         $alamatLengkap = $spk->alamat .
-                         ($spk->rt_rw ? ' RT/RW ' . $spk->rt_rw : '') .
+                         ($spk->rt_rw ? ', RT/RW ' . $spk->rt_rw : '') .
+                         ($spk->desa_kelurahan ? ', DESA ' . $spk->desa_kelurahan : '') .
                          ($spk->kecamatan ? ', KEC. ' . $spk->kecamatan : '') .
                          ($spk->kota_kabupaten ? ', ' . $spk->kota_kabupaten : '');
 

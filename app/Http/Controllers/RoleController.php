@@ -46,6 +46,9 @@ class RoleController extends Controller
             'akses-penyerahan-stnk' => 'Penyerahan STNK / BPKB ke Konsumen',
             'akses-cetak-blanko-samsat' => 'Cetak Blanko Samsat',
         ],
+        'Modul Laporan' => [
+            'akses-laporan-stok' => 'Laporan Stok Unit',
+        ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',
             'akses-manajemen-user' => 'Manajemen Karyawan (User)',
@@ -76,11 +79,9 @@ class RoleController extends Controller
         DB::beginTransaction();
         try {
             $role = Role::create(['name' => $request->name]);
-
             if ($request->has('permissions')) {
                 $role->syncPermissions($request->permissions);
             }
-
             DB::commit();
             return redirect()->route('roles.index')->with('success', 'Role berhasil dibuat!');
         } catch (\Exception $e) {
@@ -94,10 +95,8 @@ class RoleController extends Controller
         if ($role->name === 'Super Admin') {
             return back()->withErrors(['error' => 'Hak akses Super Admin tidak boleh diubah!']);
         }
-
         $permissionGroups = $this->permissionGroups;
         $rolePermissions = $role->permissions->pluck('name')->toArray();
-
         return view('settings.roles.edit', compact('role', 'permissionGroups', 'rolePermissions'));
     }
 
@@ -106,7 +105,6 @@ class RoleController extends Controller
         if ($role->name === 'Super Admin') {
             return back()->withErrors(['error' => 'Super Admin tidak boleh diubah!']);
         }
-
         $request->validate([
             'name' => 'required|unique:roles,name,' . $role->id,
             'permissions' => 'nullable|array'
@@ -116,7 +114,6 @@ class RoleController extends Controller
         try {
             $role->update(['name' => $request->name]);
             $role->syncPermissions($request->permissions ?? []);
-
             DB::commit();
             return redirect()->route('roles.index')->with('success', 'Role dan hak akses berhasil diperbarui!');
         } catch (\Exception $e) {
@@ -130,7 +127,6 @@ class RoleController extends Controller
         if ($role->name === 'Super Admin') {
             return back()->withErrors(['error' => 'Super Admin tidak boleh dihapus!']);
         }
-
         $role->delete();
         return back()->with('success', 'Role berhasil dihapus!');
     }

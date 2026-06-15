@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\Master\BiayaAdministrasiController;
 use App\Http\Controllers\Master\LeasingController;
 use App\Http\Controllers\Master\MotorTypeController;
@@ -171,5 +172,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [CetakBlankoSamsatController::class, 'index'])->name('index');
         Route::get('/{id}/print', [CetakBlankoSamsatController::class, 'print'])->name('print');
     });
+
+    Route::get('/laporan/stok/global', [LaporanStokController::class, 'global'])->name('laporan.stok.global');
+    Route::get('/laporan/stok/global/print', [LaporanStokController::class, 'printGlobal'])->name('laporan.stok.global.print');
 
 });

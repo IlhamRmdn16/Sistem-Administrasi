@@ -37,4 +37,9 @@ class MotorType extends Model
     {
         return $this->hasMany(MotorColor::class);
     }
+
+    public function motorUnits()
+    {
+        return $this->hasMany(MotorUnit::class, 'motor_type_id');
+    }
 }

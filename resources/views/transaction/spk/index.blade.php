@@ -7,14 +7,14 @@
         <div>
             <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
-                Surat Pesanan Kendaraan (SPK)
+                {{ Auth::user()->hasRole('Admin GP') ? 'Surat Pesanan Kendaraan GP (GPK)' : 'Surat Pesanan Kendaraan (SPK)' }}
             </h2>
             <p class="text-sm text-gray-500 mt-1 ml-4">Kelola data pemesanan unit kendaraan dari konsumen.</p>
         </div>
 
         <button @click="isCreateModalOpen = true" class="bg-honda-red text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:bg-red-700 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Buat SPK
+            Buat {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}
         </button>
     </div>
 
@@ -30,7 +30,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. SPK, Pemohon, Sales..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari {{ Auth::user()->hasRole('Admin GP') ? 'No. GPK' : 'No. SPK' }}, Pemohon, Sales..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
             </div>
 
             <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -51,7 +51,7 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
                     <tr>
-                        <th class="py-4 px-6 font-semibold">No. SPK / Tgl</th>
+                        <th class="py-4 px-6 font-semibold">{{ Auth::user()->hasRole('Admin GP') ? 'No. GPK / Tgl' : 'No. SPK / Tgl' }}</th>
                         <th class="py-4 px-6 font-semibold">Pemohon</th>
                         <th class="py-4 px-6 font-semibold">Sales</th>
                         <th class="py-4 px-6 font-semibold">Kendaraan</th>
@@ -82,7 +82,7 @@
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-3">
-                                    <a href="{{ route('spk.print', $spk->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700" title="Cetak SPK">
+                                    <a href="{{ route('spk.print', $spk->id) }}" target="_blank" class="text-emerald-500 hover:text-emerald-700" title="Cetak">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                     </a>
                                     <button @click="openEditModal({{ $spk }})" class="text-blue-500 hover:text-blue-700" title="Edit Data">
@@ -96,9 +96,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center text-gray-500">Data SPK tidak ditemukan.</td>
+                            <td colspan="6" class="py-12 text-center text-gray-500">Data tidak ditemukan.</td>
                         </tr>
-                    @endempty
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -112,7 +112,7 @@
             <div x-show="isCreateModalOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isCreateModalOpen = false"></div>
             <div x-show="isCreateModalOpen" x-transition class="bg-gray-50 rounded-2xl shadow-xl transform transition-all w-full max-w-5xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-20">
-                    <h3 class="text-lg font-bold text-gray-900">Buat SPK Baru</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Buat {{ Auth::user()->hasRole('Admin GP') ? 'GPK Baru' : 'SPK Baru' }}</h3>
                     <button @click="isCreateModalOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
@@ -122,7 +122,7 @@
 
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">No. SPK (Otomatis)</label>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">{{ Auth::user()->hasRole('Admin GP') ? 'No. GPK (Otomatis)' : 'No. SPK (Otomatis)' }}</label>
                                 <input type="text" name="no_spk" value="{{ $autoNoSpk }}" readonly class="w-full bg-gray-100 border border-gray-200 rounded-lg p-2.5 font-bold text-gray-700 cursor-not-allowed">
                             </div>
                             <div>
@@ -193,7 +193,7 @@
                                                 <div @click="setMotor(u)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
                                                     <div class="font-bold text-gray-800" x-text="u.type.nama_type + ' - ' + u.color.warna"></div>
                                                     <div class="text-[11px] font-bold text-gray-500 mt-0.5" x-text="'M: ' + u.no_mesin + ' | R: ' + u.no_rangka"></div>
-                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase"
                                                          x-text="'LOKASI: ' + u.posisi_stok + (u.posisi_stok === 'POP' && u.lokasi_pop ? ' - ' + u.lokasi_pop.nama_sales : '')"></div>
                                                 </div>
                                             </template>
@@ -274,7 +274,7 @@
                             <button type="submit" class="px-8 py-3 bg-honda-red text-white rounded-lg font-bold shadow hover:bg-red-700 flex items-center gap-2" :disabled="isSubmitting">
                                 <svg x-show="!isSubmitting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                                 <svg x-show="isSubmitting" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan SPK'"></span>
+                                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Dokumen'"></span>
                             </button>
                         </div>
                     </form>
@@ -288,7 +288,7 @@
             <div x-show="isEditModalOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isEditModalOpen = false"></div>
             <div x-show="isEditModalOpen" x-transition class="bg-gray-50 rounded-2xl shadow-xl transform transition-all w-full max-w-5xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center sticky top-0 z-20">
-                    <h3 class="text-lg font-bold text-gray-900">Edit Data SPK</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Edit Data {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}</h3>
                     <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
@@ -298,7 +298,7 @@
 
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">No. SPK</label>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">No. Dokumen</label>
                                 <input type="text" name="no_spk" x-model="eNoSpk" readonly class="w-full bg-gray-100 border border-gray-200 rounded-lg p-2.5 font-bold text-gray-700 cursor-not-allowed">
                             </div>
                             <div>
@@ -369,7 +369,7 @@
                                                 <div @click="setEditMotor(u)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
                                                     <div class="font-bold text-gray-800" x-text="u.type.nama_type + ' - ' + u.color.warna"></div>
                                                     <div class="text-[11px] font-bold text-gray-500 mt-0.5" x-text="'M: ' + u.no_mesin + ' | R: ' + u.no_rangka"></div>
-                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                                    <div class="text-[10px] inline-block mt-1.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase"
                                                          x-text="'LOKASI: ' + u.posisi_stok + (u.posisi_stok === 'POP' && u.lokasi_pop ? ' - ' + u.lokasi_pop.nama_sales : '')"></div>
                                                 </div>
                                             </template>
@@ -450,7 +450,7 @@
                             <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold shadow hover:bg-blue-700 flex items-center gap-2" :disabled="isEditing">
                                 <svg x-show="!isEditing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 <svg x-show="isEditing" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                <span x-text="isEditing ? 'Memperbarui...' : 'Perbarui SPK'"></span>
+                                <span x-text="isEditing ? 'Memperbarui...' : 'Perbarui Dokumen'"></span>
                             </button>
                         </div>
                     </form>
@@ -481,15 +481,15 @@
             openMotor: false, searchMotor: '', cUnit: '', selectedMotorName: '',
             cWarna: '', cTahun: '', cOtr: 0,
             setMotor(u) {
-                this.cUnit = u.id; 
+                this.cUnit = u.id;
                 let lokasi = u.posisi_stok;
                 if (lokasi === 'POP' && u.lokasi_pop) {
                     lokasi += ' - ' + u.lokasi_pop.nama_sales;
                 }
-                this.selectedMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi; 
-                this.cTahun = u.tahun_pembuatan; 
+                this.selectedMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi;
+                this.cTahun = u.tahun_pembuatan;
                 this.cOtr = u.type.otr;
-                this.cWarna = u.color.warna; 
+                this.cWarna = u.color.warna;
                 this.openMotor = false;
             },
 
@@ -527,7 +527,7 @@
                 .catch(error => {
                     this.isSubmitting = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
-                    if(error.errors) errorMsg = Object.values(error.errors)[0][0]; 
+                    if(error.errors) errorMsg = Object.values(error.errors)[0][0];
                     Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: errorMsg });
                 });
             },
@@ -544,15 +544,15 @@
 
             setEditSales(s) { this.eSales = s.id; this.eSalesName = s.nama_sales; this.eOpenSales = false; },
             setEditMotor(u) {
-                this.eUnit = u.id; 
+                this.eUnit = u.id;
                 let lokasi = u.posisi_stok;
                 if (lokasi === 'POP' && u.lokasi_pop) {
                     lokasi += ' - ' + u.lokasi_pop.nama_sales;
                 }
-                this.eMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi; 
-                this.eTahun = u.tahun_pembuatan; 
+                this.eMotorName = u.type.nama_type + ' | M: ' + u.no_mesin + ' | Lokasi: ' + lokasi;
+                this.eTahun = u.tahun_pembuatan;
                 this.eOtr = u.type.otr;
-                this.eWarna = u.color.warna; 
+                this.eWarna = u.color.warna;
                 this.eOpenMotor = false;
             },
             setEditLeasing(l) { this.eLeasing = l.id; this.eLeasingName = l.nama_leasing; this.eOpenLeasing = false; },
@@ -608,7 +608,7 @@
                 let formData = new FormData(event.target);
 
                 fetch('/transaction/spk/' + this.eId, {
-                    method: 'POST', 
+                    method: 'POST',
                     body: formData,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
@@ -630,7 +630,7 @@
                 .catch(error => {
                     this.isEditing = false;
                     let errorMsg = 'Terjadi kesalahan sistem.';
-                    if(error.errors) errorMsg = Object.values(error.errors)[0][0]; 
+                    if(error.errors) errorMsg = Object.values(error.errors)[0][0];
                     Swal.fire({ icon: 'error', title: 'Gagal Memperbarui', text: errorMsg });
                 });
             }
@@ -640,7 +640,7 @@
     function confirmDeleteAjax(id, button) {
         Swal.fire({
             title: 'Apakah Anda yakin?',
-            text: "Data SPK ini akan dihapus secara permanen!",
+            text: "Data dokumen ini akan dihapus secara permanen!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',

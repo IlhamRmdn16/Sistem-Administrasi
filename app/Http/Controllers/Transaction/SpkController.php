@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class SpkController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search = $request->input('search');
         $dari_tanggal = $request->input('dari_tanggal');
@@ -21,32 +21,51 @@ class SpkController extends Controller
         $sales = Sales::orderBy('nama_sales')->get();
         $leasings = Leasing::orderBy('nama_leasing')->get();
 
-        // Hanya mengambil unit yang statusnya 'Tersedia' beserta informasi lokasinya
-        $motorUnits = MotorUnit::with(['type', 'color', 'lokasiPop'])
-                        ->where('status_unit', 'Tersedia')
-                        ->get();
-                        
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+
+        // Filter Unit Kendaraan berdasarkan Role
+        $motorUnitsQuery = MotorUnit::with(['type', 'color', 'lokasiPop'])
+                            ->where('status_unit', 'Tersedia');
+
+        if ($isAdminGp) {
+            $motorUnitsQuery->where('posisi_stok', 'Showroom GP');
+        } else {
+            $motorUnitsQuery->where('posisi_stok', '!=', 'Showroom GP');
+        }
+
+        $motorUnits = $motorUnitsQuery->get();
+
         $usedUnitIds = Spk::pluck('motor_unit_id')->filter()->toArray();
 
         $query = Spk::with(['sales', 'motorUnit.type', 'motorUnit.color', 'leasing']);
+
+        // Isolasi Laporan Utama: Admin GP melihat GPK, Admin lain melihat SPK
+        if ($isAdminGp) {
+            $query->where('no_spk', 'like', 'GPK%');
+        } else {
+            $query->where('no_spk', 'like', 'SPK%');
+        }
 
         if ($dari_tanggal && $sampai_tanggal) {
             $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
         }
 
         if ($search) {
-            $query->where('no_spk', 'like', "%{$search}%")
+            $query->where(function($q) use ($search) {
+                $q->where('no_spk', 'like', "%{$search}%")
                   ->orWhere('nama_pemohon', 'like', "%{$search}%")
-                  ->orWhereHas('sales', function ($q) use ($search) {
-                      $q->where('nama_sales', 'like', "%{$search}%");
+                  ->orWhereHas('sales', function ($sub) use ($search) {
+                      $sub->where('nama_sales', 'like', "%{$search}%");
                   });
+            });
         }
-        
+
         $spks = $query->latest()->paginate($per_page)->withQueryString();
 
         $now = now();
-        $prefix = "SPK{$now->format('Y')}/{$now->format('m')}/";
-        
+        $prefixCode = $isAdminGp ? 'GPK' : 'SPK';
+        $prefix = "{$prefixCode}{$now->format('Y')}/{$now->format('m')}/";
+
         $existingNumbers = Spk::where('no_spk', 'like', "{$prefix}%")
             ->pluck('no_spk')
             ->map(function ($no_spk) {
@@ -74,7 +93,7 @@ class SpkController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data SPK berhasil dibuat!'
+            'message' => auth()->user()->hasRole('Admin GP') ? 'Data GPK berhasil dibuat!' : 'Data SPK berhasil dibuat!'
         ]);
     }
 
@@ -100,7 +119,7 @@ class SpkController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Data SPK berhasil diperbarui!'
+            'message' => auth()->user()->hasRole('Admin GP') ? 'Data GPK berhasil diperbarui!' : 'Data SPK berhasil diperbarui!'
         ]);
     }
 
@@ -109,7 +128,7 @@ class SpkController extends Controller
         Spk::findOrFail($id)->delete();
         return response()->json([
             'success' => true,
-            'message' => 'Data SPK berhasil dihapus!'
+            'message' => auth()->user()->hasRole('Admin GP') ? 'Data GPK berhasil dihapus!' : 'Data SPK berhasil dihapus!'
         ]);
     }
 

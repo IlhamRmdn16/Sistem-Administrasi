@@ -18,9 +18,19 @@ class KontrolHargaPenjualanController extends Controller
         $startDate = $request->input('start_date', date('Y-m-d'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
-        $spks = Spk::with(['motorUnit.type'])
-            ->whereBetween('tanggal', [$startDate, $endDate])
-            ->get();
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+
+        $query = Spk::with(['motorUnit.type'])
+            ->whereBetween('tanggal', [$startDate, $endDate]);
+
+        // Isolasi Data: Admin GP hanya melihat GPK, Selain GP hanya melihat SPK
+        if ($isAdminGp) {
+            $query->where('no_spk', 'like', 'GPK%');
+        } else {
+            $query->where('no_spk', 'like', 'SPK%');
+        }
+
+        $spks = $query->get();
 
         $kontrolHargas = KontrolHargaPenjualan::whereIn('spk_id', $spks->pluck('id'))
             ->get()
@@ -66,60 +76,77 @@ class KontrolHargaPenjualanController extends Controller
         }
     }
 
+    // Helper method untuk memvalidasi akses user terhadap dokumen
+    private function validateAccess($spk)
+    {
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+
+        if ($isAdminGp && !str_starts_with($spk->no_spk, 'GPK')) {
+            abort(403, 'Anda tidak memiliki hak akses untuk dokumen ini.');
+        }
+        if (!$isAdminGp && !str_starts_with($spk->no_spk, 'SPK')) {
+            abort(403, 'Anda tidak memiliki hak akses untuk dokumen ini.');
+        }
+    }
+
     public function printOptions($spk_id)
     {
         $spk = Spk::findOrFail($spk_id);
+        $this->validateAccess($spk);
+
         $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
         return view('transaction.kontrol-harga.print-options', compact('spk', 'kontrol'));
     }
 
     public function printOtr($spk_id)
-{
-    $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
-
-    $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
-
-    if (!$suratJalan) {
-        return redirect()->route('kontrol-harga.print-options', $spk_id)
-                         ->with('error', 'Kuitansi OTR tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat untuk SPK ini.');
-    }
-
-    $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
-
-    if (empty($kontrol->no_kwitansi_otr)) {
-        DB::transaction(function () use ($kontrol) {
-            $now = Carbon::now();
-            $prefix = 'KWO' . $now->format('Y/m/');
-
-            $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_otr', 'like', $prefix . '%')
-                ->lockForUpdate()
-                ->orderBy('id', 'desc')
-                ->first();
-
-            $urut = 1;
-            if ($lastDoc) {
-                $lastUrut = (int) substr($lastDoc->no_kwitansi_otr, -4);
-                $urut = $lastUrut + 1;
-            }
-
-            $kontrol->no_kwitansi_otr = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
-            $kontrol->tgl_kwitansi_otr = $now->format('Y-m-d');
-            $kontrol->save();
-        });
-    }
-
-    return view('transaction.kontrol-harga.print.otr', compact('spk', 'kontrol', 'suratJalan'));
-}
-
-    public function printDpPo($spk_id)
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
 
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
 
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
-                             ->with('error', 'Kuitansi DP PO tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat untuk SPK ini.');
+                             ->with('error', 'Kuitansi OTR tidak dapat dicetak karena Surat Jalan belum dibuat untuk dokumen ini.');
+        }
+
+        $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
+
+        if (empty($kontrol->no_kwitansi_otr)) {
+            DB::transaction(function () use ($kontrol) {
+                $now = Carbon::now();
+                $prefix = 'KWO' . $now->format('Y/m/');
+
+                $lastDoc = KontrolHargaPenjualan::where('no_kwitansi_otr', 'like', $prefix . '%')
+                    ->lockForUpdate()
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                $urut = 1;
+                if ($lastDoc) {
+                    $lastUrut = (int) substr($lastDoc->no_kwitansi_otr, -4);
+                    $urut = $lastUrut + 1;
+                }
+
+                $kontrol->no_kwitansi_otr = $prefix . str_pad($urut, 4, '0', STR_PAD_LEFT);
+                $kontrol->tgl_kwitansi_otr = $now->format('Y-m-d');
+                $kontrol->save();
+            });
+        }
+
+        return view('transaction.kontrol-harga.print.otr', compact('spk', 'kontrol', 'suratJalan'));
+    }
+
+    public function printDpPo($spk_id)
+    {
+        $spk = Spk::with(['motorUnit.type', 'motorUnit.color'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
+
+        $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
+
+        if (!$suratJalan) {
+            return redirect()->route('kontrol-harga.print-options', $spk_id)
+                             ->with('error', 'Kuitansi DP PO tidak dapat dicetak karena Surat Jalan belum dibuat untuk dokumen ini.');
         }
 
         $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
@@ -151,14 +178,14 @@ class KontrolHargaPenjualanController extends Controller
 
     public function printOtrDpPo($spk_id)
     {
-        // Pastikan memanggil relasi leasing
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
 
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
 
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
-                             ->with('error', 'Kuitansi Penagihan Leasing (KWM) tidak dapat dicetak karena Surat Jalan (SJK) belum dibuat.');
+                             ->with('error', 'Kuitansi Penagihan Leasing (KWM) tidak dapat dicetak karena Surat Jalan belum dibuat.');
         }
 
         $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
@@ -191,11 +218,13 @@ class KontrolHargaPenjualanController extends Controller
     public function printKw1($spk_id)
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
+
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
 
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
-                             ->with('error', 'Kuitansi Subsidi (KW1) tidak dapat dicetak karena SJK belum dibuat.');
+                             ->with('error', 'Kuitansi Subsidi (KW1) tidak dapat dicetak karena Surat Jalan belum dibuat.');
         }
 
         $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
@@ -222,11 +251,13 @@ class KontrolHargaPenjualanController extends Controller
     public function printKw2($spk_id)
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
+
         $suratJalan = SuratJalan::where('spk_id', $spk_id)->first();
 
         if (!$suratJalan) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
-                             ->with('error', 'Kuitansi Subsidi (KW2) tidak dapat dicetak karena SJK belum dibuat.');
+                             ->with('error', 'Kuitansi Subsidi (KW2) tidak dapat dicetak karena Surat Jalan belum dibuat.');
         }
 
         $kontrol = KontrolHargaPenjualan::firstOrCreate(['spk_id' => $spk_id]);
@@ -253,21 +284,21 @@ class KontrolHargaPenjualanController extends Controller
     public function printSetoranSpk($spk_id)
     {
         $spk = Spk::with(['motorUnit.type', 'leasing'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
+
         $kontrol = KontrolHargaPenjualan::where('spk_id', $spk_id)->first();
 
         if (!$kontrol) {
             return redirect()->route('kontrol-harga.print-options', $spk_id)
-                             ->with('error', 'Silakan simpan data Kontrol Harga terlebih dahulu sebelum mencetak Setoran SPK.');
+                             ->with('error', 'Silakan simpan data Kontrol Harga terlebih dahulu sebelum mencetak Setoran.');
         }
 
-        // Rangkum data dari Kuitansi Konsumen
         $kuitansis = KuitansiKonsumen::with('rekening')->where('spk_id', $spk_id)->get();
 
         $setor = $kuitansis->sum('bayar_kontan');
         $nilaiTransfer = $kuitansis->sum('bayar_transfer');
         $bayar = $setor + $nilaiTransfer;
 
-        // Ambil nama rekening + nomor rekening unik yang digunakan untuk transfer
         $rekeningList = $kuitansis->where('bayar_transfer', '>', 0)
                                   ->map(function($k) {
                                       return $k->rekening ? $k->rekening->nama_rekening . ' ' . $k->rekening->nomor_rekening : null;
@@ -284,6 +315,7 @@ class KontrolHargaPenjualanController extends Controller
     public function printSuratPernyataanBpkb($spk_id)
     {
         $spk = Spk::with(['motorUnit.type', 'motorUnit.color', 'leasing'])->findOrFail($spk_id);
+        $this->validateAccess($spk);
 
         return view('transaction.kontrol-harga.print.surat-pernyataan-bpkb', compact('spk'));
     }

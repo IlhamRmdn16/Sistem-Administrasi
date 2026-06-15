@@ -17,14 +17,22 @@ class RoleController extends Controller
             'akses-master-rekening' => 'Master Rekening',
             'akses-master-biaya' => 'Master Biaya Administrasi',
         ],
-        'Modul Transaksi Penjualan' => [
+        'Modul Transaksi & SPK' => [
             'akses-registrasi-unit' => 'Registrasi Unit Masuk',
-            'akses-mutasi-stok' => 'Mutasi Stok Unit',
-            'akses-spk' => 'Pembuatan SPK',
+            'akses-spk' => 'Pembuatan SPK / GPK',
             'akses-kontrol-harga' => 'Kontrol Harga Penjualan',
-            'akses-surat-jalan' => 'Surat Jalan (SJK)',
-            'akses-kuitansi-konsumen' => 'Kuitansi Konsumen',
+            'akses-surat-jalan' => 'Surat Jalan (SJK / SJG)',
+            'akses-kuitansi-konsumen' => 'Kuitansi Konsumen (TTK)',
             'akses-kuitansi-lain' => 'Kuitansi Lain-Lain (Booking)',
+        ],
+        'Modul Manajemen Mutasi' => [
+            'akses-mutasi-antar-gudang' => 'Mutasi Antar Gudang',
+            'akses-mutasi-ke-showroom' => 'Mutasi Ke Showroom Pusat',
+            'akses-mutasi-dari-showroom' => 'Mutasi Dari Showroom Pusat',
+            'akses-mutasi-ke-pop' => 'Mutasi Ke POP',
+            'akses-mutasi-dari-pop' => 'Mutasi Dari POP',
+            'akses-mutasi-ke-gp' => 'Mutasi Ke GP (Motor Masuk)',
+            'akses-mutasi-dari-gp' => 'Mutasi Dari GP (Motor Keluar)',
         ],
         'Modul Leasing & Pencairan' => [
             'akses-penagihan-leasing' => 'Penagihan Leasing (BTL)',

@@ -42,7 +42,9 @@
                 <table class="w-full text-left border-collapse" style="min-width: 1700px;">
                     <thead class="bg-slate-50 border-b border-gray-200">
                         <tr>
-                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider sticky left-0 bg-slate-50 z-10 w-24 border-r border-gray-200">No. SPK</th>
+                            <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider sticky left-0 bg-slate-50 z-10 w-24 border-r border-gray-200">
+                                No. {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}
+                            </th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider sticky left-24 bg-slate-50 z-10 w-48 border-r border-gray-200">Nama STNK</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-48">Alamat</th>
                             <th class="p-3 font-semibold text-gray-600 text-[11px] uppercase tracking-wider w-32">Tipe Motor</th>
@@ -96,7 +98,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="17" class="p-8 text-center text-gray-500 italic">Tidak ada data SPK pada periode tanggal ini.</td>
+                                <td colspan="17" class="p-8 text-center text-gray-500 italic">
+                                    Tidak ada data {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }} pada periode tanggal ini.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

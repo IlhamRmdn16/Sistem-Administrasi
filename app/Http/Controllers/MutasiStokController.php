@@ -15,13 +15,15 @@ class MutasiStokController extends Controller
 
     private function getMutasiConfig($jenis)
     {
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+
         $config = [
             'ke-showroom' => ['kunci' => 'tujuan', 'val' => 'Showroom Pusat', 'judul' => 'Mutasi Ke Showroom', 'prefix' => 'MKS'],
             'dari-showroom' => ['kunci' => 'asal', 'val' => 'Showroom Pusat', 'judul' => 'Mutasi Dari Showroom', 'prefix' => 'MDS'],
             'ke-pop' => ['kunci' => 'tujuan', 'val' => 'POP', 'judul' => 'Mutasi Ke POP', 'prefix' => 'MKP'],
             'dari-pop' => ['kunci' => 'asal', 'val' => 'POP', 'judul' => 'Mutasi Dari POP', 'prefix' => 'MDP'],
-            'ke-gp' => ['kunci' => 'tujuan', 'val' => 'Showroom GP', 'judul' => 'Mutasi Ke GP', 'prefix' => 'MKG'],
-            'dari-gp' => ['kunci' => 'asal', 'val' => 'Showroom GP', 'judul' => 'Mutasi Dari GP', 'prefix' => 'MDG'],
+            'ke-gp' => ['kunci' => 'tujuan', 'val' => 'Showroom GP', 'judul' => $isAdminGp ? 'Motor Masuk' : 'Mutasi Ke GP', 'prefix' => 'MKG'],
+            'dari-gp' => ['kunci' => 'asal', 'val' => 'Showroom GP', 'judul' => $isAdminGp ? 'Motor Keluar' : 'Mutasi Dari GP', 'prefix' => 'MDG'],
             'antar-gudang' => ['kunci' => 'antar-gudang', 'val' => 'Gudang', 'judul' => 'Mutasi Antar Gudang', 'prefix' => 'MAG'],
         ];
 
@@ -67,8 +69,17 @@ class MutasiStokController extends Controller
         $config = $this->getMutasiConfig($jenis);
         $pops = Sales::where('jenis_sales', 'pop')->get();
 
-        $opsiAsal = $config['kunci'] === 'antar-gudang' ? ['Gudang 1', 'Gudang 2'] : $this->lokasiStatis;
-        $opsiTujuan = $config['kunci'] === 'antar-gudang' ? ['Gudang 1', 'Gudang 2'] : $this->lokasiStatis;
+        $opsiAsal = $this->lokasiStatis;
+        $opsiTujuan = $this->lokasiStatis;
+
+        if ($jenis === 'antar-gudang') {
+            $opsiAsal = ['Gudang 1', 'Gudang 2'];
+            $opsiTujuan = ['Gudang 1', 'Gudang 2'];
+        } elseif ($jenis === 'dari-gp') {
+            $opsiTujuan = ['Gudang 1', 'Gudang 2', 'Showroom Pusat'];
+        } elseif ($jenis === 'ke-gp') {
+            $opsiAsal = ['Gudang 1', 'Gudang 2', 'Showroom Pusat', 'POP'];
+        }
 
         $prefixLengkap = $config['prefix'] . date('Y/m/');
         $lastMutasi = Mutasi::where('no_bukti', 'like', $prefixLengkap . '%')

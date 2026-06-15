@@ -72,23 +72,28 @@
                         <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50 max-h-[70vh] overflow-y-auto">
                             @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Registrasi Unit</a> @endcan
 
-                            @canany(['akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-mutasi-antar-gudang'])
-                                <div x-data="{ mutasiOpen: false }" class="relative">
-                                    <button @click.prevent="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red focus:outline-none">
-                                        <span>Manajemen Mutasi</span>
-                                        <svg :class="mutasiOpen ? 'rotate-180' : ''" class="w-3 h-3 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </button>
-                                    <div x-show="mutasiOpen" style="display: none;" class="pl-4 py-1 bg-gray-50 border-l-2 border-red-100 text-xs">
-                                        @can('akses-mutasi-antar-gudang') <a href="{{ route('mutasi.index', 'antar-gudang') }}" class="block px-4 py-1.5 font-bold text-gray-800 hover:text-honda-red border-b border-gray-200 mb-1">Antar Gudang</a> @endcan
-                                        @can('akses-mutasi-ke-showroom') <a href="{{ route('mutasi.index', 'ke-showroom') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke Showroom</a> @endcan
-                                        @can('akses-mutasi-dari-showroom') <a href="{{ route('mutasi.index', 'dari-showroom') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari Showroom</a> @endcan
-                                        @can('akses-mutasi-ke-pop') <a href="{{ route('mutasi.index', 'ke-pop') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke POP</a> @endcan
-                                        @can('akses-mutasi-dari-pop') <a href="{{ route('mutasi.index', 'dari-pop') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari POP</a> @endcan
-                                        @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke GP</a> @endcan
-                                        @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari GP</a> @endcan
+                            @if(Auth::user()->hasRole('Admin GP'))
+                                @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Motor Masuk</a> @endcan
+                                @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Motor Keluar</a> @endcan
+                            @else
+                                @canany(['akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-mutasi-antar-gudang'])
+                                    <div x-data="{ mutasiOpen: false }" class="relative">
+                                        <button @click.prevent="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red focus:outline-none">
+                                            <span>Manajemen Mutasi</span>
+                                            <svg :class="mutasiOpen ? 'rotate-180' : ''" class="w-3 h-3 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </button>
+                                        <div x-show="mutasiOpen" style="display: none;" class="pl-4 py-1 bg-gray-50 border-l-2 border-red-100 text-xs">
+                                            @can('akses-mutasi-antar-gudang') <a href="{{ route('mutasi.index', 'antar-gudang') }}" class="block px-4 py-1.5 font-bold text-gray-800 hover:text-honda-red border-b border-gray-200 mb-1">Antar Gudang</a> @endcan
+                                            @can('akses-mutasi-ke-showroom') <a href="{{ route('mutasi.index', 'ke-showroom') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke Showroom</a> @endcan
+                                            @can('akses-mutasi-dari-showroom') <a href="{{ route('mutasi.index', 'dari-showroom') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari Showroom</a> @endcan
+                                            @can('akses-mutasi-ke-pop') <a href="{{ route('mutasi.index', 'ke-pop') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke POP</a> @endcan
+                                            @can('akses-mutasi-dari-pop') <a href="{{ route('mutasi.index', 'dari-pop') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari POP</a> @endcan
+                                            @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Ke GP</a> @endcan
+                                            @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-4 py-1.5 text-gray-600 hover:text-honda-red">Dari GP</a> @endcan
+                                        </div>
                                     </div>
-                                </div>
-                            @endcanany
+                                @endcanany
+                            @endif
 
                             @canany(['akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen'])
                             <hr class="border-gray-200 my-1">
@@ -212,23 +217,28 @@
                 <div x-show="subOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                     @can('akses-registrasi-unit') <a href="{{ route('motor-unit.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Registrasi Unit</a> @endcan
 
-                    @canany(['akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-mutasi-antar-gudang'])
-                        <div x-data="{ mutasiOpen: false }">
-                            <button @click.prevent="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
-                                <span>Manajemen Mutasi</span>
-                                <svg :class="mutasiOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <div x-show="mutasiOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-                                @can('akses-mutasi-antar-gudang') <a href="{{ route('mutasi.index', 'antar-gudang') }}" class="block px-3 py-2 text-sm font-bold text-gray-800 hover:text-honda-red border-b border-gray-100">Antar Gudang</a> @endcan
-                                @can('akses-mutasi-ke-showroom') <a href="{{ route('mutasi.index', 'ke-showroom') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke Showroom</a> @endcan
-                                @can('akses-mutasi-dari-showroom') <a href="{{ route('mutasi.index', 'dari-showroom') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari Showroom</a> @endcan
-                                @can('akses-mutasi-ke-pop') <a href="{{ route('mutasi.index', 'ke-pop') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke POP</a> @endcan
-                                @can('akses-mutasi-dari-pop') <a href="{{ route('mutasi.index', 'dari-pop') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari POP</a> @endcan
-                                @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke GP</a> @endcan
-                                @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari GP</a> @endcan
+                    @if(Auth::user()->hasRole('Admin GP'))
+                        @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Motor Masuk</a> @endcan
+                        @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Motor Keluar</a> @endcan
+                    @else
+                        @canany(['akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-mutasi-antar-gudang'])
+                            <div x-data="{ mutasiOpen: false }">
+                                <button @click.prevent="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
+                                    <span>Manajemen Mutasi</span>
+                                    <svg :class="mutasiOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="mutasiOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                                    @can('akses-mutasi-antar-gudang') <a href="{{ route('mutasi.index', 'antar-gudang') }}" class="block px-3 py-2 text-sm font-bold text-gray-800 hover:text-honda-red border-b border-gray-100">Antar Gudang</a> @endcan
+                                    @can('akses-mutasi-ke-showroom') <a href="{{ route('mutasi.index', 'ke-showroom') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke Showroom</a> @endcan
+                                    @can('akses-mutasi-dari-showroom') <a href="{{ route('mutasi.index', 'dari-showroom') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari Showroom</a> @endcan
+                                    @can('akses-mutasi-ke-pop') <a href="{{ route('mutasi.index', 'ke-pop') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke POP</a> @endcan
+                                    @can('akses-mutasi-dari-pop') <a href="{{ route('mutasi.index', 'dari-pop') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari POP</a> @endcan
+                                    @can('akses-mutasi-ke-gp') <a href="{{ route('mutasi.index', 'ke-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Ke GP</a> @endcan
+                                    @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Dari GP</a> @endcan
+                                </div>
                             </div>
-                        </div>
-                    @endcanany
+                        @endcanany
+                    @endif
 
                     @can('akses-spk') <a href="{{ route('spk.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">SPK</a> @endcan
                     @can('akses-kontrol-harga') <a href="{{ route('kontrol-harga.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Kontrol Harga Penjualan</a> @endcan

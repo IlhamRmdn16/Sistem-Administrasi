@@ -55,6 +55,15 @@ class RolePermissionSeeder extends Seeder
         $superAdminRole = Role::findOrCreate('Super Admin');
         $superAdminRole->givePermissionTo(Permission::all());
 
+        $adminGpRole = Role::findOrCreate('Admin GP');
+        $adminGpRole->givePermissionTo([
+            'akses-mutasi-ke-gp',
+            'akses-mutasi-dari-gp',
+            'akses-spk',
+            'akses-surat-jalan',
+            'akses-kuitansi-konsumen'
+        ]);
+
         $user = User::updateOrCreate(
             ['email' => 'superadmin@dealer.com'],
             [

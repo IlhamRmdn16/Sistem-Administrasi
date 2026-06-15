@@ -19,26 +19,37 @@ class SuratJalanController extends Controller
         $sampai_tanggal = $request->input('sampai_tanggal');
         $per_page = $request->input('per_page', 10);
 
-        // Tambahkan relasi motorUnit.lokasiPop agar bisa ditampilkan
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+
         $query = SuratJalan::with(['spk', 'motorUnit.type', 'motorUnit.color', 'motorUnit.lokasiPop', 'pdiMan']);
+
+        // Isolasi Laporan: Admin GP melihat SJG, Admin lain melihat SJK
+        if ($isAdminGp) {
+            $query->where('no_bukti', 'like', 'SJG%');
+        } else {
+            $query->where('no_bukti', 'like', 'SJK%');
+        }
 
         if ($dari_tanggal && $sampai_tanggal) {
             $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
         }
 
         if ($search) {
-            $query->where('no_bukti', 'like', "%{$search}%")
+            $query->where(function($q) use ($search) {
+                $q->where('no_bukti', 'like', "%{$search}%")
                   ->orWhere('no_stck', 'like', "%{$search}%")
-                  ->orWhereHas('spk', function ($q) use ($search) {
-                      $q->where('nama_pemohon', 'like', "%{$search}%")
+                  ->orWhereHas('spk', function ($sub) use ($search) {
+                      $sub->where('nama_pemohon', 'like', "%{$search}%")
                         ->orWhere('no_spk', 'like', "%{$search}%");
                   });
+            });
         }
 
         $suratJalans = $query->latest()->paginate($per_page)->withQueryString();
 
         $now = now();
-        $prefix = "SJK{$now->format('Y')}/{$now->format('m')}/";
+        $prefixCode = $isAdminGp ? 'SJG' : 'SJK';
+        $prefix = "{$prefixCode}{$now->format('Y')}/{$now->format('m')}/";
 
         $existingNumbers = SuratJalan::where('no_bukti', 'like', "{$prefix}%")
             ->pluck('no_bukti')
@@ -55,8 +66,13 @@ class SuratJalanController extends Controller
         $autoNoBukti = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         $usedSpkIds = SuratJalan::pluck('spk_id')->toArray();
-        // Tarik data SPK yang motornya juga ditarik info lokasinya
-        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)->with(['motorUnit.type', 'motorUnit.color', 'motorUnit.lokasiPop'])->get();
+
+        // Filter SPK yang muncul di dropdown: Jika GP tarik GPK, jika Pusat tarik SPK
+        $spkPrefix = $isAdminGp ? 'GPK' : 'SPK';
+        $availableSpks = Spk::whereNotIn('id', $usedSpkIds)
+            ->where('no_spk', 'like', "{$spkPrefix}%")
+            ->with(['motorUnit.type', 'motorUnit.color', 'motorUnit.lokasiPop'])
+            ->get();
 
         $pdiMans = PdiMan::orderBy('nama_pdi_man')->get();
 
@@ -78,10 +94,8 @@ class SuratJalanController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Buat Surat Jalan
             SuratJalan::create($request->all());
 
-            // 2. Ubah Status Motor Menjadi Terjual
             MotorUnit::where('id', $request->motor_unit_id)->update([
                 'status_unit' => 'Terjual'
             ]);
@@ -126,7 +140,7 @@ class SuratJalanController extends Controller
         DB::beginTransaction();
         try {
             $sj = SuratJalan::findOrFail($id);
-     
+
             MotorUnit::where('id', $sj->motor_unit_id)->update([
                 'status_unit' => 'Tersedia'
             ]);

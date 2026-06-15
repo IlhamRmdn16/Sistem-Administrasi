@@ -7,14 +7,14 @@
         <div>
             <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
-                Surat Jalan Konsumen (SJK)
+                {{ Auth::user()->hasRole('Admin GP') ? 'Surat Jalan GP (SJG)' : 'Surat Jalan Konsumen (SJK)' }}
             </h2>
             <p class="text-sm text-gray-500 mt-1 ml-4">Kelola dan cetak dokumen pengiriman unit kendaraan kepada konsumen.</p>
         </div>
 
         <button @click="isCreateOpen = true" class="bg-honda-red text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:bg-red-700 transition-all flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Buat Surat Jalan
+            Buat {{ Auth::user()->hasRole('Admin GP') ? 'SJG' : 'SJK' }}
         </button>
     </div>
 
@@ -30,7 +30,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. Bukti, SPK, STCK..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. Bukti, {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}, STCK..." class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-4 outline-none focus:border-honda-red text-sm">
             </div>
 
             <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -52,7 +52,7 @@
                 <thead class="bg-slate-50 text-xs uppercase text-gray-500 border-b border-gray-100">
                     <tr>
                         <th class="py-4 px-6 font-semibold">No. Bukti / Tgl</th>
-                        <th class="py-4 px-6 font-semibold">No. SPK / Pemohon</th>
+                        <th class="py-4 px-6 font-semibold">{{ Auth::user()->hasRole('Admin GP') ? 'No. GPK / Pemohon' : 'No. SPK / Pemohon' }}</th>
                         <th class="py-4 px-6 font-semibold">Tipe & Kunci</th>
                         <th class="py-4 px-6 font-semibold">PDI Man & STCK</th>
                         <th class="py-4 px-6 text-center w-36 font-semibold">Aksi</th>
@@ -113,7 +113,7 @@
             <div x-show="isCreateOpen" x-transition.opacity class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm" @click="isCreateOpen = false"></div>
             <div x-show="isCreateOpen" x-transition class="bg-white rounded-2xl shadow-xl transform transition-all w-full max-w-4xl overflow-hidden relative z-10">
                 <div class="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-900">Buat Surat Jalan Baru</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Buat {{ Auth::user()->hasRole('Admin GP') ? 'SJG Baru' : 'SJK Baru' }}</h3>
                     <button type="button" @click="isCreateOpen = false" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
@@ -132,21 +132,21 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="relative z-40">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pilih Data SPK <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pilih Data {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }} <span class="text-red-500">*</span></label>
                             <div @click.away="openSpkDropdown = false">
                                 <div @click="openSpkDropdown = !openSpkDropdown" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white cursor-pointer flex justify-between items-center focus:border-honda-red">
-                                    <span x-text="selectedSpkName || 'Pilih / Cari SPK...'"></span>
+                                    <span x-text="selectedSpkName || 'Pilih / Cari {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}...'"></span>
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                                 <div x-show="openSpkDropdown" class="absolute w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-56 overflow-y-auto">
                                     <div class="sticky top-0 bg-gray-50 p-2 border-b">
-                                        <input type="text" x-model="searchSpk" placeholder="Ketik nama atau No SPK..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
+                                        <input type="text" x-model="searchSpk" placeholder="Ketik nama atau No Dokumen..." class="w-full border border-gray-300 rounded p-1.5 text-sm outline-none focus:border-honda-red">
                                     </div>
                                     <template x-for="s in availableSpks.filter(x => x.nama_pemohon.toLowerCase().includes(searchSpk.toLowerCase()) || x.no_spk.toLowerCase().includes(searchSpk.toLowerCase()))" :key="s.id">
                                         <div @click="selectSpk(s)" class="p-3 hover:bg-red-50 cursor-pointer text-sm border-b border-gray-50">
                                             <div class="font-bold text-gray-800" x-text="s.nama_pemohon + ' - ' + s.no_spk"></div>
                                             <div class="text-[10px] text-gray-500 mt-0.5" x-text="'Motor: ' + (s.motor_unit ? s.motor_unit.type.nama_type : '-')"></div>
-                                            <div class="text-[9px] inline-block mt-1 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase" 
+                                            <div class="text-[9px] inline-block mt-1 px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-slate-600 font-bold uppercase"
                                                  x-text="'Lokasi: ' + (s.motor_unit ? s.motor_unit.posisi_stok : '-') + (s.motor_unit && s.motor_unit.posisi_stok === 'POP' && s.motor_unit.lokasi_pop ? ' ('+s.motor_unit.lokasi_pop.nama_sales+')' : '')"></div>
                                         </div>
                                     </template>
@@ -181,7 +181,7 @@
                             <input type="text" :value="cNamaPemohon" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">No. SPK</label>
+                            <label class="block text-xs text-gray-500 mb-1">No. {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}</label>
                             <input type="text" :value="cNoSpk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
@@ -278,7 +278,7 @@
                             <input type="text" :value="eNamaPemohon" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">No. SPK</label>
+                            <label class="block text-xs text-gray-500 mb-1">No. {{ Auth::user()->hasRole('Admin GP') ? 'GPK' : 'SPK' }}</label>
                             <input type="text" :value="eNoSpk" readonly class="w-full bg-white border border-gray-200 rounded-lg p-2.5 font-bold text-gray-600 cursor-not-allowed">
                         </div>
                         <div>

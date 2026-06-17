@@ -148,6 +148,11 @@
                                 <div x-show="subOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
                                     <a href="{{ route('laporan.stok.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
                                     <a href="{{ route('laporan.stok.warna') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Warna</a>
+                                    <a href="{{ route('laporan.stok.detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Detil</a>
+                                    <a href="{{ route('laporan.stok.sales-global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Global</a>
+                                    <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Detil</a>
+                                    <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Gudang Detil</a>
+                                    <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Showroom Detil</a>
                                 </div>
 
                             </div>
@@ -297,9 +302,14 @@
                                 <svg :class="stokOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
                             <div x-show="stokOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-    <a href="{{ route('laporan.stok.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
-    <a href="{{ route('laporan.stok.warna') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Warna</a>
-</div>
+                                <a href="{{ route('laporan.stok.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                                <a href="{{ route('laporan.stok.warna') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Warna</a>
+                                <a href="{{ route('laporan.stok.detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Detil</a>
+                                <a href="{{ route('laporan.stok.sales-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Global</a>
+                                <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Detil</a>
+                                <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Gudang Detil</a>
+                                <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Showroom Detil</a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\MotorType;
 use App\Models\MotorUnit;
+use App\Models\MutasiDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LaporanStokController extends Controller
 {
@@ -244,5 +246,325 @@ class LaporanStokController extends Controller
         ];
 
         return view('laporan.stok.print-warna', compact('stokTypes', 'totals', 'searchTipe', 'searchWarna'));
+    }
+
+    public function detil(Request $request)
+    {
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        // Ambil data unit yang berstatus Tersedia
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia');
+
+        // Fitur Pencarian Multi-Kolom (Mesin, Rangka, Kunci, Tipe, Warna)
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")
+                        ->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Urutkan berdasarkan unit yang paling baru didaftarkan
+        $units = $query->latest()->paginate($per_page)->withQueryString();
+
+        return view('laporan.stok.detil', compact('units', 'search', 'per_page'));
+    }
+
+    public function printDetil(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")
+                        ->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $units = $query->latest()->get();
+
+        return view('laporan.stok.print-detil', compact('units', 'search'));
+    }
+    public function salesGlobal(Request $request)
+    {
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        // Grouping unit berdasarkan kombinasi Sales, Tipe, dan Warna
+        $query = MotorUnit::select('lokasi_pop_id', 'motor_type_id', 'motor_color_id', DB::raw('count(*) as stok_unit'))
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'POP')
+            ->with(['lokasiPop', 'type', 'color'])
+            ->groupBy('lokasi_pop_id', 'motor_type_id', 'motor_color_id');
+
+        // Fitur Pencarian Multi-Kolom (Nama Sales/POP, Tipe Motor, Warna)
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('lokasiPop', function($s) use ($search) {
+                    $s->where('nama_sales', 'like', "%{$search}%");
+                })
+                ->orWhereHas('type', function($t) use ($search) {
+                    $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                })
+                ->orWhereHas('color', function($c) use ($search) {
+                    $c->where('warna', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Urutkan berdasarkan lokasi_pop_id agar pengelompokan baris rapi
+        $salesStoks = $query->orderBy('lokasi_pop_id')->paginate($per_page)->withQueryString();
+
+        // Hitung Grand Total Stok yang ada di POP
+        $grandTotalQuery = MotorUnit::where('status_unit', 'Tersedia')->where('posisi_stok', 'POP');
+        if ($search) {
+            $grandTotalQuery->where(function($q) use ($search) {
+                $q->whereHas('lokasiPop', function($s) use ($search) { $s->where('nama_sales', 'like', "%{$search}%"); })
+                ->orWhereHas('type', function($t) use ($search) { $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%"); })
+                ->orWhereHas('color', function($c) use ($search) { $c->where('warna', 'like', "%{$search}%"); });
+            });
+        }
+        $grandTotal = $grandTotalQuery->count();
+
+        return view('laporan.stok.sales-global', compact('salesStoks', 'grandTotal', 'search', 'per_page'));
+    }
+
+    public function printSalesGlobal(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = MotorUnit::select('lokasi_pop_id', 'motor_type_id', 'motor_color_id', DB::raw('count(*) as stok_unit'))
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'POP')
+            ->with(['lokasiPop', 'type', 'color'])
+            ->groupBy('lokasi_pop_id', 'motor_type_id', 'motor_color_id')
+            ->orderBy('lokasi_pop_id');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('lokasiPop', function($s) use ($search) { $s->where('nama_sales', 'like', "%{$search}%"); })
+                ->orWhereHas('type', function($t) use ($search) { $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%"); })
+                ->orWhereHas('color', function($c) use ($search) { $c->where('warna', 'like', "%{$search}%"); });
+            });
+        }
+
+        $salesStoks = $query->get();
+        $grandTotal = $salesStoks->sum('stok_unit');
+
+        return view('laporan.stok.print-sales-global', compact('salesStoks', 'grandTotal', 'search'));
+    }
+
+    // ... [Fungsi-fungsi laporan sebelumnya tetap ada] ...
+
+    public function salesDetil(Request $request)
+    {
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        // Query Motor Unit + Subquery untuk mengambil tanggal mutasi terakhir
+        $query = MotorUnit::select('motor_units.*')
+            ->addSelect(['tgl_mutasi' => MutasiDetail::select('mutasis.tanggal')
+                ->join('mutasis', 'mutasis.id', '=', 'mutasi_details.mutasi_id')
+                ->whereColumn('mutasi_details.motor_unit_id', 'motor_units.id')
+                ->orderBy('mutasis.tanggal', 'desc')
+                ->limit(1)
+            ])
+            ->with(['lokasiPop', 'type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'POP');
+
+        // Fitur Pencarian Multi-Kolom
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhere('tahun_pembuatan', 'like', "%{$search}%")
+                  ->orWhereHas('lokasiPop', function($s) use ($search) {
+                      $s->where('nama_sales', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Urutkan berdasarkan Sales/POP terlebih dahulu agar rapi
+        $salesDetils = $query->orderBy('lokasi_pop_id')->paginate($per_page)->withQueryString();
+
+        return view('laporan.stok.sales-detil', compact('salesDetils', 'search', 'per_page'));
+    }
+
+    public function printSalesDetil(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = MotorUnit::select('motor_units.*')
+            ->addSelect(['tgl_mutasi' => MutasiDetail::select('mutasis.tanggal')
+                ->join('mutasis', 'mutasis.id', '=', 'mutasi_details.mutasi_id')
+                ->whereColumn('mutasi_details.motor_unit_id', 'motor_units.id')
+                ->orderBy('mutasis.tanggal', 'desc')
+                ->limit(1)
+            ])
+            ->with(['lokasiPop', 'type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'POP');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhere('tahun_pembuatan', 'like', "%{$search}%")
+                  ->orWhereHas('lokasiPop', function($s) use ($search) {
+                      $s->where('nama_sales', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $salesDetils = $query->orderBy('lokasi_pop_id')->get();
+
+        return view('laporan.stok.print-sales-detil', compact('salesDetils', 'search'));
+    }
+
+    public function gudangDetil(Request $request)
+    {
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->whereIn('posisi_stok', ['Gudang 1', 'Gudang 2']);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhere('posisi_stok', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $units = $query->latest()->paginate($per_page)->withQueryString();
+
+        return view('laporan.stok.gudang-detil', compact('units', 'search', 'per_page'));
+    }
+
+    public function printGudangDetil(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->whereIn('posisi_stok', ['Gudang 1', 'Gudang 2']);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhere('posisi_stok', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $units = $query->latest()->get();
+
+        return view('laporan.stok.print-gudang-detil', compact('units', 'search'));
+    }
+
+    public function showroomDetil(Request $request)
+    {
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'Showroom Pusat');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $units = $query->latest()->paginate($per_page)->withQueryString();
+
+        return view('laporan.stok.showroom-detil', compact('units', 'search', 'per_page'));
+    }
+
+    public function printShowroomDetil(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = MotorUnit::with(['type', 'color'])
+            ->where('status_unit', 'Tersedia')
+            ->where('posisi_stok', 'Showroom Pusat');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_mesin', 'like', "%{$search}%")
+                  ->orWhere('no_rangka', 'like', "%{$search}%")
+                  ->orWhere('no_kunci', 'like', "%{$search}%")
+                  ->orWhereHas('type', function($t) use ($search) {
+                      $t->where('nama_type', 'like', "%{$search}%")->orWhere('kode_tipe', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('color', function($c) use ($search) {
+                      $c->where('warna', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $units = $query->latest()->get();
+
+        return view('laporan.stok.print-showroom-detil', compact('units', 'search'));
     }
 }

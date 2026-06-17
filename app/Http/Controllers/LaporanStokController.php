@@ -518,9 +518,14 @@ class LaporanStokController extends Controller
         $search = $request->input('search');
         $per_page = $request->input('per_page', 10);
 
+        // Cek Role dan Tentukan Lokasi serta Judul
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+        $posisiStok = $isAdminGp ? 'Showroom GP' : 'Showroom Pusat';
+        $judulLaporan = $isAdminGp ? 'Laporan Stok Showroom GP Detil' : 'Laporan Stok Showroom Pusat Detil';
+
         $query = MotorUnit::with(['type', 'color'])
             ->where('status_unit', 'Tersedia')
-            ->where('posisi_stok', 'Showroom Pusat');
+            ->where('posisi_stok', $posisiStok); // Filter dinamis
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -538,16 +543,21 @@ class LaporanStokController extends Controller
 
         $units = $query->latest()->paginate($per_page)->withQueryString();
 
-        return view('laporan.stok.showroom-detil', compact('units', 'search', 'per_page'));
+        return view('laporan.stok.showroom-detil', compact('units', 'search', 'per_page', 'posisiStok', 'judulLaporan'));
     }
 
     public function printShowroomDetil(Request $request)
     {
         $search = $request->input('search');
 
+        // Cek Role dan Tentukan Lokasi serta Judul untuk Cetak
+        $isAdminGp = auth()->user()->hasRole('Admin GP');
+        $posisiStok = $isAdminGp ? 'Showroom GP' : 'Showroom Pusat';
+        $judulLaporan = $isAdminGp ? 'Laporan Stok Showroom GP Detil' : 'Laporan Stok Showroom Pusat Detil';
+
         $query = MotorUnit::with(['type', 'color'])
             ->where('status_unit', 'Tersedia')
-            ->where('posisi_stok', 'Showroom Pusat');
+            ->where('posisi_stok', $posisiStok); // Filter dinamis
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -565,6 +575,6 @@ class LaporanStokController extends Controller
 
         $units = $query->latest()->get();
 
-        return view('laporan.stok.print-showroom-detil', compact('units', 'search'));
+        return view('laporan.stok.print-showroom-detil', compact('units', 'search', 'posisiStok', 'judulLaporan'));
     }
 }

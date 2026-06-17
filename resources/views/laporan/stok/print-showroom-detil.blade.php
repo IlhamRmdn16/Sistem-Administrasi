@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Stok Showroom Detil</title>
+    <title>{{ $judulLaporan }}</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 10px; color: #000; margin: 0; padding: 20px; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
@@ -21,7 +21,7 @@
 </head>
 <body onload="window.print()">
     <div class="header">
-        <h2>Laporan Stok Showroom Pusat Detil (Tersedia)</h2>
+        <h2>{{ $judulLaporan }} (Tersedia)</h2>
         <div>Tanggal Lihat: {{ \Carbon\Carbon::now()->format('d/m/Y') }} | Jam: {{ \Carbon\Carbon::now()->format('H:i:s') }} WIB</div>
     </div>
     <table>
@@ -48,7 +48,7 @@
                     <td class="font-mono uppercase">{{ $unit->no_rangka }}</td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="text-center">Tidak ada data unit di showroom pusat.</td></tr>
+                <tr><td colspan="7" class="text-center">Tidak ada data unit di {{ strtolower($posisiStok) }}.</td></tr>
             @endforelse
         </tbody>
     </table>

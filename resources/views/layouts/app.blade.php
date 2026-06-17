@@ -152,7 +152,9 @@
                                     <a href="{{ route('laporan.stok.sales-global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Global</a>
                                     <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Detil</a>
                                     <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Gudang Detil</a>
-                                    <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Showroom Detil</a>
+                                    <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">
+    {{ Auth::user()->hasRole('Admin GP') ? 'Showroom GP Detil' : 'Showroom Detil' }}
+</a>
                                 </div>
 
                             </div>
@@ -308,7 +310,9 @@
                                 <a href="{{ route('laporan.stok.sales-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Global</a>
                                 <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Detil</a>
                                 <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Gudang Detil</a>
-                                <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Showroom Detil</a>
+                                <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">
+    {{ Auth::user()->hasRole('Admin GP') ? 'Showroom GP Detil' : 'Showroom Detil' }}
+</a>
                             </div>
                         </div>
                     </div>

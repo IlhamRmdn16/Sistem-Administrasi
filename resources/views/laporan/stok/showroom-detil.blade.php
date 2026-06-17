@@ -6,9 +6,9 @@
         <div>
             <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-3">
                 <div class="w-1.5 h-6 bg-honda-red rounded-full"></div>
-                Laporan Stok Showroom Detil
+                {{ $judulLaporan }}
             </h2>
-            <p class="text-sm text-gray-500 mt-1 ml-4">Rincian spesifik nomor mesin dan rangka untuk unit yang terpajang di Showroom Pusat.</p>
+            <p class="text-sm text-gray-500 mt-1 ml-4">Rincian spesifik nomor mesin dan rangka untuk unit yang terpajang di {{ $posisiStok }}.</p>
         </div>
 
         <a href="{{ route('laporan.stok.showroom-detil.print', ['search' => $search]) }}" target="_blank" class="bg-gray-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:bg-gray-900 transition-all flex items-center gap-2">
@@ -67,7 +67,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-12 text-center text-gray-400 italic text-sm">Tidak ada data unit di showroom pusat.</td>
+                            <td colspan="7" class="py-12 text-center text-gray-400 italic text-sm">Tidak ada data unit di {{ strtolower($posisiStok) }}.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -176,4 +176,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/stok/global', [LaporanStokController::class, 'global'])->name('laporan.stok.global');
     Route::get('/laporan/stok/global/print', [LaporanStokController::class, 'printGlobal'])->name('laporan.stok.global.print');
 
+    Route::get('/laporan/stok/warna', [LaporanStokController::class, 'warna'])->name('laporan.stok.warna');
+Route::get('/laporan/stok/warna/print', [LaporanStokController::class, 'printWarna'])->name('laporan.stok.warna.print');
+
 });

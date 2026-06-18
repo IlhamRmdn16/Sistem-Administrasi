@@ -43,10 +43,8 @@ class RolePermissionSeeder extends Seeder
             'akses-pencairan-leasing',
             'akses-kuitansi-lain',
             'akses-cetak-blanko-samsat',
-
-            // Permission Laporan Baru
             'akses-laporan-stok',
-
+            'akses-laporan-penjualan',
             'akses-manajemen-role',
             'akses-manajemen-user',
         ];
@@ -65,8 +63,8 @@ class RolePermissionSeeder extends Seeder
             'akses-spk',
             'akses-surat-jalan',
             'akses-kuitansi-konsumen',
-            // Tambahkan ini jika Admin GP secara default boleh melihat laporan stok
-            'akses-laporan-stok'
+            'akses-laporan-stok',
+            'akses-laporan-penjualan'
         ]);
 
         $user = User::updateOrCreate(

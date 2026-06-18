@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\Master\BiayaAdministrasiController;
 use App\Http\Controllers\Master\LeasingController;
@@ -188,5 +189,11 @@ Route::get('/laporan/stok/gudang-detil/print', [LaporanStokController::class, 'p
 
 Route::get('/laporan/stok/showroom-detil', [LaporanStokController::class, 'showroomDetil'])->name('laporan.stok.showroom-detil');
 Route::get('/laporan/stok/showroom-detil/print', [LaporanStokController::class, 'printShowroomDetil'])->name('laporan.stok.showroom-detil.print');
+
+Route::get('/laporan/penjualan/global-unit', [LaporanPenjualanController::class, 'globalUnit'])->name('laporan.penjualan.global-unit');
+Route::get('/laporan/penjualan/global-unit/print', [LaporanPenjualanController::class, 'printGlobalUnit'])->name('laporan.penjualan.global-unit.print');
+
+Route::get('/laporan/penjualan/terperinci', [LaporanPenjualanController::class, 'terperinci'])->name('laporan.penjualan.terperinci');
+Route::get('/laporan/penjualan/terperinci/print', [LaporanPenjualanController::class, 'printTerperinci'])->name('laporan.penjualan.terperinci.print');
 
 });

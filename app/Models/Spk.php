@@ -16,11 +16,11 @@ class Spk extends Model
     public function sales() {
         return $this->belongsTo(Sales::class);
     }
-    
+
     public function motorUnit() {
         return $this->belongsTo(MotorUnit::class, 'motor_unit_id');
     }
-    
+
     public function leasing() {
         return $this->belongsTo(Leasing::class);
     }
@@ -29,9 +29,14 @@ class Spk extends Model
     {
         return $this->hasMany(KuitansiKonsumen::class, 'spk_id');
     }
-    
+
     public function kontrolHarga()
     {
         return $this->hasOne(KontrolHargaPenjualan::class, 'spk_id');
     }
+
+    public function suratJalan()
+{
+    return $this->hasOne(SuratJalan::class, 'spk_id');
+}
 }

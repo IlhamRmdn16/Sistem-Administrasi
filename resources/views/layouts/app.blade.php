@@ -172,6 +172,7 @@
                 <div class="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50">Penjualan Global</div>
                 <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Global Unit</a>
                 <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Terperinci</a>
+                <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Subsidi Main Dealer</a>
             </div>
         </div>
         @endcan
@@ -343,6 +344,7 @@
             <div x-show="penjualanOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                 <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global Unit</a>
                 <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Subsidi Main Dealer</a>
             </div>
         </div>
         @endcan

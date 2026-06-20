@@ -176,4 +176,121 @@ class LaporanPenjualanController extends Controller
         $transactions = $query->get();
         return view('laporan.penjualan.print-terperinci', compact('transactions', 'dari_tanggal', 'sampai_tanggal', 'jenis_dokumen', 'search'));
     }
+
+    public function subsidiMainDealer(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $jenis_dokumen = $request->input('jenis_dokumen', 'all');
+        $search = $request->input('search');
+        $per_page = $request->input('per_page', 10);
+
+        $query = Spk::with([
+            'sales',
+            'motorUnit.type',
+            'leasing',
+            'kontrolHarga',
+            'suratJalan',
+            'kuitansiKonsumens.rekening'
+        ]);
+
+        if ($dari_tanggal && $sampai_tanggal) {
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+        }
+
+        if ($jenis_dokumen === 'spk') {
+            $query->where('no_spk', 'like', 'SPK%');
+        } elseif ($jenis_dokumen === 'gpk') {
+            $query->where('no_spk', 'like', 'GPK%');
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_spk', 'like', "%{$search}%")
+                  ->orWhere('nama_pemohon', 'like', "%{$search}%")
+                  ->orWhereHas('kontrolHarga', function($sub) use ($search) {
+                      $sub->where('nama_mediator', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('sales', function($sub) use ($search) {
+                      $sub->where('nama_sales', 'like', "%{$search}%");
+                  });
+                });
+        }
+
+        $allFiltered = (clone $query)->get();
+        $grandTotals = [
+            'harga_cash' => $allFiltered->sum(fn($row) => in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? $row->harga_otr : 0),
+            'dp' => $allFiltered->sum(fn($row) => !in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? ($row->uang_muka + $row->tanda_jadi) : 0),
+            'discount' => $allFiltered->sum(fn($row) => $row->kontrolHarga->discount ?? 0),
+            'dp_murni' => $allFiltered->sum(fn($row) => in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? (($row->harga_otr) - ($row->kontrolHarga->discount ?? 0)) : (($row->uang_muka + $row->tanda_jadi) - ($row->kontrolHarga->discount ?? 0))),
+            'kontan' => $allFiltered->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_kontan')),
+            'transfer' => $allFiltered->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_transfer')),
+            'md_fee' => $allFiltered->sum(fn($row) => $row->kontrolHarga->mediator_fee ?? 0),
+            'setor' => $allFiltered->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_kontan')),
+            'tambah' => $allFiltered->sum(fn($row) => $row->kontrolHarga->tambahan ?? 0),
+            'ahm' => $allFiltered->sum(fn($row) => $row->kontrolHarga->subsidi_ahm ?? 0),
+            'mdealer' => $allFiltered->sum(fn($row) => $row->kontrolHarga->subsidi_main_dealer ?? 0),
+            'leasing' => $allFiltered->sum(fn($row) => ($row->kontrolHarga->subsidi_leasing_1 ?? 0) + ($row->kontrolHarga->subsidi_leasing_2 ?? 0)),
+            'dll' => $allFiltered->sum(fn($row) => ($row->kontrolHarga->dll_1 ?? 0) + ($row->kontrolHarga->dll_2 ?? 0)),
+            'dealer' => $allFiltered->sum(fn($row) => $row->kontrolHarga->subsidi_dealer ?? 0),
+        ];
+
+        $reports = $query->latest('tanggal')->paginate($per_page)->withQueryString();
+
+        return view('laporan.penjualan.subsidi-main-dealer', compact('reports', 'grandTotals', 'dari_tanggal', 'sampai_tanggal', 'jenis_dokumen', 'search', 'per_page'));
+    }
+
+    public function printSubsidiMainDealer(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $jenis_dokumen = $request->input('jenis_dokumen', 'all');
+        $search = $request->input('search');
+
+        $query = Spk::with([
+            'sales',
+            'motorUnit.type',
+            'leasing',
+            'kontrolHarga',
+            'suratJalan',
+            'kuitansiKonsumens.rekening'
+        ])->latest('tanggal');
+
+        if ($dari_tanggal && $sampai_tanggal) {
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+        }
+
+        if ($jenis_dokumen === 'spk') {
+            $query->where('no_spk', 'like', 'SPK%');
+        } elseif ($jenis_dokumen === 'gpk') {
+            $query->where('no_spk', 'like', 'GPK%');
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_spk', 'like', "%{$search}%")->orWhere('nama_pemohon', 'like', "%{$search}%");
+            });
+        }
+
+        $reports = $query->get();
+
+        $grandTotals = [
+            'harga_cash' => $reports->sum(fn($row) => in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? $row->harga_otr : 0),
+            'dp' => $reports->sum(fn($row) => !in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? ($row->uang_muka + $row->tanda_jadi) : 0),
+            'discount' => $reports->sum(fn($row) => $row->kontrolHarga->discount ?? 0),
+            'dp_murni' => $reports->sum(fn($row) => in_array($row->jenis_pembayaran, ['Cash', 'Tunai']) ? (($row->harga_otr) - ($row->kontrolHarga->discount ?? 0)) : (($row->uang_muka + $row->tanda_jadi) - ($row->kontrolHarga->discount ?? 0))),
+            'kontan' => $reports->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_kontan')),
+            'transfer' => $reports->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_transfer')),
+            'md_fee' => $reports->sum(fn($row) => $row->kontrolHarga->mediator_fee ?? 0),
+            'setor' => $reports->sum(fn($row) => $row->kuitansiKonsumens->sum('bayar_kontan')),
+            'tambah' => $reports->sum(fn($row) => $row->kontrolHarga->tambahan ?? 0),
+            'ahm' => $reports->sum(fn($row) => $row->kontrolHarga->subsidi_ahm ?? 0),
+            'mdealer' => $reports->sum(fn($row) => $row->kontrolHarga->subsidi_main_dealer ?? 0),
+            'leasing' => $reports->sum(fn($row) => ($row->kontrolHarga->subsidi_leasing_1 ?? 0) + ($row->kontrolHarga->subsidi_leasing_2 ?? 0)),
+            'dll' => $reports->sum(fn($row) => ($row->kontrolHarga->dll_1 ?? 0) + ($row->kontrolHarga->dll_2 ?? 0)),
+            'dealer' => $reports->sum(fn($row) => $row->kontrolHarga->subsidi_dealer ?? 0),
+        ];
+
+        return view('laporan.penjualan.print-subsidi-main-dealer', compact('reports', 'grandTotals', 'dari_tanggal', 'sampai_tanggal', 'jenis_dokumen', 'search'));
+    }
 }

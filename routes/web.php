@@ -203,4 +203,13 @@ Route::get('/laporan/penjualan/sales-pop-global', [LaporanPenjualanController::c
 Route::get('/laporan/penjualan/sales-pop-global/print', [LaporanPenjualanController::class, 'printSalesPopGlobal'])->name('laporan.penjualan.sales-pop-global.print');
 Route::get('/laporan/penjualan/sales-pop-terperinci', [LaporanPenjualanController::class, 'salesPopTerperinci'])->name('laporan.penjualan.sales-pop-terperinci');
 Route::get('/laporan/penjualan/sales-pop-terperinci/print', [LaporanPenjualanController::class, 'printSalesPopTerperinci'])->name('laporan.penjualan.sales-pop-terperinci.print');
+Route::get('/laporan/penjualan/leasing-global', [LaporanPenjualanController::class, 'leasingGlobal'])->name('laporan.penjualan.leasing-global');
+Route::get('/laporan/penjualan/leasing-global/print', [LaporanPenjualanController::class, 'printLeasingGlobal'])->name('laporan.penjualan.leasing-global.print');
+Route::get('/laporan/penjualan/leasing-terperinci', [LaporanPenjualanController::class, 'leasingTerperinci'])->name('laporan.penjualan.leasing-terperinci');
+Route::get('/laporan/penjualan/leasing-terperinci/print', [LaporanPenjualanController::class, 'printLeasingTerperinci'])->name('laporan.penjualan.leasing-terperinci.print');
+Route::get('/laporan/penjualan/pdi-man-global', [LaporanPenjualanController::class, 'pdiManGlobal'])->name('laporan.penjualan.pdi-man-global');
+Route::get('/laporan/penjualan/pdi-man-global/print', [LaporanPenjualanController::class, 'printPdiManGlobal'])->name('laporan.penjualan.pdi-man-global.print');
+Route::get('/laporan/penjualan/pdi-man-terperinci', [LaporanPenjualanController::class, 'pdiManTerperinci'])->name('laporan.penjualan.pdi-man-terperinci');
+Route::get('/laporan/penjualan/pdi-man-terperinci/print', [LaporanPenjualanController::class, 'printPdiManTerperinci'])->name('laporan.penjualan.pdi-man-terperinci.print');
+
 });

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Leasing;
+use App\Models\PdiMan;
 use App\Models\Sales;
 use App\Models\Spk;
 use Illuminate\Http\Request;
@@ -407,5 +409,247 @@ class LaporanPenjualanController extends Controller
         });
 
         return view('laporan.penjualan.print-sales-pop-terperinci', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'sales_id'));
+    }
+
+    public function leasingGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $leasing_id = $request->input('leasing_id');
+
+        $leasingList = Leasing::orderBy('nama_leasing')->get();
+
+        $query = DB::table('spks')
+            ->leftJoin('leasings', 'spks.leasing_id', '=', 'leasings.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                DB::raw("CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN 'KONTAN' ELSE IFNULL(leasings.nama_leasing, 'KONTAN') END as nama_leasing"),
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit'),
+                DB::raw('SUM(spks.harga_otr) as total_otr'),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_um"),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_tj")
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($leasing_id) {
+            $query->where('spks.leasing_id', $leasing_id);
+        }
+
+        $reports = $query->groupBy(
+                DB::raw("CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN 'KONTAN' ELSE IFNULL(leasings.nama_leasing, 'KONTAN') END"),
+                'motor_types.id',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type'
+            )
+            ->get()
+            ->groupBy('nama_leasing');
+
+        return view('laporan.penjualan.leasing-global', compact('reports', 'leasingList', 'dari_tanggal', 'sampai_tanggal', 'leasing_id'));
+    }
+
+    public function printLeasingGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $leasing_id = $request->input('leasing_id');
+
+        $query = DB::table('spks')
+            ->leftJoin('leasings', 'spks.leasing_id', '=', 'leasings.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                DB::raw("CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN 'KONTAN' ELSE IFNULL(leasings.nama_leasing, 'KONTAN') END as nama_leasing"),
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit'),
+                DB::raw('SUM(spks.harga_otr) as total_otr'),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_um"),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_tj")
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($leasing_id) {
+            $query->where('spks.leasing_id', $leasing_id);
+        }
+
+        $reports = $query->groupBy(
+                DB::raw("CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN 'KONTAN' ELSE IFNULL(leasings.nama_leasing, 'KONTAN') END"),
+                'motor_types.id',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type'
+            )
+            ->get()
+            ->groupBy('nama_leasing');
+
+        return view('laporan.penjualan.print-leasing-global', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'leasing_id'));
+    }
+
+    public function leasingTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $leasing_id = $request->input('leasing_id');
+
+        $leasingList = Leasing::orderBy('nama_leasing')->get();
+
+        $query = Spk::with(['leasing', 'motorUnit.type'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($leasing_id) {
+            $query->where('leasing_id', $leasing_id);
+        }
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return in_array($spk->jenis_pembayaran, ['Cash', 'Tunai']) ? 'KONTAN' : ($spk->leasing->nama_leasing ?? 'KONTAN');
+        })->groupBy(function($spk) {
+            return in_array($spk->jenis_pembayaran, ['Cash', 'Tunai']) ? 'KONTAN' : ($spk->leasing->nama_leasing ?? 'KONTAN');
+        });
+
+        return view('laporan.penjualan.leasing-terperinci', compact('reports', 'leasingList', 'dari_tanggal', 'sampai_tanggal', 'leasing_id'));
+    }
+
+    public function printLeasingTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $leasing_id = $request->input('leasing_id');
+
+        $query = Spk::with(['leasing', 'motorUnit.type'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($leasing_id) {
+            $query->where('leasing_id', $leasing_id);
+        }
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return in_array($spk->jenis_pembayaran, ['Cash', 'Tunai']) ? 'KONTAN' : ($spk->leasing->nama_leasing ?? 'KONTAN');
+        })->groupBy(function($spk) {
+            return in_array($spk->jenis_pembayaran, ['Cash', 'Tunai']) ? 'KONTAN' : ($spk->leasing->nama_leasing ?? 'KONTAN');
+        });
+
+        return view('laporan.penjualan.print-leasing-terperinci', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'leasing_id'));
+    }
+
+    public function pdiManGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $pdi_man_id = $request->input('pdi_man_id');
+
+        $pdiManList = PdiMan::orderBy('nama_pdi_man')->get();
+
+        $query = DB::table('spks')
+            ->join('surat_jalans', 'spks.id', '=', 'surat_jalans.spk_id')
+            ->leftJoin('pdi_mans', 'surat_jalans.pdi_man_id', '=', 'pdi_mans.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                DB::raw("IFNULL(pdi_mans.nama_pdi_man, 'TANPA PDI MAN') as nama_pdi_man"),
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit')
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($pdi_man_id) {
+            $query->where('surat_jalans.pdi_man_id', $pdi_man_id);
+        }
+
+        $reports = $query->groupBy(
+                DB::raw("IFNULL(pdi_mans.nama_pdi_man, 'TANPA PDI MAN')"),
+                'motor_types.id',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type'
+            )
+            ->get()
+            ->groupBy('nama_pdi_man');
+
+        return view('laporan.penjualan.pdi-man-global', compact('reports', 'pdiManList', 'dari_tanggal', 'sampai_tanggal', 'pdi_man_id'));
+    }
+
+    public function printPdiManGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $pdi_man_id = $request->input('pdi_man_id');
+
+        $query = DB::table('spks')
+            ->join('surat_jalans', 'spks.id', '=', 'surat_jalans.spk_id')
+            ->leftJoin('pdi_mans', 'surat_jalans.pdi_man_id', '=', 'pdi_mans.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                DB::raw("IFNULL(pdi_mans.nama_pdi_man, 'TANPA PDI MAN') as nama_pdi_man"),
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit')
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($pdi_man_id) {
+            $query->where('surat_jalans.pdi_man_id', $pdi_man_id);
+        }
+
+        $reports = $query->groupBy(
+                DB::raw("IFNULL(pdi_mans.nama_pdi_man, 'TANPA PDI MAN')"),
+                'motor_types.id',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type'
+            )
+            ->get()
+            ->groupBy('nama_pdi_man');
+
+        return view('laporan.penjualan.print-pdi-man-global', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'pdi_man_id'));
+    }
+
+    public function pdiManTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $pdi_man_id = $request->input('pdi_man_id');
+
+        $pdiManList = PdiMan::orderBy('nama_pdi_man')->get();
+
+        $query = Spk::with(['suratJalan.pdiMan', 'motorUnit.type'])
+            ->whereHas('suratJalan', function($q) use ($pdi_man_id) {
+                if ($pdi_man_id) {
+                    $q->where('pdi_man_id', $pdi_man_id);
+                }
+            })
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return $spk->suratJalan->pdiMan->nama_pdi_man ?? 'TANPA PDI MAN';
+        })->groupBy(function($spk) {
+            return $spk->suratJalan->pdiMan->nama_pdi_man ?? 'TANPA PDI MAN';
+        });
+
+        return view('laporan.penjualan.pdi-man-terperinci', compact('reports', 'pdiManList', 'dari_tanggal', 'sampai_tanggal', 'pdi_man_id'));
+    }
+
+    public function printPdiManTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $pdi_man_id = $request->input('pdi_man_id');
+
+        $query = Spk::with(['suratJalan.pdiMan', 'motorUnit.type'])
+            ->whereHas('suratJalan', function($q) use ($pdi_man_id) {
+                if ($pdi_man_id) {
+                    $q->where('pdi_man_id', $pdi_man_id);
+                }
+            })
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return $spk->suratJalan->pdiMan->nama_pdi_man ?? 'TANPA PDI MAN';
+        })->groupBy(function($spk) {
+            return $spk->suratJalan->pdiMan->nama_pdi_man ?? 'TANPA PDI MAN';
+        });
+
+        return view('laporan.penjualan.print-pdi-man-terperinci', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'pdi_man_id'));
     }
 }

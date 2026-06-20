@@ -192,6 +192,28 @@
                                         </div>
                                     </div>
 
+                                    <div x-data="{ subLeasingOpen: false }" class="relative border-t border-gray-100" @mouseenter="subLeasingOpen = true" @mouseleave="subLeasingOpen = false">
+                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                            <span>Leasing</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                        <div x-show="subLeasingOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                            <a href="{{ route('laporan.penjualan.leasing-global') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Global</a>
+                                            <a href="{{ route('laporan.penjualan.leasing-terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Terperinci</a>
+                                        </div>
+                                    </div>
+
+                                    <div x-data="{ subPdiManOpen: false }" class="relative border-t border-gray-100" @mouseenter="subPdiManOpen = true" @mouseleave="subPdiManOpen = false">
+                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                            <span>PDI Man</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                        <div x-show="subPdiManOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                            <a href="{{ route('laporan.penjualan.pdi-man-global') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Global</a>
+                                            <a href="{{ route('laporan.penjualan.pdi-man-terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Terperinci</a>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             @endcan
@@ -382,6 +404,28 @@
                                 <div x-show="salesPopMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                                     <a href="{{ route('laporan.penjualan.sales-pop-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
                                     <a href="{{ route('laporan.penjualan.sales-pop-terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+
+                            <div x-data="{ leasingMobileOpen: false }">
+                                <button @click.prevent="leasingMobileOpen = !leasingMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                                    <span>Leasing</span>
+                                    <svg :class="leasingMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="leasingMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                                    <a href="{{ route('laporan.penjualan.leasing-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.penjualan.leasing-terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+
+                            <div x-data="{ pdimanMobileOpen: false }">
+                                <button @click.prevent="pdimanMobileOpen = !pdimanMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                                    <span>PDI Man</span>
+                                    <svg :class="pdimanMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="pdimanMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                                    <a href="{{ route('laporan.penjualan.pdi-man-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.penjualan.pdi-man-terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
                                 </div>
                             </div>
 

@@ -199,4 +199,8 @@ Route::get('/laporan/penjualan/terperinci/print', [LaporanPenjualanController::c
 Route::get('/laporan/penjualan/subsidi-main-dealer', [LaporanPenjualanController::class, 'subsidiMainDealer'])->name('laporan.penjualan.subsidi-main-dealer');
 Route::get('/laporan/penjualan/subsidi-main-dealer/print', [LaporanPenjualanController::class, 'printSubsidiMainDealer'])->name('laporan.penjualan.subsidi-main-dealer.print');
 
+Route::get('/laporan/penjualan/sales-pop-global', [LaporanPenjualanController::class, 'salesPopGlobal'])->name('laporan.penjualan.sales-pop-global');
+Route::get('/laporan/penjualan/sales-pop-global/print', [LaporanPenjualanController::class, 'printSalesPopGlobal'])->name('laporan.penjualan.sales-pop-global.print');
+Route::get('/laporan/penjualan/sales-pop-terperinci', [LaporanPenjualanController::class, 'salesPopTerperinci'])->name('laporan.penjualan.sales-pop-terperinci');
+Route::get('/laporan/penjualan/sales-pop-terperinci/print', [LaporanPenjualanController::class, 'printSalesPopTerperinci'])->name('laporan.penjualan.sales-pop-terperinci.print');
 });

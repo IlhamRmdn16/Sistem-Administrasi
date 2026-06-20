@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
+       <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
 
@@ -131,55 +131,74 @@
                     @endcanany
 
                     @canany(['akses-laporan-stok', 'akses-laporan-penjualan'])
-<div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
-    <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        Laporan
-        <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-    </button>
+                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                        <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Laporan
+                            <svg :class="dropdownOpen ? 'rotate-180' : ''" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
 
-    <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                        <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
 
-        {{-- Kategori 1: Laporan Stok --}}
-        @can('akses-laporan-stok')
-        <div x-data="{ subOpen: false }" class="relative" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
-            <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
-                <span>Stok Unit</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-            <div x-show="subOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
-                <a href="{{ route('laporan.stok.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
-                <a href="{{ route('laporan.stok.warna') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Warna</a>
-                <a href="{{ route('laporan.stok.detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Detil</a>
-                <a href="{{ route('laporan.stok.sales-global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Global</a>
-                <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Detil</a>
-                <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Gudang Detil</a>
-                <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">
-                    {{ Auth::user()->hasRole('Admin GP') ? 'Showroom GP Detil' : 'Showroom Detil' }}
-                </a>
-            </div>
-        </div>
-        @endcan
+                            @can('akses-laporan-stok')
+                            <div x-data="{ subOpen: false }" class="relative" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
+                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Stok Unit</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.stok.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.stok.warna') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Warna</a>
+                                    <a href="{{ route('laporan.stok.detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Detil</a>
+                                    <a href="{{ route('laporan.stok.sales-global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Global</a>
+                                    <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Sales/POP Detil</a>
+                                    <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Gudang Detil</a>
+                                    <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">
+                                        {{ Auth::user()->hasRole('Admin GP') ? 'Showroom GP Detil' : 'Showroom Detil' }}
+                                    </a>
+                                </div>
+                            </div>
+                            @endcan
 
-        {{-- Kategori 2: Laporan Penjualan --}}
-        @can('akses-laporan-penjualan')
-        <div x-data="{ subPenjualanOpen: false }" class="relative" @mouseenter="subPenjualanOpen = true" @mouseleave="subPenjualanOpen = false">
-            <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left border-t border-gray-100">
-                <span>Penjualan</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
-            <div x-show="subPenjualanOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
-                <div class="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-50/50">Penjualan Global</div>
-                <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Global Unit</a>
-                <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Terperinci</a>
-                <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Subsidi Main Dealer</a>
-            </div>
-        </div>
-        @endcan
+                            @can('akses-laporan-penjualan')
+                            <div x-data="{ menuPenjualanOpen: false }" class="relative border-t border-gray-100" @mouseenter="menuPenjualanOpen = true" @mouseleave="menuPenjualanOpen = false">
+                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Penjualan</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
 
-    </div>
-</div>
-@endcanany
+                                <div x-show="menuPenjualanOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+
+                                    <div x-data="{ subGlobalOpen: false }" class="relative" @mouseenter="subGlobalOpen = true" @mouseleave="subGlobalOpen = false">
+                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left border-b border-gray-50">
+                                            <span>Global</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                        <div x-show="subGlobalOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-52 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                            <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global Unit</a>
+                                            <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                            <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Subsidi Main Dealer</a>
+                                        </div>
+                                    </div>
+
+                                    <div x-data="{ subSalesPopOpen: false }" class="relative" @mouseenter="subSalesPopOpen = true" @mouseleave="subSalesPopOpen = false">
+                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                            <span>Sales / POP</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </button>
+                                        <div x-show="subSalesPopOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                            <a href="{{ route('laporan.penjualan.sales-pop-global') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                            <a href="{{ route('laporan.penjualan.sales-pop-terperinci') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            @endcan
+
+                        </div>
+                    </div>
+                    @endcanany
 
                     @canany(['akses-manajemen-role', 'akses-manajemen-user'])
                     <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
@@ -310,48 +329,69 @@
             @endcanany
 
             @canany(['akses-laporan-stok', 'akses-laporan-penjualan'])
-<div x-data="{ menuLaporanOpen: false }">
-    <button @click="menuLaporanOpen = !menuLaporanOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
-        <span>Laporan</span>
-        <svg :class="menuLaporanOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-    </button>
-    <div x-show="menuLaporanOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+            <div x-data="{ menuLaporanOpen: false }">
+                <button @click="menuLaporanOpen = !menuLaporanOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
+                    <span>Laporan</span>
+                    <svg :class="menuLaporanOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div x-show="menuLaporanOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
 
-        @can('akses-laporan-stok')
-        <div x-data="{ stokOpen: false }">
-            <button @click.prevent="stokOpen = !stokOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
-                <span>Stok Unit</span>
-                <svg :class="stokOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <div x-show="stokOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-                <a href="{{ route('laporan.stok.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
-                <a href="{{ route('laporan.stok.warna') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Warna</a>
-                <a href="{{ route('laporan.stok.detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Detil</a>
-                <a href="{{ route('laporan.stok.sales-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Global</a>
-                <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Detil</a>
-                <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Gudang Detil</a>
-                <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Showroom Detil</a>
+                    @can('akses-laporan-stok')
+                    <div x-data="{ stokOpen: false }">
+                        <button @click.prevent="stokOpen = !stokOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
+                            <span>Stok Unit</span>
+                            <svg :class="stokOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="stokOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.stok.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                            <a href="{{ route('laporan.stok.warna') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Warna</a>
+                            <a href="{{ route('laporan.stok.detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Detil</a>
+                            <a href="{{ route('laporan.stok.sales-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Global</a>
+                            <a href="{{ route('laporan.stok.sales-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Sales/POP Detil</a>
+                            <a href="{{ route('laporan.stok.gudang-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Gudang Detil</a>
+                            <a href="{{ route('laporan.stok.showroom-detil') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Showroom Detil</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-penjualan')
+                    <div x-data="{ penjualanOpen: false }">
+                        <button @click.prevent="penjualanOpen = !penjualanOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>Penjualan</span>
+                            <svg :class="penjualanOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="penjualanOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+
+                            <div x-data="{ globalMobileOpen: false }">
+                                <button @click.prevent="globalMobileOpen = !globalMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
+                                    <span>Global</span>
+                                    <svg :class="globalMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="globalMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                                    <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global Unit</a>
+                                    <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                                    <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Subsidi Main Dealer</a>
+                                </div>
+                            </div>
+
+                            <div x-data="{ salesPopMobileOpen: false }">
+                                <button @click.prevent="salesPopMobileOpen = !salesPopMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                                    <span>Sales / POP</span>
+                                    <svg :class="salesPopMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div x-show="salesPopMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                                    <a href="{{ route('laporan.penjualan.sales-pop-global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.penjualan.sales-pop-terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    @endcan
+
+                </div>
             </div>
-        </div>
-        @endcan
-
-        @can('akses-laporan-penjualan')
-        <div x-data="{ penjualanOpen: false }">
-            <button @click.prevent="penjualanOpen = !penjualanOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
-                <span>Penjualan</span>
-                <svg :class="penjualanOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <div x-show="penjualanOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
-                <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global Unit</a>
-                <a href="{{ route('laporan.penjualan.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
-                <a href="{{ route('laporan.penjualan.subsidi-main-dealer') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Subsidi Main Dealer</a>
-            </div>
-        </div>
-        @endcan
-
-    </div>
-</div>
-@endcanany
+            @endcanany
 
             @canany(['akses-manajemen-role', 'akses-manajemen-user'])
             <div x-data="{ subOpen: false }">

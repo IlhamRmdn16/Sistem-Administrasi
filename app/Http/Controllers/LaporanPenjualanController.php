@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Sales;
 use App\Models\Spk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -292,5 +293,119 @@ class LaporanPenjualanController extends Controller
         ];
 
         return view('laporan.penjualan.print-subsidi-main-dealer', compact('reports', 'grandTotals', 'dari_tanggal', 'sampai_tanggal', 'jenis_dokumen', 'search'));
+    }
+
+    public function salesPopGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $sales_id = $request->input('sales_id');
+
+        $salesList = Sales::orderBy('nama_sales')->get();
+
+        $query = DB::table('spks')
+            ->join('sales', 'spks.sales_id', '=', 'sales.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                'sales.nama_sales',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit'),
+                DB::raw('SUM(spks.harga_otr) as total_otr'),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_um"),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_tj")
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($sales_id) {
+            $query->where('spks.sales_id', $sales_id);
+        }
+
+        $reports = $query->groupBy('sales.id', 'sales.nama_sales', 'motor_types.id', 'motor_types.kode_tipe', 'motor_types.nama_type')
+            ->orderBy('sales.nama_sales')
+            ->get()
+            ->groupBy('nama_sales');
+
+        return view('laporan.penjualan.sales-pop-global', compact('reports', 'salesList', 'dari_tanggal', 'sampai_tanggal', 'sales_id'));
+    }
+
+    public function printSalesPopGlobal(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $sales_id = $request->input('sales_id');
+
+        $query = DB::table('spks')
+            ->join('sales', 'spks.sales_id', '=', 'sales.id')
+            ->join('motor_units', 'spks.motor_unit_id', '=', 'motor_units.id')
+            ->join('motor_types', 'motor_units.motor_type_id', '=', 'motor_types.id')
+            ->select(
+                'sales.nama_sales',
+                'motor_types.kode_tipe',
+                'motor_types.nama_type',
+                DB::raw('COUNT(spks.id) as jumlah_unit'),
+                DB::raw('SUM(spks.harga_otr) as total_otr'),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_um"),
+                DB::raw("SUM(CASE WHEN spks.jenis_pembayaran IN ('Cash', 'Tunai') THEN spks.harga_otr ELSE spks.uang_muka END) as total_tj")
+            )
+            ->whereBetween('spks.tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($sales_id) {
+            $query->where('spks.sales_id', $sales_id);
+        }
+
+        $reports = $query->groupBy('sales.id', 'sales.nama_sales', 'motor_types.id', 'motor_types.kode_tipe', 'motor_types.nama_type')
+            ->orderBy('sales.nama_sales')
+            ->get()
+            ->groupBy('nama_sales');
+
+        return view('laporan.penjualan.print-sales-pop-global', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'sales_id'));
+    }
+
+    public function salesPopTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal', date('Y-m-01'));
+        $sampai_tanggal = $request->input('sampai_tanggal', date('Y-m-d'));
+        $sales_id = $request->input('sales_id');
+
+        $salesList = Sales::orderBy('nama_sales')->get();
+
+        $query = Spk::with(['sales', 'motorUnit.type', 'leasing', 'kontrolHarga', 'suratJalan'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($sales_id) {
+            $query->where('sales_id', $sales_id);
+        }
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return $spk->sales->nama_sales ?? 'ZZZ';
+        })->groupBy(function($spk) {
+            return $spk->sales->nama_sales ?? 'Tanpa Sales / POP';
+        });
+
+        return view('laporan.penjualan.sales-pop-terperinci', compact('reports', 'salesList', 'dari_tanggal', 'sampai_tanggal', 'sales_id'));
+    }
+
+    public function printSalesPopTerperinci(Request $request)
+    {
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
+        $sales_id = $request->input('sales_id');
+
+        $query = Spk::with(['sales', 'motorUnit.type', 'leasing', 'kontrolHarga', 'suratJalan'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+
+        if ($sales_id) {
+            $query->where('sales_id', $sales_id);
+        }
+
+        $reports = $query->get()->sortBy(function($spk) {
+            return $spk->sales->nama_sales ?? 'ZZZ';
+        })->groupBy(function($spk) {
+            return $spk->sales->nama_sales ?? 'Tanpa Sales / POP';
+        });
+
+        return view('laporan.penjualan.print-sales-pop-terperinci', compact('reports', 'dari_tanggal', 'sampai_tanggal', 'sales_id'));
     }
 }

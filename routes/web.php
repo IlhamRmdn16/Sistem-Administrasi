@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LaporanAccuController;
 use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\Master\BiayaAdministrasiController;
@@ -211,5 +212,9 @@ Route::get('/laporan/penjualan/pdi-man-global', [LaporanPenjualanController::cla
 Route::get('/laporan/penjualan/pdi-man-global/print', [LaporanPenjualanController::class, 'printPdiManGlobal'])->name('laporan.penjualan.pdi-man-global.print');
 Route::get('/laporan/penjualan/pdi-man-terperinci', [LaporanPenjualanController::class, 'pdiManTerperinci'])->name('laporan.penjualan.pdi-man-terperinci');
 Route::get('/laporan/penjualan/pdi-man-terperinci/print', [LaporanPenjualanController::class, 'printPdiManTerperinci'])->name('laporan.penjualan.pdi-man-terperinci.print');
+Route::get('/laporan/kontrol-accu/mutasi', [LaporanAccuController::class, 'mutasiPenjualan'])->name('laporan.accu.mutasi');
+Route::get('/laporan/kontrol-accu/mutasi/print', [LaporanAccuController::class, 'printMutasiPenjualan'])->name('laporan.accu.mutasi.print');
+Route::get('/laporan/kontrol-accu/stok', [LaporanAccuController::class, 'stok'])->name('laporan.accu.stok');
+Route::get('/laporan/kontrol-accu/stok/print', [LaporanAccuController::class, 'printStok'])->name('laporan.accu.stok.print');
 
 });

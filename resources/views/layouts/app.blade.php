@@ -130,7 +130,7 @@
                     </div>
                     @endcanany
 
-                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan'])
+                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu'])
                     <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -214,6 +214,19 @@
                                         </div>
                                     </div>
 
+                                </div>
+                            </div>
+                            @endcan
+
+                            @can('akses-laporan-accu')
+                            <div x-data="{ subAccuOpen: false }" class="relative border-t border-gray-100" @mouseenter="subAccuOpen = true" @mouseleave="subAccuOpen = false">
+                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Kontrol Accu</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subAccuOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.accu.mutasi') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Mutasi Penjualan</a>
+                                    <a href="{{ route('laporan.accu.stok') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red pl-6">Stok</a>
                                 </div>
                             </div>
                             @endcan
@@ -350,7 +363,7 @@
             </div>
             @endcanany
 
-            @canany(['akses-laporan-stok', 'akses-laporan-penjualan'])
+            @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu'])
             <div x-data="{ menuLaporanOpen: false }">
                 <button @click="menuLaporanOpen = !menuLaporanOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
                     <span>Laporan</span>
@@ -429,6 +442,19 @@
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-accu')
+                    <div x-data="{ accuMobileOpen: false }">
+                        <button @click.prevent="accuMobileOpen = !accuMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>Kontrol Accu</span>
+                            <svg :class="accuMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="accuMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.accu.mutasi') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Mutasi Penjualan</a>
+                            <a href="{{ route('laporan.accu.stok') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Stok</a>
                         </div>
                     </div>
                     @endcan

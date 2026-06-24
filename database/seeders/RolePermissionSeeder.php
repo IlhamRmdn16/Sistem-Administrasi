@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RolePermissionSeeder extends Seeder
 {
-    public function run(): void
+   public function run(): void
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
@@ -45,6 +45,7 @@ class RolePermissionSeeder extends Seeder
             'akses-cetak-blanko-samsat',
             'akses-laporan-stok',
             'akses-laporan-penjualan',
+            'akses-laporan-accu', // PERMISSION BARU UNTUK ACCU
             'akses-manajemen-role',
             'akses-manajemen-user',
         ];
@@ -64,7 +65,8 @@ class RolePermissionSeeder extends Seeder
             'akses-surat-jalan',
             'akses-kuitansi-konsumen',
             'akses-laporan-stok',
-            'akses-laporan-penjualan'
+            'akses-laporan-penjualan',
+            'akses-laporan-accu' // Berikan akses juga ke Admin GP jika diperlukan
         ]);
 
         $user = User::updateOrCreate(

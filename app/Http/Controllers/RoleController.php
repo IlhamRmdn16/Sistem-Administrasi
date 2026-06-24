@@ -49,6 +49,7 @@ class RoleController extends Controller
         'Modul Laporan' => [
             'akses-laporan-stok' => 'Laporan Stok Unit',
             'akses-laporan-penjualan' => 'Laporan Penjualan',
+            'akses-laporan-accu' => 'Laporan Kontrol Accu', // TAMBAHAN UNTUK UI CHECKBOX
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',

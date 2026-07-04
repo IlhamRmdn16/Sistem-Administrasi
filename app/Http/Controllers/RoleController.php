@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-   private $permissionGroups = [
+  private $permissionGroups = [
         'Modul Master Data' => [
             'akses-master-motor' => 'Master Motor',
             'akses-master-sales' => 'Master Sales/POP',
@@ -49,7 +49,8 @@ class RoleController extends Controller
         'Modul Laporan' => [
             'akses-laporan-stok' => 'Laporan Stok Unit',
             'akses-laporan-penjualan' => 'Laporan Penjualan',
-            'akses-laporan-accu' => 'Laporan Kontrol Accu', // TAMBAHAN UNTUK UI CHECKBOX
+            'akses-laporan-accu' => 'Laporan Kontrol Accu',
+            'akses-laporan-motor-masuk' => 'Laporan Penerimaan Motor Masuk', 
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',

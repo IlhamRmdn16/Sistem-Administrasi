@@ -70,10 +70,12 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('transaction')->group(function () {
         Route::get('/motor-unit', [MotorUnitController::class, 'index'])->name('motor-unit.index');
-        Route::post('/motor-unit', [MotorUnitController::class, 'store'])->name('motor-unit.store');
-        Route::put('/motor-unit/{id}', [MotorUnitController::class, 'update'])->name('motor-unit.update');
-        Route::delete('/motor-unit/{id}', [MotorUnitController::class, 'destroy'])->name('motor-unit.destroy');
-        Route::get('/motor-unit/{id}/print', [MotorUnitController::class, 'print'])->name('motor-unit.print');
+    Route::get('/motor-unit/create', [MotorUnitController::class, 'create'])->name('motor-unit.create');
+    Route::post('/motor-unit', [MotorUnitController::class, 'store'])->name('motor-unit.store');
+    Route::get('/motor-unit/{id}/edit', [MotorUnitController::class, 'edit'])->name('motor-unit.edit');
+    Route::post('/motor-unit/{id}', [MotorUnitController::class, 'update'])->name('motor-unit.update');
+    Route::delete('/motor-unit/{id}', [MotorUnitController::class, 'destroy'])->name('motor-unit.destroy');
+    Route::get('/motor-unit/{id}/print', [MotorUnitController::class, 'print'])->name('motor-unit.print');
 
         Route::get('/spk', [SpkController::class, 'index'])->name('spk.index');
         Route::post('/spk', [SpkController::class, 'store'])->name('spk.store');

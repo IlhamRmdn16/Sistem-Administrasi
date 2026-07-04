@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\MotorType;
 use App\Models\MotorUnit;
+use App\Models\PenerimaanUnit;
 use App\Models\Sales;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MotorUnitController extends Controller
 {
@@ -17,133 +19,212 @@ class MotorUnitController extends Controller
         $dari_tanggal = $request->input('dari_tanggal');
         $sampai_tanggal = $request->input('sampai_tanggal');
         $per_page = $request->input('per_page', 10);
-        
-        $types = MotorType::with('colors')->get();
-        
-        $lokasiStatis = ['Gudang 1', 'Gudang 2', 'Showroom Pusat', 'Showroom GP'];
-        $pops = Sales::where('jenis_sales', 'pop')->get();
 
-        $query = MotorUnit::with(['type', 'color', 'lokasiPop']);
+        $query = PenerimaanUnit::with(['motorUnits.type', 'motorUnits.color'])->withCount('motorUnits');
 
         if ($dari_tanggal && $sampai_tanggal) {
-            $query->whereBetween('created_at', [$dari_tanggal . ' 00:00:00', $sampai_tanggal . ' 23:59:59']);
+            $query->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
         }
 
         if ($search) {
-            $query->where('no_mesin', 'like', "%{$search}%")
-                  ->orWhere('no_rangka', 'like', "%{$search}%")
-                  ->orWhere('no_do', 'like', "%{$search}%")
-                  ->orWhereHas('type', function ($q) use ($search) {
-                      $q->where('nama_type', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('no_bukti', 'like', "%{$search}%")
+                  ->orWhere('no_sj', 'like', "%{$search}%")
+                  ->orWhereHas('motorUnits', function($sub) use ($search) {
+                      $sub->where('no_mesin', 'like', "%{$search}%")
+                          ->orWhere('no_rangka', 'like', "%{$search}%");
                   });
+            });
         }
 
-        $motorUnits = $query->latest()->paginate($per_page)->withQueryString();
+        $penerimaanData = $query->latest()->paginate($per_page)->withQueryString();
 
-        return view('transaction.motor-unit.index', compact('motorUnits', 'types', 'search', 'dari_tanggal', 'sampai_tanggal', 'per_page', 'lokasiStatis', 'pops'));
+        return view('transaction.motor-unit.index', compact('penerimaanData', 'search', 'dari_tanggal', 'sampai_tanggal', 'per_page'));
+    }
+
+    public function create()
+    {
+        $types = MotorType::with('colors')->get();
+        $lokasiStatis = ['Showroom Pusat', 'Showroom GP', 'Gudang 1', 'Gudang 2'];
+        $pops = Sales::where('jenis_sales', 'pop')->get();
+
+        return view('transaction.motor-unit.create', compact('types', 'lokasiStatis', 'pops'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'no_do' => 'required',
-            'no_sp' => 'required',
-            'tanggal_sp' => 'required|date',
-            'motor_type_id' => 'required',
-            'motor_color_id' => 'required',
-            'no_mesin' => 'required|unique:motor_units',
-            'no_rangka' => 'required|unique:motor_units',
-            'no_seri_kunci' => 'required',
-            'no_kunci' => 'required',
-            'tahun_pembuatan' => 'required',
-            'no_accu' => 'required',
-            'posisi_stok' => 'required',
-            'lokasi_pop_id' => 'required_if:posisi_stok,POP'
+            'tanggal' => 'required|date',
+            'no_kendaraan' => 'required',
+            'ekspedisi' => 'required',
+            'no_sj' => 'required',
+            'details' => 'required|array|min:1',
+            'details.*.motor_type_id' => 'required',
+            'details.*.motor_color_id' => 'required',
+            'details.*.no_mesin' => 'required|unique:motor_units,no_mesin',
+            'details.*.no_rangka' => 'required|unique:motor_units,no_rangka',
+            'details.*.no_seri_kunci' => 'required',
+            'details.*.no_kunci' => 'required',
+            'details.*.tahun_pembuatan' => 'required',
+            'details.*.no_accu' => 'required',
+            'details.*.posisi_stok' => 'required',
         ]);
 
-        $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
-        $no_sp_full = $request->no_sp . ' / ' . $tanggal;
+        DB::beginTransaction();
+        try {
+            $date = Carbon::parse($request->tanggal);
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $prefix = "BLI{$year}/{$month}/";
 
-        MotorUnit::create([
-            'no_do' => $request->no_do,
-            'no_sp' => $no_sp_full,
-            'motor_type_id' => $request->motor_type_id,
-            'motor_color_id' => $request->motor_color_id,
-            'no_mesin' => $request->no_mesin,
-            'no_rangka' => $request->no_rangka,
-            'no_seri_kunci' => $request->no_seri_kunci,
-            'no_kunci' => $request->no_kunci,
-            'tahun_pembuatan' => $request->tahun_pembuatan,
-            'no_accu' => $request->no_accu,
-            'posisi_stok' => $request->posisi_stok,
-            'lokasi_pop_id' => $request->posisi_stok === 'POP' ? $request->lokasi_pop_id : null,
-            'status_unit' => 'Tersedia'
-        ]);
+            $lastRecord = PenerimaanUnit::where('no_bukti', 'like', "{$prefix}%")
+                ->orderBy('no_bukti', 'desc')
+                ->lockForUpdate()
+                ->first();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data Kendaraan berhasil diregistrasi!'
-        ]);
+            $nextSequence = 1;
+            if ($lastRecord) {
+                $lastSequenceStr = substr($lastRecord->no_bukti, -4);
+                $nextSequence = (int)$lastSequenceStr + 1;
+            }
+            $no_bukti = $prefix . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+
+            $penerimaan = PenerimaanUnit::create([
+                'no_bukti' => $no_bukti,
+                'tanggal' => $request->tanggal,
+                'no_kendaraan' => $request->no_kendaraan,
+                'ekspedisi' => $request->ekspedisi,
+                'no_sj' => $request->no_sj,
+                'no_nd' => $request->no_nd,
+                'no_so' => $request->no_so,
+            ]);
+
+            foreach ($request->details as $detail) {
+                MotorUnit::create([
+                    'penerimaan_unit_id' => $penerimaan->id,
+                    'motor_type_id' => $detail['motor_type_id'],
+                    'motor_color_id' => $detail['motor_color_id'],
+                    'no_mesin' => strtoupper($detail['no_mesin']),
+                    'no_rangka' => strtoupper($detail['no_rangka']),
+                    'no_seri_kunci' => strtoupper($detail['no_seri_kunci']),
+                    'no_kunci' => strtoupper($detail['no_kunci']),
+                    'tahun_pembuatan' => $detail['tahun_pembuatan'],
+                    'no_accu' => strtoupper($detail['no_accu']),
+                    'posisi_stok' => $detail['posisi_stok'],
+                    'lokasi_pop_id' => $detail['posisi_stok'] === 'POP' ? $detail['lokasi_pop_id'] : null,
+                    'status_unit' => 'Tersedia'
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Registrasi grup unit masuk berhasil disimpan! No Bukti: ' . $no_bukti]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function edit($id)
+    {
+        $penerimaan = PenerimaanUnit::with('motorUnits.type', 'motorUnits.color')->findOrFail($id);
+        $types = MotorType::with('colors')->get();
+        $lokasiStatis = ['Showroom Pusat', 'Showroom GP', 'Gudang 1', 'Gudang 2'];
+        $pops = Sales::where('jenis_sales', 'pop')->get();
+
+        return view('transaction.motor-unit.edit', compact('penerimaan', 'types', 'lokasiStatis', 'pops'));
     }
 
     public function update(Request $request, $id)
     {
+        $penerimaan = PenerimaanUnit::findOrFail($id);
+
         $request->validate([
-            'no_do' => 'required',
-            'no_sp' => 'required',
-            'tanggal_sp' => 'required|date',
-            'motor_type_id' => 'required',
-            'motor_color_id' => 'required',
-            'no_mesin' => 'required|unique:motor_units,no_mesin,'.$id,
-            'no_rangka' => 'required|unique:motor_units,no_rangka,'.$id,
-            'no_seri_kunci' => 'required',
-            'no_kunci' => 'required',
-            'tahun_pembuatan' => 'required',
-            'no_accu' => 'required',
-            'posisi_stok' => 'required',
-            'lokasi_pop_id' => 'required_if:posisi_stok,POP'
+            'tanggal' => 'required|date',
+            'no_kendaraan' => 'required',
+            'ekspedisi' => 'required',
+            'no_sj' => 'required',
+            'details' => 'required|array|min:1',
+            'details.*.motor_type_id' => 'required',
+            'details.*.motor_color_id' => 'required',
+            'details.*.no_mesin' => 'required',
+            'details.*.no_rangka' => 'required',
+            'details.*.no_seri_kunci' => 'required',
+            'details.*.no_kunci' => 'required',
+            'details.*.tahun_pembuatan' => 'required',
+            'details.*.no_accu' => 'required',
+            'details.*.posisi_stok' => 'required',
         ]);
 
-        $tanggal = Carbon::parse($request->tanggal_sp)->format('d/m/Y');
-        $no_sp_full = $request->no_sp . ' / ' . $tanggal;
+        DB::beginTransaction();
+        try {
+            $penerimaan->update([
+                'tanggal' => $request->tanggal,
+                'no_kendaraan' => $request->no_kendaraan,
+                'ekspedisi' => $request->ekspedisi,
+                'no_sj' => $request->no_sj,
+                'no_nd' => $request->no_nd,
+                'no_so' => $request->no_so,
+            ]);
 
-        $unit = MotorUnit::findOrFail($id);
+            $existingIds = [];
+            foreach ($request->details as $detail) {
+                if (isset($detail['id']) && !empty($detail['id'])) {
+                    $unit = MotorUnit::findOrFail($detail['id']);
+                    $unit->update([
+                        'motor_type_id' => $detail['motor_type_id'],
+                        'motor_color_id' => $detail['motor_color_id'],
+                        'no_mesin' => strtoupper($detail['no_mesin']),
+                        'no_rangka' => strtoupper($detail['no_rangka']),
+                        'no_seri_kunci' => strtoupper($detail['no_seri_kunci']),
+                        'no_kunci' => strtoupper($detail['no_kunci']),
+                        'tahun_pembuatan' => $detail['tahun_pembuatan'],
+                        'no_accu' => strtoupper($detail['no_accu']),
+                        'posisi_stok' => $detail['posisi_stok'],
+                        'lokasi_pop_id' => $detail['posisi_stok'] === 'POP' ? $detail['lokasi_pop_id'] : null,
+                    ]);
+                    $existingIds[] = $unit->id;
+                } else {
+                    $newUnit = MotorUnit::create([
+                        'penerimaan_unit_id' => $penerimaan->id,
+                        'motor_type_id' => $detail['motor_type_id'],
+                        'motor_color_id' => $detail['motor_color_id'],
+                        'no_mesin' => strtoupper($detail['no_mesin']),
+                        'no_rangka' => strtoupper($detail['no_rangka']),
+                        'no_seri_kunci' => strtoupper($detail['no_seri_kunci']),
+                        'no_kunci' => strtoupper($detail['no_kunci']),
+                        'tahun_pembuatan' => $detail['tahun_pembuatan'],
+                        'no_accu' => strtoupper($detail['no_accu']),
+                        'posisi_stok' => $detail['posisi_stok'],
+                        'lokasi_pop_id' => $detail['posisi_stok'] === 'POP' ? $detail['lokasi_pop_id'] : null,
+                        'status_unit' => 'Tersedia'
+                    ]);
+                    $existingIds[] = $newUnit->id;
+                }
+            }
 
-        $unit->update([
-            'no_do' => $request->no_do,
-            'no_sp' => $no_sp_full,
-            'motor_type_id' => $request->motor_type_id,
-            'motor_color_id' => $request->motor_color_id,
-            'no_mesin' => $request->no_mesin,
-            'no_rangka' => $request->no_rangka,
-            'no_seri_kunci' => $request->no_seri_kunci,
-            'no_kunci' => $request->no_kunci,
-            'tahun_pembuatan' => $request->tahun_pembuatan,
-            'no_accu' => $request->no_accu,
-            'posisi_stok' => $request->posisi_stok,
-            'lokasi_pop_id' => $request->posisi_stok === 'POP' ? $request->lokasi_pop_id : null,
-        ]);
+            MotorUnit::where('penerimaan_unit_id', $penerimaan->id)
+                ->whereNotIn('id', $existingIds)
+                ->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data Kendaraan berhasil diperbarui!'
-        ]);
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Data penerimaan unit berhasil diperbarui!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui: ' . $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)
     {
-        $unit = MotorUnit::findOrFail($id);
-        $unit->delete();
+        $penerimaan = PenerimaanUnit::findOrFail($id);
+        $penerimaan->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data Kendaraan berhasil dihapus!'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Seluruh grup data penerimaan unit berhasil dihapus!']);
     }
 
     public function print($id)
     {
-        $unit = MotorUnit::with(['type', 'color'])->findOrFail($id);
+        $unit = MotorUnit::with(['type', 'color', 'penerimaanUnit'])->findOrFail($id);
         return view('transaction.motor-unit.print', compact('unit'));
     }
 }

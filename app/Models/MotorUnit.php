@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class MotorUnit extends Model
 {
-    protected $fillable = [
-        'no_do',
-        'no_sp',
+   protected $fillable = [
+        'penerimaan_unit_id',
         'motor_type_id',
         'motor_color_id',
         'no_mesin',
@@ -21,6 +20,11 @@ class MotorUnit extends Model
         'lokasi_pop_id',
         'status_unit'
     ];
+
+    public function penerimaanUnit()
+    {
+        return $this->belongsTo(PenerimaanUnit::class, 'penerimaan_unit_id');
+    }
 
     public function type()
     {

@@ -8,7 +8,7 @@
     <style>
         @media print {
             @page {
-                size: 148mm 210mm; /* Ukuran A5 Portrait */
+                size: 148mm 210mm;
                 margin: 0;
             }
             body {
@@ -44,9 +44,8 @@
 
         .print-area {
             width: 148mm;
-            padding: 8mm 8mm; /* Jarak aman pinggiran kertas */
+            padding: 8mm 8mm;
             margin: 0 auto;
-            /* Flex space-between dihapus agar konten tersusun natural dan rapat ke atas */
         }
     </style>
 </head>
@@ -85,14 +84,14 @@
                 <div class="uppercase">{{ $unit->no_mesin }}</div>
             </div>
             <div class="data-row">
-                <div>No. DO</div>
+                <div>No. Bukti</div>
                 <div>:</div>
-                <div>{{ $unit->no_do }}</div>
+                <div class="font-bold">{{ $unit->penerimaanUnit->no_bukti ?? '-' }}</div>
             </div>
             <div class="data-row">
-                <div>No. SP / Tgl</div>
+                <div>No. SJ / Tgl</div>
                 <div>:</div>
-                <div>{{ $unit->no_sp }}</div>
+                <div>{{ $unit->penerimaanUnit->no_sj ?? '-' }} / {{ \Carbon\Carbon::parse($unit->penerimaanUnit->tanggal)->format('d-m-Y') }}</div>
             </div>
         </div>
 

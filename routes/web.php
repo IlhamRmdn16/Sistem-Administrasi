@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaporanAccuController;
 use App\Http\Controllers\LaporanMotorMasukController;
+use App\Http\Controllers\LaporanMutasiShowroomController;
 use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\Master\BiayaAdministrasiController;
@@ -225,6 +226,13 @@ Route::prefix('laporan/motor-masuk')->name('laporan.motor-masuk.')->group(functi
     Route::get('/global/print', [LaporanMotorMasukController::class, 'printGlobal'])->name('print-global');
     Route::get('/terperinci', [LaporanMotorMasukController::class, 'terperinci'])->name('terperinci');
     Route::get('/terperinci/print', [LaporanMotorMasukController::class, 'printTerperinci'])->name('print-terperinci');
+});
+
+Route::prefix('laporan/mutasi-showroom')->name('laporan.mutasi-showroom.')->group(function () {
+    Route::get('/global', [LaporanMutasiShowroomController::class, 'global'])->name('global');
+    Route::get('/global/print', [LaporanMutasiShowroomController::class, 'printGlobal'])->name('print-global');
+    Route::get('/terperinci', [LaporanMutasiShowroomController::class, 'terperinci'])->name('terperinci');
+    Route::get('/terperinci/print', [LaporanMutasiShowroomController::class, 'printTerperinci'])->name('print-terperinci');
 });
 
 });

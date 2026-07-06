@@ -40,7 +40,7 @@
                     </a>
 
                     @canany(['akses-master-motor', 'akses-master-sales', 'akses-master-leasing', 'akses-master-pdiman', 'akses-master-rekening', 'akses-master-biaya'])
-                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                             Master Data
@@ -62,7 +62,7 @@
                     @endcanany
 
                     @canany(['akses-registrasi-unit', 'akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-spk', 'akses-kontrol-harga', 'akses-surat-jalan', 'akses-kuitansi-konsumen', 'akses-penagihan-leasing', 'akses-pengajuan-stnk', 'akses-samsat', 'akses-pajak-progresif', 'akses-penyerahan-stnk', 'akses-penyerahan-bpkb', 'akses-pencairan-leasing', 'akses-kuitansi-lain', 'akses-cetak-blanko-samsat'])
-                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Transaksi
@@ -77,8 +77,8 @@
                                 @can('akses-mutasi-dari-gp') <a href="{{ route('mutasi.index', 'dari-gp') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Motor Keluar</a> @endcan
                             @else
                                 @canany(['akses-mutasi-ke-showroom', 'akses-mutasi-dari-showroom', 'akses-mutasi-ke-pop', 'akses-mutasi-dari-pop', 'akses-mutasi-ke-gp', 'akses-mutasi-dari-gp', 'akses-mutasi-antar-gudang'])
-                                    <div x-data="{ mutasiOpen: false }" class="relative">
-                                        <button @click.prevent="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red focus:outline-none">
+                                    <div x-data="{ mutasiOpen: false }" class="relative" @click.away="mutasiOpen = false">
+                                        <button @click="mutasiOpen = !mutasiOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red focus:outline-none">
                                             <span>Manajemen Mutasi</span>
                                             <svg :class="mutasiOpen ? 'rotate-180' : ''" class="w-3 h-3 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </button>
@@ -130,8 +130,8 @@
                     </div>
                     @endcanany
 
-                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk'])
-                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom'])
+                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Laporan
@@ -141,8 +141,8 @@
                         <div x-show="dropdownOpen" x-transition style="display: none;" class="absolute left-0 mt-1 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
 
                             @can('akses-laporan-motor-masuk')
-                            <div x-data="{ subMotorMasukOpen: false }" class="relative" @mouseenter="subMotorMasukOpen = true" @mouseleave="subMotorMasukOpen = false">
-                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                            <div x-data="{ subMotorMasukOpen: false }" class="relative" @click.away="subMotorMasukOpen = false">
+                                <button @click="subMotorMasukOpen = !subMotorMasukOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Motor Masuk</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
@@ -153,9 +153,22 @@
                             </div>
                             @endcan
 
+                            @can('akses-laporan-mutasi-showroom')
+                            <div x-data="{ subMutasiShowroomOpen: false }" class="relative border-t border-gray-100" @click.away="subMutasiShowroomOpen = false">
+                                <button @click="subMutasiShowroomOpen = !subMutasiShowroomOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Mutasi Ke Showroom</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subMutasiShowroomOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.mutasi-showroom.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.mutasi-showroom.terperinci') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+                            @endcan
+
                             @can('akses-laporan-stok')
-                            <div x-data="{ subOpen: false }" class="relative border-t border-gray-100" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
-                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                            <div x-data="{ subOpen: false }" class="relative border-t border-gray-100" @click.away="subOpen = false">
+                                <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Stok Unit</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
@@ -174,16 +187,16 @@
                             @endcan
 
                             @can('akses-laporan-penjualan')
-                            <div x-data="{ menuPenjualanOpen: false }" class="relative border-t border-gray-100" @mouseenter="menuPenjualanOpen = true" @mouseleave="menuPenjualanOpen = false">
-                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                            <div x-data="{ menuPenjualanOpen: false }" class="relative border-t border-gray-100" @click.away="menuPenjualanOpen = false">
+                                <button @click="menuPenjualanOpen = !menuPenjualanOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Penjualan</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
 
                                 <div x-show="menuPenjualanOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
 
-                                    <div x-data="{ subGlobalOpen: false }" class="relative" @mouseenter="subGlobalOpen = true" @mouseleave="subGlobalOpen = false">
-                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left border-b border-gray-50">
+                                    <div x-data="{ subGlobalOpen: false }" class="relative" @click.away="subGlobalOpen = false">
+                                        <button @click="subGlobalOpen = !subGlobalOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left border-b border-gray-50">
                                             <span>Global</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
@@ -194,8 +207,8 @@
                                         </div>
                                     </div>
 
-                                    <div x-data="{ subSalesPopOpen: false }" class="relative" @mouseenter="subSalesPopOpen = true" @mouseleave="subSalesPopOpen = false">
-                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <div x-data="{ subSalesPopOpen: false }" class="relative" @click.away="subSalesPopOpen = false">
+                                        <button @click="subSalesPopOpen = !subSalesPopOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                             <span>Sales / POP</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
@@ -205,8 +218,8 @@
                                         </div>
                                     </div>
 
-                                    <div x-data="{ subLeasingOpen: false }" class="relative border-t border-gray-100" @mouseenter="subLeasingOpen = true" @mouseleave="subLeasingOpen = false">
-                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <div x-data="{ subLeasingOpen: false }" class="relative border-t border-gray-100" @click.away="subLeasingOpen = false">
+                                        <button @click="subLeasingOpen = !subLeasingOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                             <span>Leasing</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
@@ -216,8 +229,8 @@
                                         </div>
                                     </div>
 
-                                    <div x-data="{ subPdiManOpen: false }" class="relative border-t border-gray-100" @mouseenter="subPdiManOpen = true" @mouseleave="subPdiManOpen = false">
-                                        <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <div x-data="{ subPdiManOpen: false }" class="relative border-t border-gray-100" @click.away="subPdiManOpen = false">
+                                        <button @click="subPdiManOpen = !subPdiManOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                             <span>PDI Man</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
@@ -232,8 +245,8 @@
                             @endcan
 
                             @can('akses-laporan-accu')
-                            <div x-data="{ subAccuOpen: false }" class="relative border-t border-gray-100" @mouseenter="subAccuOpen = true" @mouseleave="subAccuOpen = false">
-                                <button class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                            <div x-data="{ subAccuOpen: false }" class="relative border-t border-gray-100" @click.away="subAccuOpen = false">
+                                <button @click="subAccuOpen = !subAccuOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Kontrol Accu</span>
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
@@ -249,7 +262,7 @@
                     @endcanany
 
                     @canany(['akses-manajemen-role', 'akses-manajemen-user'])
-                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" @mouseleave="dropdownOpen = false" @mouseenter="dropdownOpen = true" class="relative">
+                    <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             Pengaturan Akses
@@ -376,7 +389,7 @@
             </div>
             @endcanany
 
-            @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk'])
+            @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom'])
             <div x-data="{ menuLaporanOpen: false }">
                 <button @click="menuLaporanOpen = !menuLaporanOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
                     <span>Laporan</span>
@@ -393,6 +406,19 @@
                         <div x-show="motorMasukMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             <a href="{{ route('laporan.motor-masuk.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
                             <a href="{{ route('laporan.motor-masuk.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-mutasi-showroom')
+                    <div x-data="{ mutasiShowroomMobileOpen: false }">
+                        <button @click.prevent="mutasiShowroomMobileOpen = !mutasiShowroomMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>Mutasi Ke Showroom</span>
+                            <svg :class="mutasiShowroomMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="mutasiShowroomMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.mutasi-showroom.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                            <a href="{{ route('laporan.mutasi-showroom.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
                         </div>
                     </div>
                     @endcan

@@ -50,7 +50,8 @@ class RoleController extends Controller
             'akses-laporan-stok' => 'Laporan Stok Unit',
             'akses-laporan-penjualan' => 'Laporan Penjualan',
             'akses-laporan-accu' => 'Laporan Kontrol Accu',
-            'akses-laporan-motor-masuk' => 'Laporan Penerimaan Motor Masuk', 
+            'akses-laporan-motor-masuk' => 'Laporan Penerimaan Motor Masuk',
+            'akses-laporan-mutasi-showroom' => 'Laporan Mutasi Ke Showroom', 
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',

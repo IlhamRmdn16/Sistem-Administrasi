@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MotorUnit;
+use App\Models\PenerimaanUnit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -50,16 +51,12 @@ class LaporanMotorMasukController extends Controller
         $sampai_tanggal = $request->input('sampai_tanggal', Carbon::now()->endOfMonth()->format('Y-m-d'));
         $per_page = $request->input('per_page', 25);
 
-        $query = MotorUnit::with(['penerimaanUnit', 'type', 'color'])
-            ->whereHas('penerimaanUnit', function($q) use ($dari_tanggal, $sampai_tanggal) {
-                $q->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
-            })
-            ->join('penerimaan_units', 'motor_units.penerimaan_unit_id', '=', 'penerimaan_units.id')
-            ->orderBy('penerimaan_units.tanggal', 'desc')
-            ->orderBy('penerimaan_units.no_bukti', 'desc')
-            ->select('motor_units.*');
-
-        $data = $query->paginate($per_page)->withQueryString();
+        $data = PenerimaanUnit::with(['motorUnits.type', 'motorUnits.color'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('no_bukti', 'desc')
+            ->paginate($per_page)
+            ->withQueryString();
 
         return view('laporan.motor-masuk.terperinci', compact('data', 'dari_tanggal', 'sampai_tanggal', 'per_page'));
     }
@@ -69,14 +66,10 @@ class LaporanMotorMasukController extends Controller
         $dari_tanggal = $request->input('dari_tanggal');
         $sampai_tanggal = $request->input('sampai_tanggal');
 
-        $data = MotorUnit::with(['penerimaanUnit', 'type', 'color'])
-            ->whereHas('penerimaanUnit', function($q) use ($dari_tanggal, $sampai_tanggal) {
-                $q->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
-            })
-            ->join('penerimaan_units', 'motor_units.penerimaan_unit_id', '=', 'penerimaan_units.id')
-            ->orderBy('penerimaan_units.tanggal', 'asc')
-            ->orderBy('penerimaan_units.no_bukti', 'asc')
-            ->select('motor_units.*')
+        $data = PenerimaanUnit::with(['motorUnits.type', 'motorUnits.color'])
+            ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal])
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('no_bukti', 'asc')
             ->get();
 
         return view('laporan.motor-masuk.print-terperinci', compact('data', 'dari_tanggal', 'sampai_tanggal'));

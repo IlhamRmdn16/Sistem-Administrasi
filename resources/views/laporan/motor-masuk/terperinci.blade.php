@@ -39,33 +39,39 @@
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-slate-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
-                        <th class="py-4 px-4 font-semibold text-center w-12">No</th>
-                        <th class="py-4 px-4 font-semibold text-center">Tanggal</th>
-                        <th class="py-4 px-4 font-semibold text-center">No. Bukti</th>
-                        <th class="py-4 px-4 font-semibold text-center">No. Kunci</th>
-                        <th class="py-4 px-4 font-semibold">Tipe Motor</th>
-                        <th class="py-4 px-4 font-semibold text-center">Warna</th>
-                        <th class="py-4 px-4 font-semibold text-center">No. Mesin</th>
-                        <th class="py-4 px-4 font-semibold text-center">No. Rangka</th>
-                        <th class="py-4 px-4 font-semibold text-center">Tahun</th>
+                        <th class="py-4 px-4 font-semibold text-center w-12 border-b border-gray-200">No</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">Tanggal</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">No. Bukti</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">No. Kunci</th>
+                        <th class="py-4 px-4 font-semibold border-b border-gray-200">Tipe Motor</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">Warna</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">No. Mesin</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">No. Rangka</th>
+                        <th class="py-4 px-4 font-semibold text-center border-b border-gray-200">Tahun</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-sm">
-                    @forelse($data as $index => $row)
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-3 px-4 text-center text-gray-400">{{ $data->firstItem() + $index }}</td>
-                            <td class="py-3 px-4 text-center text-gray-600">{{ \Carbon\Carbon::parse($row->penerimaanUnit->tanggal ?? '')->format('d/m/Y') }}</td>
-                            <td class="py-3 px-4 text-center font-bold text-gray-800">{{ $row->penerimaanUnit->no_bukti ?? '-' }}</td>
-                            <td class="py-3 px-4 text-center font-mono font-bold text-blue-600">{{ $row->no_kunci }}</td>
-                            <td class="py-3 px-4 font-semibold text-gray-800">{{ $row->type->nama_type ?? '-' }}</td>
-                            <td class="py-3 px-4 text-center text-gray-600">{{ $row->color->warna ?? '-' }}</td>
-                            <td class="py-3 px-4 text-center font-mono uppercase">{{ $row->no_mesin }}</td>
-                            <td class="py-3 px-4 text-center font-mono uppercase">{{ $row->no_rangka }}</td>
-                            <td class="py-3 px-4 text-center text-gray-600">{{ $row->tahun_pembuatan }}</td>
-                        </tr>
+                <tbody class="text-sm">
+                    @php $itemNumber = $data->firstItem(); @endphp
+                    @forelse($data as $penerimaan)
+                        @php $totalRows = count($penerimaan->motorUnits); @endphp
+                        @foreach($penerimaan->motorUnits as $subIndex => $row)
+                            <tr class="hover:bg-slate-50/30 transition-colors border-b border-gray-100">
+                                @if($subIndex === 0)
+                                    <td rowspan="{{ $totalRows }}" class="py-3 px-4 text-center text-gray-400 font-mono align-top border-r border-gray-100 bg-slate-50/50">{{ $itemNumber++ }}</td>
+                                    <td rowspan="{{ $totalRows }}" class="py-3 px-4 text-center text-gray-600 align-top border-r border-gray-100 bg-slate-50/50">{{ \Carbon\Carbon::parse($penerimaan->tanggal)->format('d/m/Y') }}</td>
+                                    <td rowspan="{{ $totalRows }}" class="py-3 px-4 text-center font-bold text-gray-900 font-mono tracking-wider align-top border-r border-gray-100 bg-slate-50/50">{{ $penerimaan->no_bukti }}</td>
+                                @endif
+                                <td class="py-3 px-4 text-center font-mono font-bold text-blue-600 border-r border-gray-100">{{ $row->no_kunci }}</td>
+                                <td class="py-3 px-4 font-semibold text-gray-800 border-r border-gray-100">{{ $row->type->nama_type ?? '-' }}</td>
+                                <td class="py-3 px-4 text-center text-gray-600 border-r border-gray-100">{{ $row->color->warna ?? '-' }}</td>
+                                <td class="py-3 px-4 text-center font-mono uppercase border-r border-gray-100 tracking-wide">{{ $row->no_mesin }}</td>
+                                <td class="py-3 px-4 text-center font-mono uppercase border-r border-gray-100 tracking-wide">{{ $row->no_rangka }}</td>
+                                <td class="py-3 px-4 text-center text-gray-600">{{ $row->tahun_pembuatan }}</td>
+                            </tr>
+                        @endforeach
                     @empty
                         <tr>
-                            <td colspan="9" class="py-8 text-center text-gray-500 italic">Tidak ada rincian data unit pada periode ini.</td>
+                            <td colspan="9" class="py-8 text-center text-gray-500 italic border-b border-gray-100">Tidak ada rincian data unit pada periode ini.</td>
                         </tr>
                     @endforelse
                 </tbody>

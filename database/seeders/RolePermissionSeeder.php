@@ -50,6 +50,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-motor-masuk',
             'akses-laporan-mutasi-showroom',
             'akses-laporan-mutasi-dari-showroom', 
+            'akses-laporan-mutasi-ke-pop', // Ditambahkan di sini
             
             'akses-manajemen-role',
             'akses-manajemen-user',
@@ -75,6 +76,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-motor-masuk',
             'akses-laporan-mutasi-showroom',
             'akses-laporan-mutasi-dari-showroom'
+            // Biasanya GP tidak urus POP, jadi tidak ditambahkan di role GP. (Tergantung SOP dealer)
         ]);
 
         $user = User::updateOrCreate(

@@ -49,6 +49,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-accu',
             'akses-laporan-motor-masuk',
             'akses-laporan-mutasi-showroom',
+            'akses-laporan-mutasi-dari-showroom', 
             
             'akses-manajemen-role',
             'akses-manajemen-user',
@@ -72,7 +73,8 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-penjualan',
             'akses-laporan-accu',
             'akses-laporan-motor-masuk',
-            'akses-laporan-mutasi-showroom'
+            'akses-laporan-mutasi-showroom',
+            'akses-laporan-mutasi-dari-showroom'
         ]);
 
         $user = User::updateOrCreate(

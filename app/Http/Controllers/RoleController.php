@@ -53,7 +53,10 @@ class RoleController extends Controller
             'akses-laporan-motor-masuk' => 'Laporan Penerimaan Motor Masuk',
             'akses-laporan-mutasi-showroom' => 'Laporan Mutasi Ke Showroom', 
             'akses-laporan-mutasi-dari-showroom' => 'Laporan Mutasi Dari Showroom',
-            'akses-laporan-mutasi-ke-pop' => 'Laporan Mutasi Ke POP', // Ditambahkan di sini
+            'akses-laporan-mutasi-ke-pop' => 'Laporan Mutasi Ke POP',
+            'akses-laporan-mutasi-dari-pop' => 'Laporan Mutasi Dari POP',
+            'akses-laporan-mutasi-ke-gp' => 'Laporan Mutasi Ke GP',
+            'akses-laporan-mutasi-dari-gp' => 'Laporan Mutasi Dari GP',
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',

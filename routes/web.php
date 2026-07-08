@@ -3,7 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaporanAccuController;
 use App\Http\Controllers\LaporanMotorMasukController;
+use App\Http\Controllers\LaporanMutasiDariGpController;
+use App\Http\Controllers\LaporanMutasiDariPopController;
 use App\Http\Controllers\LaporanMutasiDariShowroomController;
+use App\Http\Controllers\LaporanMutasiKeGpController;
 use App\Http\Controllers\LaporanMutasiKePopController;
 use App\Http\Controllers\LaporanMutasiShowroomController;
 use App\Http\Controllers\LaporanPenjualanController;
@@ -249,6 +252,27 @@ Route::prefix('laporan/mutasi-ke-pop')->name('laporan.mutasi-ke-pop.')->group(fu
     Route::get('/global/print', [LaporanMutasiKePopController::class, 'printGlobal'])->name('print-global');
     Route::get('/terperinci', [LaporanMutasiKePopController::class, 'terperinci'])->name('terperinci');
     Route::get('/terperinci/print', [LaporanMutasiKePopController::class, 'printTerperinci'])->name('print-terperinci');
+});
+
+Route::prefix('laporan/mutasi-dari-pop')->name('laporan.mutasi-dari-pop.')->group(function () {
+    Route::get('/global', [LaporanMutasiDariPopController::class, 'global'])->name('global');
+    Route::get('/global/print', [LaporanMutasiDariPopController::class, 'printGlobal'])->name('print-global');
+    Route::get('/terperinci', [LaporanMutasiDariPopController::class, 'terperinci'])->name('terperinci');
+    Route::get('/terperinci/print', [LaporanMutasiDariPopController::class, 'printTailored'])->name('print-terperinci');
+});
+
+Route::prefix('laporan/mutasi-ke-gp')->name('laporan.mutasi-ke-gp.')->group(function () {
+    Route::get('/global', [LaporanMutasiKeGpController::class, 'global'])->name('global');
+    Route::get('/global/print', [LaporanMutasiKeGpController::class, 'printGlobal'])->name('print-global');
+    Route::get('/terperinci', [LaporanMutasiKeGpController::class, 'terperinci'])->name('terperinci');
+    Route::get('/terperinci/print', [LaporanMutasiKeGpController::class, 'printTerperinci'])->name('print-terperinci');
+});
+
+Route::prefix('laporan/mutasi-dari-gp')->name('laporan.mutasi-dari-gp.')->group(function () {
+    Route::get('/global', [LaporanMutasiDariGpController::class, 'global'])->name('global');
+    Route::get('/global/print', [LaporanMutasiDariGpController::class, 'printGlobal'])->name('print-global');
+    Route::get('/terperinci', [LaporanMutasiDariGpController::class, 'terperinci'])->name('terperinci');
+    Route::get('/terperinci/print', [LaporanMutasiDariGpController::class, 'printTerperinci'])->name('print-terperinci');
 });
 
 });

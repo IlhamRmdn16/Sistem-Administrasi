@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RolePermissionSeeder extends Seeder
 {
-  public function run(): void
+ public function run(): void
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
@@ -50,7 +50,10 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-motor-masuk',
             'akses-laporan-mutasi-showroom',
             'akses-laporan-mutasi-dari-showroom', 
-            'akses-laporan-mutasi-ke-pop', // Ditambahkan di sini
+            'akses-laporan-mutasi-ke-pop',
+            'akses-laporan-mutasi-dari-pop',
+            'akses-laporan-mutasi-ke-gp',
+            'akses-laporan-mutasi-dari-gp',
             
             'akses-manajemen-role',
             'akses-manajemen-user',
@@ -75,8 +78,9 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-accu',
             'akses-laporan-motor-masuk',
             'akses-laporan-mutasi-showroom',
-            'akses-laporan-mutasi-dari-showroom'
-            // Biasanya GP tidak urus POP, jadi tidak ditambahkan di role GP. (Tergantung SOP dealer)
+            'akses-laporan-mutasi-dari-showroom',
+            'akses-laporan-mutasi-ke-gp',
+            'akses-laporan-mutasi-dari-gp',
         ]);
 
         $user = User::updateOrCreate(

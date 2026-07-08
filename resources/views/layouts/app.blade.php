@@ -130,7 +130,7 @@
                     </div>
                     @endcanany
 
-                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom', 'akses-laporan-mutasi-dari-showroom', 'akses-laporan-mutasi-ke-pop'])
+                    @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom', 'akses-laporan-mutasi-dari-showroom', 'akses-laporan-mutasi-ke-pop', 'akses-laporan-mutasi-dari-pop'])
                     <div x-data="{ dropdownOpen: false }" @click.away="dropdownOpen = false" class="relative">
                         <button @click="dropdownOpen = !dropdownOpen" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-honda-red hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 focus:outline-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -170,7 +170,7 @@
                             <div x-data="{ subMutasiDariShowroomOpen: false }" class="relative border-t border-gray-100" @click.away="subMutasiDariShowroomOpen = false">
                                 <button @click="subMutasiDariShowroomOpen = !subMutasiDariShowroomOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Mutasi Dari Showroom</span>
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7-7"></path></svg>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
                                 <div x-show="subMutasiDariShowroomOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
                                     <a href="{{ route('laporan.mutasi-dari-showroom.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
@@ -188,6 +188,45 @@
                                 <div x-show="subMutasiKePopOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
                                     <a href="{{ route('laporan.mutasi-ke-pop.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
                                     <a href="{{ route('laporan.mutasi-ke-pop.terperinci') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+                            @endcan
+
+                            @can('akses-laporan-mutasi-dari-pop')
+                            <div x-data="{ subMutasiDariPopOpen: false }" class="relative border-t border-gray-100" @click.away="subMutasiDariPopOpen = false">
+                                <button @click="subMutasiDariPopOpen = !subMutasiDariPopOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Mutasi Dari POP</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subMutasiDariPopOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.mutasi-dari-pop.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.mutasi-dari-pop.terperinci') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+                            @endcan
+
+                            @can('akses-laporan-mutasi-ke-gp')
+                            <div x-data="{ subMutasiKeGpOpen: false }" class="relative border-t border-gray-100" @click.away="subMutasiKeGpOpen = false">
+                                <button @click="subMutasiKeGpOpen = !subMutasiKeGpOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>{{ Auth::user()->hasRole('Admin GP') ? 'Motor Masuk (GP)' : 'Mutasi Ke GP' }}</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subMutasiKeGpOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.mutasi-ke-gp.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.mutasi-ke-gp.terperinci') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
+                                </div>
+                            </div>
+                            @endcan
+
+                            @can('akses-laporan-mutasi-dari-gp')
+                            <div x-data="{ subMutasiDariGpOpen: false }" class="relative border-t border-gray-100" @click.away="subMutasiDariGpOpen = false">
+                                <button @click="subMutasiDariGpOpen = !subMutasiDariGpOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>{{ Auth::user()->hasRole('Admin GP') ? 'Motor Keluar (GP)' : 'Mutasi Dari GP' }}</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subMutasiDariGpOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.mutasi-dari-gp.global') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global</a>
+                                    <a href="{{ route('laporan.mutasi-dari-gp.terperinci') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Terperinci</a>
                                 </div>
                             </div>
                             @endcan
@@ -216,7 +255,7 @@
                             <div x-data="{ menuPenjualanOpen: false }" class="relative border-t border-gray-100" @click.away="menuPenjualanOpen = false">
                                 <button @click="menuPenjualanOpen = !menuPenjualanOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
                                     <span>Penjualan</span>
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7-7"></path></svg>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </button>
 
                                 <div x-show="menuPenjualanOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
@@ -224,7 +263,7 @@
                                     <div x-data="{ subGlobalOpen: false }" class="relative" @click.away="subGlobalOpen = false">
                                         <button @click="subGlobalOpen = !subGlobalOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left border-b border-gray-50">
                                             <span>Global</span>
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7-7"></path></svg>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
                                         <div x-show="subGlobalOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-52 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
                                             <a href="{{ route('laporan.penjualan.global-unit') }}" class="block px-4 py-1.5 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red">Global Unit</a>
@@ -415,7 +454,7 @@
             </div>
             @endcanany
 
-            @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom', 'akses-laporan-mutasi-dari-showroom', 'akses-laporan-mutasi-ke-pop'])
+            @canany(['akses-laporan-stok', 'akses-laporan-penjualan', 'akses-laporan-accu', 'akses-laporan-motor-masuk', 'akses-laporan-mutasi-showroom', 'akses-laporan-mutasi-dari-showroom', 'akses-laporan-mutasi-ke-pop', 'akses-laporan-mutasi-dari-pop'])
             <div x-data="{ menuLaporanOpen: false }">
                 <button @click="menuLaporanOpen = !menuLaporanOpen" class="w-full flex items-center justify-between px-3 py-3 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none">
                     <span>Laporan</span>
@@ -471,6 +510,45 @@
                         <div x-show="mutasiKePopMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             <a href="{{ route('laporan.mutasi-ke-pop.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
                             <a href="{{ route('laporan.mutasi-ke-pop.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-mutasi-dari-pop')
+                    <div x-data="{ mutasiDariPopMobileOpen: false }">
+                        <button @click.prevent="mutasiDariPopMobileOpen = !mutasiDariPopMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>Mutasi Dari POP</span>
+                            <svg :class="mutasiDariPopMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="mutasiDariPopMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.mutasi-dari-pop.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                            <a href="{{ route('laporan.mutasi-dari-pop.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-mutasi-ke-gp')
+                    <div x-data="{ mutasiKeGpMobileOpen: false }">
+                        <button @click.prevent="mutasiKeGpMobileOpen = !mutasiKeGpMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>{{ Auth::user()->hasRole('Admin GP') ? 'Motor Masuk (GP)' : 'Mutasi Ke GP' }}</span>
+                            <svg :class="mutasiKeGpMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="mutasiKeGpMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.mutasi-ke-gp.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                            <a href="{{ route('laporan.mutasi-ke-gp.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-mutasi-dari-gp')
+                    <div x-data="{ mutasiDariGpMobileOpen: false }">
+                        <button @click.prevent="mutasiDariGpMobileOpen = !mutasiDariGpMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>{{ Auth::user()->hasRole('Admin GP') ? 'Motor Keluar (GP)' : 'Mutasi Dari GP' }}</span>
+                            <svg :class="mutasiDariGpMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="mutasiDariGpMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.mutasi-dari-gp.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
+                            <a href="{{ route('laporan.mutasi-dari-gp.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
                         </div>
                     </div>
                     @endcan

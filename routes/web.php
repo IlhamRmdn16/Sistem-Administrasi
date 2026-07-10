@@ -10,6 +10,7 @@ use App\Http\Controllers\LaporanMutasiKeGpController;
 use App\Http\Controllers\LaporanMutasiKePopController;
 use App\Http\Controllers\LaporanMutasiShowroomController;
 use App\Http\Controllers\LaporanPenjualanController;
+use App\Http\Controllers\LaporanPiutangRegulerController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\Master\BiayaAdministrasiController;
 use App\Http\Controllers\Master\LeasingController;
@@ -273,6 +274,11 @@ Route::prefix('laporan/mutasi-dari-gp')->name('laporan.mutasi-dari-gp.')->group(
     Route::get('/global/print', [LaporanMutasiDariGpController::class, 'printGlobal'])->name('print-global');
     Route::get('/terperinci', [LaporanMutasiDariGpController::class, 'terperinci'])->name('terperinci');
     Route::get('/terperinci/print', [LaporanMutasiDariGpController::class, 'printTerperinci'])->name('print-terperinci');
+});
+
+Route::prefix('laporan/piutang-reguler')->name('laporan.piutang-reguler.')->group(function () {
+    Route::get('/', [LaporanPiutangRegulerController::class, 'index'])->name('index');
+    Route::get('/print', [LaporanPiutangRegulerController::class, 'print'])->name('print');
 });
 
 });

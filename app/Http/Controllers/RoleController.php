@@ -57,6 +57,7 @@ class RoleController extends Controller
             'akses-laporan-mutasi-dari-pop' => 'Laporan Mutasi Dari POP',
             'akses-laporan-mutasi-ke-gp' => 'Laporan Mutasi Ke GP',
             'akses-laporan-mutasi-dari-gp' => 'Laporan Mutasi Dari GP',
+            'akses-laporan-piutang-reguler' => 'Laporan Piutang & Pembayaran Reguler',
         ],
         'Pengaturan Sistem' => [
             'akses-manajemen-role' => 'Manajemen Hak Akses (Role)',

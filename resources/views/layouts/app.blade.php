@@ -231,6 +231,18 @@
                             </div>
                             @endcan
 
+                            @can('akses-laporan-piutang-reguler')
+                            <div x-data="{ subPiutangOpen: false }" class="relative border-t border-gray-100" @click.away="subPiutangOpen = false">
+                                <button @click="subPiutangOpen = !subPiutangOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
+                                    <span>Piutang & Pembayaran</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                                <div x-show="subPiutangOpen" style="display: none;" class="absolute left-full top-0 mt-0 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 ml-1">
+                                    <a href="{{ route('laporan.piutang-reguler.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red font-medium">Reguler</a>
+                                </div>
+                            </div>
+                            @endcan
+
                             @can('akses-laporan-stok')
                             <div x-data="{ subOpen: false }" class="relative border-t border-gray-100" @click.away="subOpen = false">
                                 <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-honda-red text-left">
@@ -549,6 +561,18 @@
                         <div x-show="mutasiDariGpMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
                             <a href="{{ route('laporan.mutasi-dari-gp.global') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Global</a>
                             <a href="{{ route('laporan.mutasi-dari-gp.terperinci') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Terperinci</a>
+                        </div>
+                    </div>
+                    @endcan
+
+                    @can('akses-laporan-piutang-reguler')
+                    <div x-data="{ piutangMobileOpen: false }">
+                        <button @click.prevent="piutangMobileOpen = !piutangMobileOpen" class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-honda-red rounded-lg focus:outline-none border-t border-gray-100">
+                            <span>Piutang & Pembayaran</span>
+                            <svg :class="piutangMobileOpen ? 'rotate-180 text-honda-red' : ''" class="w-4 h-4 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="piutangMobileOpen" style="display: none;" class="pl-4 mt-1 space-y-1 border-l-2 border-red-100 ml-3">
+                            <a href="{{ route('laporan.piutang-reguler.index') }}" class="block px-3 py-2 text-sm text-gray-600 hover:text-honda-red">Reguler</a>
                         </div>
                     </div>
                     @endcan

@@ -54,6 +54,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-mutasi-dari-pop',
             'akses-laporan-mutasi-ke-gp',
             'akses-laporan-mutasi-dari-gp',
+            'akses-laporan-piutang-reguler', // <-- Ditambahkan di sini
             
             'akses-manajemen-role',
             'akses-manajemen-user',
@@ -81,6 +82,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-mutasi-dari-showroom',
             'akses-laporan-mutasi-ke-gp',
             'akses-laporan-mutasi-dari-gp',
+            'akses-laporan-piutang-reguler', // <-- Ditambahkan untuk Admin GP
         ]);
 
         $user = User::updateOrCreate(

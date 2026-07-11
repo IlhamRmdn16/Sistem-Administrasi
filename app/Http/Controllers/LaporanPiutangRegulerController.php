@@ -70,16 +70,18 @@ class LaporanPiutangRegulerController extends Controller
                 continue;
             }
 
-            // 3. Perhitungan Tenggat Keterlambatan (Hari)
             $latestKuitansi = $spk->kuitansiKonsumens->sortByDesc('tanggal')->first();
             $tanggalAcuan = $latestKuitansi ? Carbon::parse($latestKuitansi->tanggal) : Carbon::parse($spk->suratJalan->tanggal);
             
+            // Format waktu di-set ke awal hari (00:00:00) agar hitungan harinya presisi
+            $tanggalAcuan = $tanggalAcuan->startOfDay();
             $hariIni = Carbon::now()->startOfDay();
-            $tanggalMulaiHitung = $tanggalAcuan->copy()->addDay()->startOfDay(); // Dihitung satu hari setelah pembayaran/SJK
 
             $tenggat_hari = 0;
-            if ($hariIni->greaterThan($tanggalMulaiHitung)) {
-                $tenggat_hari = $hariIni->diffInDays($tanggalMulaiHitung) + 1;
+            // Jika hari ini sudah melewati tanggal acuan pembayaran/SJK
+            if ($hariIni->greaterThan($tanggalAcuan)) {
+                // Otomatis menghitung selisih hari (Misal: Acuan tgl 10, Hari ini tgl 11 = 1 Hari)
+                $tenggat_hari = $tanggalAcuan->diffInDays($hariIni);
             }
 
             $processedData[] = (object) [

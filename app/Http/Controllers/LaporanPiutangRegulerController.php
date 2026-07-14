@@ -9,15 +9,21 @@ use Illuminate\Support\Facades\Auth;
 
 class LaporanPiutangRegulerController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
     {
         $dari_tanggal = $request->input('dari_tanggal', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $sampai_tanggal = $request->input('sampai_tanggal', Carbon::now()->endOfMonth()->format('Y-m-d'));
         $jenis_laporan = $request->input('jenis_laporan', 'piutang_konsumen');
+        $format_laporan = $request->input('format_laporan', 'standar'); 
+        
+        $isAdminGp = Auth::user()->hasRole('Admin GP');
+        $lokasi_spk = $isAdminGp ? 'gp' : $request->input('lokasi_spk', 'semua');
 
-        $data = $this->getRawDataLaporan($dari_tanggal, $sampai_tanggal);
+        $data = $this->getRawDataLaporan($dari_tanggal, $sampai_tanggal, $jenis_laporan, $lokasi_spk);
 
-        return view('laporan.piutang-reguler.index', compact('data', 'dari_tanggal', 'sampai_tanggal', 'jenis_laporan'));
+        return view('laporan.piutang-reguler.index', compact(
+            'data', 'dari_tanggal', 'sampai_tanggal', 'jenis_laporan', 'format_laporan', 'isAdminGp', 'lokasi_spk'
+        ));
     }
 
     public function print(Request $request)
@@ -25,27 +31,28 @@ class LaporanPiutangRegulerController extends Controller
         $dari_tanggal = $request->input('dari_tanggal');
         $sampai_tanggal = $request->input('sampai_tanggal');
         $jenis_laporan = $request->input('jenis_laporan', 'piutang_konsumen');
+        $format_laporan = $request->input('format_laporan', 'standar');
 
-        $data = $this->getRawDataLaporan($dari_tanggal, $sampai_tanggal);
         $isAdminGp = Auth::user()->hasRole('Admin GP');
+        $lokasi_spk = $isAdminGp ? 'gp' : $request->input('lokasi_spk', 'semua');
 
-        return view('laporan.piutang-reguler.print', compact('data', 'dari_tanggal', 'sampai_tanggal', 'jenis_laporan', 'isAdminGp'));
+        $data = $this->getRawDataLaporan($dari_tanggal, $sampai_tanggal, $jenis_laporan, $lokasi_spk);
+
+        return view('laporan.piutang-reguler.print', compact(
+            'data', 'dari_tanggal', 'sampai_tanggal', 'jenis_laporan', 'format_laporan', 'isAdminGp', 'lokasi_spk'
+        ));
     }
 
-    private function getRawDataLaporan($dari_tanggal, $sampai_tanggal)
+    private function getRawDataLaporan($dari_tanggal, $sampai_tanggal, $jenis_laporan, $lokasi_spk)
     {
-        $isAdminGp = Auth::user()->hasRole('Admin GP');
-
-        // Mengambil data SPK yang wajib memiliki SJK (Surat Jalan Konsumen) sesuai kesepakatan
-        $query = Spk::with(['sales', 'motorUnit.type', 'leasing', 'kontrolHarga', 'suratJalan', 'kuitansiKonsumens'])
+        $query = Spk::with(['sales', 'motorUnit.type', 'leasing', 'kontrolHarga', 'suratJalan', 'kuitansiKonsumens.rekening'])
             ->whereHas('suratJalan')
             ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
 
-        // Proteksi Data Sisi Server berdasarkan Role Pengguna
-        if ($isAdminGp) {
-            $query->where('no_spk', 'like', 'GPK%');
-        } else {
+        if ($lokasi_spk === 'pusat') {
             $query->where('no_spk', 'like', 'SPK%');
+        } elseif ($lokasi_spk === 'gp') {
+            $query->where('no_spk', 'like', 'GPK%');
         }
 
         $spks = $query->orderBy('tanggal', 'asc')->get();
@@ -53,51 +60,109 @@ class LaporanPiutangRegulerController extends Controller
 
         foreach ($spks as $spk) {
             $discount = $spk->kontrolHarga->discount ?? 0;
+            $refund = $spk->kontrolHarga->refund_transfer ?? 0;
             $isKredit = (strtolower($spk->jenis_pembayaran) === 'kredit' || !empty($spk->leasing_id));
             
-            // 1. Perhitungan Uang Muka Netto / Harga OTR Netto
-            $uang_muka_netto = $isKredit ? (int)$spk->uang_muka : ((int)$spk->harga_otr - $discount);
-
-            // 2. Perhitungan Nilai Piutang (Sisa Tagihan)
-            $targetTagihan = $isKredit ? ((int)$spk->uang_muka - $discount) : ((int)$spk->harga_otr - $discount);
-            $totalTerbayar = $spk->kuitansiKonsumens->sum(function ($k) {
-                return (int)$k->bayar_kontan + (int)$k->bayar_transfer;
-            });
-            $nilai_piutang = $targetTagihan - $totalTerbayar;
-
-            // Kita hanya tampilkan konsumen yang masih memiliki piutang (sisa tagihan > 0)
-            if ($nilai_piutang <= 0) {
-                continue;
-            }
-
-            $latestKuitansi = $spk->kuitansiKonsumens->sortByDesc('tanggal')->first();
-            $tanggalAcuan = $latestKuitansi ? Carbon::parse($latestKuitansi->tanggal) : Carbon::parse($spk->suratJalan->tanggal);
+            $dp_murni = $isKredit ? ((int)$spk->uang_muka - $discount) : ((int)$spk->harga_otr - $discount);
             
-            // Format waktu di-set ke awal hari (00:00:00) agar hitungan harinya presisi
-            $tanggalAcuan = $tanggalAcuan->startOfDay();
-            $hariIni = Carbon::now()->startOfDay();
+            $kontan = $spk->kuitansiKonsumens->sum('bayar_kontan');
+            $transfer = $spk->kuitansiKonsumens->sum('bayar_transfer');
+            $totalTerbayar = $kontan + $transfer;
+            
+            $sisa = $dp_murni - $totalTerbayar;
 
-            $tenggat_hari = 0;
-            // Jika hari ini sudah melewati tanggal acuan pembayaran/SJK
-            if ($hariIni->greaterThan($tanggalAcuan)) {
-                // Otomatis menghitung selisih hari (Misal: Acuan tgl 10, Hari ini tgl 11 = 1 Hari)
-                $tenggat_hari = $tanggalAcuan->diffInDays($hariIni);
+            // 1. LAPORAN PIUTANG KONSUMEN
+            if ($jenis_laporan === 'piutang_konsumen') {
+                if ($sisa <= 0) continue;
+
+                $latestKuitansi = $spk->kuitansiKonsumens->sortByDesc('tanggal')->first();
+                $tanggalAcuan = $latestKuitansi ? Carbon::parse($latestKuitansi->tanggal)->startOfDay() : Carbon::parse($spk->suratJalan->tanggal)->startOfDay();
+                $hariIni = Carbon::now()->startOfDay();
+
+                $tenggat_hari = 0;
+                if ($hariIni->greaterThan($tanggalAcuan)) {
+                    $tenggat_hari = $tanggalAcuan->diffInDays($hariIni);
+                }
+
+                $processedData[] = (object) [
+                    'nama_konsumen' => $spk->nama_pemohon,
+                    'tipe_motor'    => $spk->motorUnit->type->nama_type ?? '-',
+                    'alamat_lengkap'=> $spk->alamat . ' ' . $spk->rt_rw,
+                    'no_spk'        => $spk->no_spk,
+                    'tgl_spk'       => $spk->tanggal,
+                    'no_sjk'        => $spk->suratJalan->no_bukti,
+                    'tgl_sjk'       => $spk->suratJalan->tanggal,
+                    'sales'         => $spk->sales->nama_sales ?? '-',
+                    'leasing'       => $isKredit ? ($spk->leasing->nama_leasing ?? 'KREDIT') : 'KONTAN',
+                    'uang_muka_netto'=> $dp_murni,
+                    'nilai_piutang' => $sisa,
+                    'tenggat'       => $tenggat_hari
+                ];
+            } 
+            
+            // 2. LAPORAN PEMBAYARAN TRANSFER (Ada unsur uang masuk lewat Bank)
+            elseif ($jenis_laporan === 'pembayaran_transfer') {
+                if ($transfer <= 0) continue; 
+
+                $processedData[] = (object) [
+                    'nama_konsumen' => $spk->nama_pemohon,
+                    'tipe_motor'    => $spk->motorUnit->type->nama_type ?? '-',
+                    'harga_otr'     => $spk->harga_otr,
+                    'discount'      => $discount,
+                    'dp_murni'      => $dp_murni,
+                    'sisa'          => $sisa,
+                    'kontan'        => $kontan,
+                    'transfer'      => $transfer
+                ];
             }
 
-            $processedData[] = (object) [
-                'nama_konsumen' => $spk->nama_pemohon,
-                'alamat_lengkap'=> $spk->alamat . ' ' . $spk->rt_rw,
-                'no_spk'        => $spk->no_spk,
-                'tgl_spk'       => $spk->tanggal,
-                'no_sjk'        => $spk->suratJalan->no_bukti,
-                'tgl_sjk'       => $spk->suratJalan->tanggal,
-                'tipe_motor'    => $spk->motorUnit->type->nama_type ?? '-',
-                'sales'         => $spk->sales->nama_sales ?? '-',
-                'leasing'       => $isKredit ? ($spk->leasing->nama_leasing ?? 'KREDIT') : 'KONTAN',
-                'uang_muka_netto'=> $uang_muka_netto,
-                'nilai_piutang' => $nilai_piutang,
-                'tenggat'       => $tenggat_hari
-            ];
+            // 3. LAPORAN REFUND TRANSFER
+            elseif ($jenis_laporan === 'refund_transfer') {
+                if ($refund <= 0) continue;
+
+                $processedData[] = (object) [
+                    'nama_konsumen' => $spk->nama_pemohon,
+                    'tipe_motor'    => $spk->motorUnit->type->nama_type ?? '-',
+                    'refund_trf'    => $refund,
+                    'sales'         => $spk->sales->nama_sales ?? '-',
+                ];
+            }
+
+            // 4. LAPORAN PEMBAYARAN MUTLAK (STANDAR / LENGKAP)
+            elseif ($jenis_laporan === 'pembayaran') {
+                $kuitansiTransfer = $spk->kuitansiKonsumens->where('bayar_transfer', '>', 0)->first();
+                $nama_rekening = $kuitansiTransfer && $kuitansiTransfer->rekening ? $kuitansiTransfer->rekening->nama_rekening : '-';
+
+                $processedData[] = (object) [
+                    'nama_konsumen' => $spk->nama_pemohon,
+                    'tipe_motor'    => $spk->motorUnit->type->nama_type ?? '-',
+                    'harga_otr'     => $spk->harga_otr,
+                    'discount'      => $discount,
+                    'refund'        => $refund,
+                    'dp_murni'      => $dp_murni,
+                    'sisa'          => $sisa,
+                    'kontan'        => $kontan,
+                    'transfer'      => $transfer,
+                    'rekening'      => $nama_rekening,
+                    'md_fee'        => $spk->kontrolHarga->mediator_fee ?? 0,
+                    'setor'         => $kontan, 
+                    'tambahan'      => $spk->kontrolHarga->tambahan ?? 0,
+                    
+                    'subsidi_leasing_nama' => $isKredit ? ($spk->leasing->nama_leasing ?? 'KREDIT') : 'KONTAN',
+                    'subsidi_ahm'     => $spk->kontrolHarga->subsidi_ahm ?? 0,
+                    'subsidi_mdealer' => $spk->kontrolHarga->subsidi_main_dealer ?? 0,
+                    'subsidi_leasing' => $spk->kontrolHarga->subsidi_leasing_1 ?? 0,
+                    'subsidi_dll'     => ((int)($spk->kontrolHarga->dll_1 ?? 0) + (int)($spk->kontrolHarga->dll_2 ?? 0)),
+                    'subsidi_dealer'  => $spk->kontrolHarga->subsidi_dealer ?? 0,
+                    
+                    'tgl_spk'         => $spk->tanggal,
+                    'tgl_sjk'         => $spk->suratJalan->tanggal,
+                    'no_kunci'        => $spk->motorUnit->no_kunci ?? '-',
+                    
+                    'sales'           => $spk->sales->nama_sales ?? '-',
+                    'mediator'        => $spk->kontrolHarga->nama_mediator ?? '-',
+                ];
+            }
         }
 
         return $processedData;

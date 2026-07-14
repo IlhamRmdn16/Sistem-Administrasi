@@ -30,7 +30,7 @@
             if($jenis_laporan == 'pembayaran') $judulTipe .= ' (FORMAT ' . strtoupper($format_laporan) . ')';
         @endphp
         <h2>LAPORAN {{ $judulTipe }} - {{ $judulLokasi }}</h2>
-        <p>PERIODE TGL SPK: {{ \Carbon\Carbon::parse($dari_tanggal)->format('d/m/Y') }} S/D {{ \Carbon\Carbon::parse($sampai_tanggal)->format('d/m/Y') }}</p>
+        <p>PERIODE TGL SPK / KWT: {{ \Carbon\Carbon::parse($dari_tanggal)->format('d/m/Y') }} S/D {{ \Carbon\Carbon::parse($sampai_tanggal)->format('d/m/Y') }}</p>
     </div>
 
     @if($jenis_laporan === 'piutang_konsumen')
@@ -83,7 +83,6 @@
             </tfoot>
         </table>
 
-    @can('akses-laporan-piutang-reguler')
     @elseif($jenis_laporan === 'pembayaran_transfer')
         <table>
             <thead>
@@ -282,7 +281,38 @@
                 </tr>
             </tfoot>
         </table>
+
+    @elseif($jenis_laporan === 'kwitansi_lain')
+        <table style="width: 80%; margin: 0 auto;">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">NO</th>
+                    <th>NAMA</th>
+                    <th>KETERANGAN</th>
+                    <th style="width: 150px;">TIPE MOTOR</th>
+                    <th style="width: 120px;">NILAI</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php $tNilai = 0; @endphp
+                @foreach($data as $index => $row)
+                    @php $tNilai += $row->nilai; @endphp
+                    <tr>
+                        <td class="text-center font-mono">{{ $index + 1 }}</td>
+                        <td class="font-bold">{{ strtoupper($row->nama) }}</td>
+                        <td>{{ strtoupper($row->keterangan) }}</td>
+                        <td>{{ $row->tipe_motor ?? '-' }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($row->nilai, 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f9f9f9; font-weight: bold;">
+                    <td colspan="4" class="text-right">TOTAL:</td>
+                    <td class="text-right font-mono">Rp {{ number_format($tNilai, 0, ',', '.') }}</td>
+                </tr>
+            </tfoot>
+        </table>
     @endif
-    @endcan
 </body>
 </html>

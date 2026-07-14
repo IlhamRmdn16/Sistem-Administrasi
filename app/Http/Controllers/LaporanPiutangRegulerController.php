@@ -45,6 +45,33 @@ public function index(Request $request)
 
     private function getRawDataLaporan($dari_tanggal, $sampai_tanggal, $jenis_laporan, $lokasi_spk)
     {
+        $processedData = [];
+
+        // BYPASS: LOGIKA KHUSUS UNTUK KWITANSI LAIN-LAIN (TIDAK TERELASI DENGAN SPK)
+        if ($jenis_laporan === 'kwitansi_lain') {
+            $queryLain = \App\Models\KuitansiLainLain::whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
+            
+            /* Catatan: Jika ada pemisah antara GP dan Pusat pada nomor buktinya, 
+               bisa ditambahkan filter di sini seperti: 
+               if ($lokasi_spk === 'pusat') $queryLain->where('no_bukti', 'like', '...%'); 
+            */
+            
+            $kwitansi = $queryLain->orderBy('tanggal', 'asc')->get();
+            foreach ($kwitansi as $k) {
+                $processedData[] = (object) [
+                    'nama'       => $k->nama,
+                    'keterangan' => $k->keterangan,
+                    'tipe_motor' => $k->tipe_motor,
+                    'nilai'      => $k->nilai
+                ];
+            }
+            return $processedData;
+        }
+
+        // =========================================================================
+        // LOGIKA UNTUK LAPORAN YANG TERELASI DENGAN SPK (Piutang, Pembayaran, dll)
+        // =========================================================================
+        
         $query = Spk::with(['sales', 'motorUnit.type', 'leasing', 'kontrolHarga', 'suratJalan', 'kuitansiKonsumens.rekening'])
             ->whereHas('suratJalan')
             ->whereBetween('tanggal', [$dari_tanggal, $sampai_tanggal]);
@@ -56,7 +83,6 @@ public function index(Request $request)
         }
 
         $spks = $query->orderBy('tanggal', 'asc')->get();
-        $processedData = [];
 
         foreach ($spks as $spk) {
             $discount = $spk->kontrolHarga->discount ?? 0;
@@ -100,7 +126,7 @@ public function index(Request $request)
                 ];
             } 
             
-            // 2. LAPORAN PEMBAYARAN TRANSFER (Ada unsur uang masuk lewat Bank)
+            // 2. LAPORAN PEMBAYARAN TRANSFER
             elseif ($jenis_laporan === 'pembayaran_transfer') {
                 if ($transfer <= 0) continue; 
 

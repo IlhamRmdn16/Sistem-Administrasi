@@ -38,11 +38,11 @@
 
             <div class="w-72">
                 <select name="jenis_laporan" x-model="jenisLaporan" class="border border-gray-300 rounded-lg p-2 text-sm outline-none bg-white focus:border-honda-red w-full font-medium">
-                    <option value="piutang_konsumen">Laporan Piutang Konsumen</option>
-                    <option value="pembayaran">Laporan Pembayaran</option>
-                    <option value="pembayaran_transfer">Laporan Pembayaran Transfer</option>
-                    <option value="refund_transfer">Refund Transfer</option>
-                    <option value="kwitansi_lain">Laporan Kwitansi Lain-lain</option>
+                    <option value="piutang_konsumen" {{ $jenis_laporan == 'piutang_konsumen' ? 'selected' : '' }}>Laporan Piutang Konsumen</option>
+                    <option value="pembayaran" {{ $jenis_laporan == 'pembayaran' ? 'selected' : '' }}>Laporan Pembayaran</option>
+                    <option value="pembayaran_transfer" {{ $jenis_laporan == 'pembayaran_transfer' ? 'selected' : '' }}>Laporan Pembayaran Transfer</option>
+                    <option value="refund_transfer" {{ $jenis_laporan == 'refund_transfer' ? 'selected' : '' }}>Refund Transfer</option>
+                    <option value="kwitansi_lain" {{ $jenis_laporan == 'kwitansi_lain' ? 'selected' : '' }}>Laporan Kwitansi Lain-lain</option>
                 </select>
             </div>
 
@@ -335,6 +335,46 @@
                         <td class="py-3 px-3 text-right font-mono border-r border-gray-300">Rp {{ number_format($tDlr, 0, ',', '.') }}</td>
                         <td colspan="5"></td>
                         @endif
+                    </tr>
+                </tfoot>
+                @endif
+            </table>
+        </div>
+    </div>
+
+    @elseif($jenis_laporan === 'kwitansi_lain')
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6 max-w-5xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500 font-semibold">
+                        <th class="py-4 px-4 text-center border-r border-gray-100 w-16">No</th>
+                        <th class="py-4 px-4 border-r border-gray-100">Nama</th>
+                        <th class="py-4 px-4 border-r border-gray-100">Keterangan</th>
+                        <th class="py-4 px-4 border-r border-gray-100">Tipe Motor</th>
+                        <th class="py-4 px-4 text-right">Nilai</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm">
+                    @php $sumNilai = 0; @endphp
+                    @forelse($data as $index => $row)
+                        @php $sumNilai += $row->nilai; @endphp
+                        <tr class="hover:bg-slate-50/40 transition-colors">
+                            <td class="py-3.5 px-4 text-center text-gray-400 font-mono border-r border-gray-100">{{ $index + 1 }}</td>
+                            <td class="py-3.5 px-4 font-bold text-gray-800 border-r border-gray-100">{{ $row->nama }}</td>
+                            <td class="py-3.5 px-4 text-gray-600 border-r border-gray-100 whitespace-normal min-w-[200px]">{{ $row->keterangan }}</td>
+                            <td class="py-3.5 px-4 font-semibold text-gray-700 border-r border-gray-100">{{ $row->tipe_motor ?? '-' }}</td>
+                            <td class="py-3.5 px-4 text-right font-bold text-honda-red">Rp {{ number_format($row->nilai, 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="py-8 text-center text-gray-500 italic">Tidak ada data Kwitansi Lain-lain pada periode ini.</td></tr>
+                    @endforelse
+                </tbody>
+                @if(count($data) > 0)
+                <tfoot class="bg-gray-50 border-t border-gray-200 font-bold text-gray-900 text-sm">
+                    <tr>
+                        <td colspan="4" class="py-4 px-4 text-right uppercase tracking-wider">Total</td>
+                        <td class="py-4 px-4 text-right text-honda-red">Rp {{ number_format($sumNilai, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
                 @endif

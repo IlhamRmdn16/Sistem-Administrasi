@@ -21,7 +21,6 @@ class RolePermissionSeeder extends Seeder
             'akses-master-pdiman',
             'akses-master-rekening',
             'akses-master-biaya',
-
             'akses-registrasi-unit',
             'akses-mutasi-ke-showroom',
             'akses-mutasi-dari-showroom',
@@ -32,6 +31,7 @@ class RolePermissionSeeder extends Seeder
             'akses-mutasi-antar-gudang',
             'akses-spk',
             'akses-kontrol-harga',
+            'akses-kontrol-harga-gp',
             'akses-surat-jalan',
             'akses-kuitansi-konsumen',
             'akses-penagihan-leasing',
@@ -43,7 +43,6 @@ class RolePermissionSeeder extends Seeder
             'akses-pencairan-leasing',
             'akses-kuitansi-lain',
             'akses-cetak-blanko-samsat',
-            
             'akses-laporan-stok',
             'akses-laporan-penjualan',
             'akses-laporan-accu',
@@ -54,8 +53,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-mutasi-dari-pop',
             'akses-laporan-mutasi-ke-gp',
             'akses-laporan-mutasi-dari-gp',
-            'akses-laporan-piutang-reguler', // <-- Ditambahkan di sini
-            
+            'akses-laporan-piutang-reguler',
             'akses-manajemen-role',
             'akses-manajemen-user',
         ];
@@ -72,6 +70,7 @@ class RolePermissionSeeder extends Seeder
             'akses-mutasi-ke-gp',
             'akses-mutasi-dari-gp',
             'akses-spk',
+            'akses-kontrol-harga-gp',
             'akses-surat-jalan',
             'akses-kuitansi-konsumen',
             'akses-laporan-stok',
@@ -82,7 +81,7 @@ class RolePermissionSeeder extends Seeder
             'akses-laporan-mutasi-dari-showroom',
             'akses-laporan-mutasi-ke-gp',
             'akses-laporan-mutasi-dari-gp',
-            'akses-laporan-piutang-reguler', // <-- Ditambahkan untuk Admin GP
+            'akses-laporan-piutang-reguler',
         ]);
 
         $user = User::updateOrCreate(

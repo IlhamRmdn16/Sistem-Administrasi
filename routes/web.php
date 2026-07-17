@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KontrolHargaPenjualanGpController;
 use App\Http\Controllers\LaporanAccuController;
 use App\Http\Controllers\LaporanMotorMasukController;
 use App\Http\Controllers\LaporanMutasiDariGpController;
@@ -115,6 +116,19 @@ Route::middleware('auth')->group(function () {
             Route::get('/{spk_id}/print/kw1', [KontrolHargaPenjualanController::class, 'printKw1'])->name('print.kw1');
             Route::get('/{spk_id}/print/kw2', [KontrolHargaPenjualanController::class, 'printKw2'])->name('print.kw2');
             Route::get('/{spk_id}/print/setoran-spk', [KontrolHargaPenjualanController::class, 'printSetoranSpk'])->name('print.setoran-spk');
+        });
+
+        Route::prefix('kontrol-harga-gp')->name('kontrol-harga-gp.')->group(function () {
+            Route::get('/', [KontrolHargaPenjualanGpController::class, 'index'])->name('index');
+            Route::post('/store', [KontrolHargaPenjualanGpController::class, 'store'])->name('store');
+            Route::get('/{spk_id}/print-options', [KontrolHargaPenjualanGpController::class, 'printOptions'])->name('print-options');
+            Route::get('/{spk_id}/print/otr', [KontrolHargaPenjualanGpController::class, 'printOtr'])->name('print.otr');
+            Route::get('/{spk_id}/print/dp-po', [KontrolHargaPenjualanGpController::class, 'printDpPo'])->name('print.dp-po');
+            Route::get('/{spk_id}/print/otr-dp-po', [KontrolHargaPenjualanGpController::class, 'printOtrDpPo'])->name('print.otr-dp-po');
+            Route::get('/{spk_id}/print/surat-pernyataan-bpkb', [KontrolHargaPenjualanGpController::class, 'printSuratPernyataanBpkb'])->name('print.surat-pernyataan-bpkb');
+            Route::get('/{spk_id}/print/kw1', [KontrolHargaPenjualanGpController::class, 'printKw1'])->name('print.kw1');
+            Route::get('/{spk_id}/print/kw2', [KontrolHargaPenjualanGpController::class, 'printKw2'])->name('print.kw2');
+            Route::get('/{spk_id}/print/setoran-spk', [KontrolHargaPenjualanGpController::class, 'printSetoranSpk'])->name('print.setoran-spk');
         });
 
         Route::prefix('kuitansi-konsumen')->name('kuitansi-konsumen.')->group(function () {
